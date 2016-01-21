@@ -21,5 +21,4 @@ edoc(AST) ->
     EDoc.
 
 xml(AST) ->
-    XML = lists:flatten(xmerl:export_simple([edoc(AST)], xmerl_xml)),
-    iolist_to_binary(io_lib:format("~s~n", [XML])).
+    iolist_to_binary(xmerl:export_simple([edoc(AST)], xmerl_xml)).
