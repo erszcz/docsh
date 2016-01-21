@@ -4,3 +4,7 @@
     ** exception error: undefined function lists:h/1
     (edoc@x4)17> h(lists, keyfind).
     ** exception error: undefined shell command h/2
+
+# Useful
+
+    code:where_is_file("lists.beam").
