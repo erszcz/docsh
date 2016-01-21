@@ -6,7 +6,8 @@ parse_transform(AST, _Options) ->
     print("file: ~s~n", [File]),
     %print("AST: ~p~n", [AST]),
     %print("xmerl doc: ~p~n", [edoc(AST)]),
-    print("xml doc: ~s~n", [xml(AST)]),
+    %print("xml doc: ~s~n", [xml(AST)]),
+    print("elixir_v1: ~p~n", [elixir_v1(AST)]),
     AST.
 
 print(Fmt, Args) ->
@@ -22,3 +23,7 @@ edoc(AST) ->
 
 xml(AST) ->
     iolist_to_binary(xmerl:export_simple([edoc(AST)], xmerl_xml)).
+
+elixir_v1(AST) ->
+    xmerl:export_simple([edoc(AST)],
+                        docsh_xmerl_elixir_v1).
