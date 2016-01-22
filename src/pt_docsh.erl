@@ -12,6 +12,9 @@ parse_transform(AST, _Options) ->
                  %%       see also include/pt_docsh.hrl
                  %export([{h,0}]),
                  h0(),
+                 %% TODO: this should be stored in the "ExDc" chunk,
+                 %%       but it's probably not possible from within a parse transform
+                 %%       and it must be stored somewhere for now
                  embed('__docs', convert(docsh_edoc, docsh_elixir_docs_v1, AST))
                  | Rest]),
     print("after: ~p~n", [ASTAfter]),
