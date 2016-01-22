@@ -1,11 +1,9 @@
 -module(pt_docsh).
 -export([parse_transform/2]).
--import(docsh_lib, [print/2]).
 
 -compile([{parse_transform, parse_trans_codegen}]).
 
 parse_transform(AST, _Options) ->
-    print("before: ~p~n", [AST]),
     {Attrs, Rest} = lists:partition(fun is_attribute/1, AST),
     ASTAfter = (Attrs ++
                 [%% TODO: adding this export dynamically breaks compilation,
@@ -17,7 +15,6 @@ parse_transform(AST, _Options) ->
                  %%       and it must be stored somewhere for now
                  embed('__docs', convert(docsh_edoc, docsh_elixir_docs_v1, AST))
                  | Rest]),
-    print("after: ~p~n", [ASTAfter]),
     ASTAfter.
 
 convert(From, To, AST) ->
