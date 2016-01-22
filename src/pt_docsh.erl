@@ -19,7 +19,7 @@ parse_transform(AST, _Options) ->
 
 convert(From, To, AST) ->
     Internal = From:to_internal(file(AST)),
-    To:to_external(Internal).
+    To:from_internal(Internal).
 
 file(AST) ->
     {_,_,file,{File,_}} = lists:keyfind(file, 3, AST),
