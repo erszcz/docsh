@@ -1,24 +1,27 @@
 -module(edoc_SUITE).
 -compile(export_all).
 
--include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
-
 -include("proplists_eq.hrl").
 
--define(TESTED, edoc_example).
--define(eq(Expected, Actual), ?assertEqual(Expected, Actual)).
+-define(eq(Expected, Actual), ?proplists_eq(Expected, Actual)).
+-define(TESTED, docsh_edoc).
+-define(EXAMPLE, edoc_example).
 
 all() ->
-    [help,
-     spec].
+    [edoc_to_internal].
 
-help(_) ->
-    ?eq(<<"Doc for f/0.">>,
-        ?TESTED:'__h'()),
-    ?assert(erlang:function_exported(?TESTED, h, 0)).
+edoc_to_internal(_) ->
+    File = source_file(?EXAMPLE),
+    ct:pal("~p", [File]),
+    ?eq([{module, [{name, edoc_example},
+                   {description, <<"Top-level module doc.">>}]},
+         {function, [{name, f},
+                     {arity, 0},
+                     {exported, true},
+                     {label, <<"f-0">>},
+                     {description, <<"Doc for f/0.">>}]}],
+        ?TESTED:to_internal(File)).
 
-spec(_) ->
-    ?eq(<<"-spec f() -> ok.">>,
-        ?TESTED:'__spec'()),
-    ?assert(erlang:function_exported(?TESTED, spec, 0)).
+source_file(Mod) ->
+    proplists:get_value(source, Mod:module_info(compile)).

@@ -1,4 +1,4 @@
--module(docsh_xmerl).
+-module(docsh_edoc_xmerl).
 
 -export(['#root#'/4,
 	 '#element#'/5,
