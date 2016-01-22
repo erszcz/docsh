@@ -1,6 +1,6 @@
 %% @doc Top-level module doc.
 %% @end
--module(example).
+-module(edoc_example).
 -export([f/0]).
 
 -include_lib("docsh/include/pt_docsh.hrl").

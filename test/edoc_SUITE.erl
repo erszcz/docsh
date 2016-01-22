@@ -1,11 +1,12 @@
--module(docsh_SUITE).
+-module(edoc_SUITE).
 -compile(export_all).
 
 -include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
--define(TESTED, example).
+-include("proplists_eq.hrl").
 
+-define(TESTED, edoc_example).
 -define(eq(Expected, Actual), ?assertEqual(Expected, Actual)).
 
 all() ->
