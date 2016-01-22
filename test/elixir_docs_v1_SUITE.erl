@@ -11,6 +11,8 @@ all() ->
     [internal_to_elixir_docs_v1].
 
 internal_to_elixir_docs_v1(_) ->
+    Docs = ?TESTED:from_internal(internal()),
+    ?assertEqual(elixir_docs_v1, element(1, Docs)),
     %% TODO: `x` chars below are placeholders - insert sensible values into the example
     ?eq([{docs, [{{f,0},
                   x, def,
@@ -18,7 +20,7 @@ internal_to_elixir_docs_v1(_) ->
                   <<"Doc for f/0.">>}]},
          {moduledoc,
           {x, <<"Top-level module doc.">>}}],
-        ?TESTED:from_internal(internal())).
+        element(2, Docs)).
 
 internal() ->
     [{module,[{name,edoc_example},{description,<<"Top-level module doc.">>}]},

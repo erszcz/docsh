@@ -12,7 +12,7 @@ parse_transform(AST, _Options) ->
                  %%       see also include/pt_docsh.hrl
                  %export([{h,0}]),
                  h0(),
-                 embed('__elixir_docs_v1', convert(docsh_edoc, docsh_elixir_docs_v1, AST))
+                 embed('__docs', convert(docsh_edoc, docsh_elixir_docs_v1, AST))
                  | Rest]),
     print("after: ~p~n", [ASTAfter]),
     ASTAfter.
@@ -34,8 +34,20 @@ embed(EmbeddedName, Docs) ->
 is_attribute({attribute,_,_,_}) -> true;
 is_attribute(_) -> false.
 
+%% TODO: this suffers from pathological indentosis,
+%%       but it's a parse transform trigger...
+%%       the fun can't be bound to a variable,
+%%       and it doesn't compile as a named function due to calling
+%%       local non-existent '__docs'/0
 h0() ->
-    codegen:gen_function('h', fun () ->
-                                      {elixir_docs_v1, Docs} = '__elixir_docs_v1'(),
-                                      io:format("~p~n", [Docs])
-                              end).
+    codegen:gen_function('h',
+        fun () ->
+            T = case '__docs'() of
+                    {elixir_docs_v1, Docs} ->
+                        {_, ModDoc} = proplists:get_value(moduledoc, Docs),
+                        ModDoc;
+                    _ ->
+                        <<"Module documentation not found">>
+                end,
+            io:format("~s~n", [T])
+        end).
