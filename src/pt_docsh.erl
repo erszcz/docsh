@@ -25,4 +25,4 @@ xml(AST) ->
     iolist_to_binary(xmerl:export_simple([edoc(AST)], xmerl_xml)).
 
 edoc_xmerl(AST) ->
-    xmerl:export_simple([edoc(AST)], docsh_xmerl).
+    xmerl:export_simple([edoc(AST)], docsh_edoc_xmerl).
