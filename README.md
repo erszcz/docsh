@@ -5,10 +5,12 @@ Forgetting again and again `dbg` flags or the syntax of `recon` trace patterns?
 Ever wished for access to documentation straight from `erl`
 the way it's possible in civilized languages like Python, Ruby or Elixir?
 
-    > recon:h().
-    Recon, as a module, provides access to the high-level functionality
-    contained in the Recon application.
-    ...
+```erlang
+> recon:h().
+Recon, as a module, provides access to the high-level functionality
+contained in the Recon application.
+...
+```
 
 You're in the right place.
 `docsh` is an effort to make online (as in _when connected to a live
@@ -21,16 +23,22 @@ system_, not _in the internets_) access to documentation possible in Erlang.
 
 Rebar3:
 
-    {docsh, {git, "", {branch, master}}}
+```erlang
+{docsh, {git, "", {branch, master}}}
+```
 
 Rebar2, if you still have to (sorry, no semantic versioning yet):
 
-    {docsh, ".*", {git, "", {branch, master}}}
+```erlang
+{docsh, ".*", {git, "", {branch, master}}}
+```
 
 Include the public header file in your module exposing a shell-usable API
 with embedded documentation:
 
-    -include_lib("docsh/include/pt_docsh.hrl").
+```erlang
+-include_lib("docsh/include/pt_docsh.hrl").
+```
 
 The header contains a `parse_transform` directive which will embed the
 documentation straight into the generated `.beam` file,
