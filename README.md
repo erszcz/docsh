@@ -25,8 +25,17 @@ You're in the right place.
 `docsh` is an effort to make online (as in _when connected to a live
 system_, not _in the internets_) access to documentation possible in Erlang.
 
-**This is a work in progress! You've been warned.**
+## Try it
 
+Just copy and paste:
+
+```
+git clone https://github.com/lavrin/docsh.git
+cd docsh
+./rebar3 ct
+./rebar3 as test shell
+recon:h().
+```
 
 ## Use
 
