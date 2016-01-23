@@ -12,6 +12,6 @@ do({module, Info}) ->
     {moduledoc, {x, get(description, Info)}};
 do({function, Info}) ->
     {docs, {{get(name, Info), get(arity, Info)},
-	    x, def,
-	    x,
-	    get(description, Info)}}.
+            x, def,
+            x,
+            get(description, Info)}}.
