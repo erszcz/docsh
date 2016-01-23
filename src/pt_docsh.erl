@@ -36,16 +36,18 @@ embed(EmbeddedName, Docs) ->
 is_attribute({attribute,_,_,_}) -> true;
 is_attribute(_) -> false.
 
+%% TODO: this variant doesn't work due to a bug thrown from rebar.
+%%       am I doing something wrong?
 h0() ->
-    guard('h', codegen:exprs
-        (fun () ->
-             fun ({elixir_docs_v1, Docs}) ->
-                     {_, ModDoc} = proplists:get_value(moduledoc, Docs),
-                     ModDoc;
-                 (_) ->
-                     <<"Documentation format unrecognized">>
-             end
-         end)).
+    guard('h', codegen:exprs(fun h0_prototype/0)).
+
+h0_prototype() ->
+    fun ({elixir_docs_v1, Docs}) ->
+            {_, ModDoc} = proplists:get_value(moduledoc, Docs),
+            ModDoc;
+        (_) ->
+            <<"Documentation format unrecognized">>
+    end.
 
 guard(Name, [F]) ->
     codegen:gen_function(Name,
