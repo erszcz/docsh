@@ -37,22 +37,21 @@ is_attribute({attribute,_,_,_}) -> true;
 is_attribute(_) -> false.
 
 h0() ->
-    with_docs_v1('h', codegen:exprs
+    guard('h', codegen:exprs
         (fun () ->
-             fun (Docs) ->
+             fun ({elixir_docs_v1, Docs}) ->
                      {_, ModDoc} = proplists:get_value(moduledoc, Docs),
-                     ModDoc
+                     ModDoc;
+                 (_) ->
+                     <<"Documentation format unrecognized">>
              end
          end)).
 
-with_docs_v1(Name, [F]) ->
+guard(Name, [F]) ->
     codegen:gen_function(Name,
         fun () ->
-                T = try '__docs'() of
-                        {elixir_docs_v1, DocsV1} ->
-                            ({'$form', F})(DocsV1);
-                        _ ->
-                            <<"Documentation format unrecognized">>
+                T = try
+                        ({'$form', F})('__docs'())
                     catch
                         error:undef ->
                             <<"Module documentation not found">>;
