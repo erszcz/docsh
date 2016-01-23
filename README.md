@@ -73,6 +73,15 @@ In no particular order:
 
 - [ ] Add support for type spec extraction from the AST.
 
+- [ ] `user_default` extensions:
+
+    * [ ] to allow for functional `h(Mod)`, `h(Mod, Fun, Arity)`
+          style calls
+
+    * [ ] to enable reading Elixir embedded documentation;
+          the same doc format is used intentionally,
+          though for now docsh doesn't store docs in the same place as Elixir does
+
 
 ## ?!
 
