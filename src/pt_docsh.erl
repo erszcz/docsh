@@ -45,9 +45,12 @@ h0() ->
                                         <<"Documentation format unrecognized">>
                                 end
                         end),
+    guarded(H0).
+
+guarded(F) ->
     %% {'$form', F} parameter F has to be a single form,
     %% therefore we strip the outer list.
-    [G] = guard(H0),
+    [G] = guard(F),
     codegen:gen_function ('h', fun () -> {'$form', G} end).
 
 guard([F]) ->
