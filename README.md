@@ -10,6 +10,15 @@ the way it's possible in civilized languages like Python, Ruby or Elixir?
 Recon, as a module, provides access to the high-level functionality
 contained in the Recon application.
 ...
+> recon:h(get_state, 1).
+Shorthand call to recon:get_state(PidTerm, 5000)
+ok
+> recon:h(get_state, 2).
+Fetch the internal state of an OTP process.
+  Calls sys:get_state/2 directly in R16B01+, and fetches
+  it dynamically on older versions of OTP.
+ok
+>
 ```
 
 You're in the right place.
@@ -50,6 +59,8 @@ you automagically deploy your docs.
 ## ToDo
 
 In no particular order:
+
+- [ ] Fix doc formatting (strip / add whitespace as needed?).
 
 - [ ] Make whole [Recon](https://github.com/ferd/recon) compile with docsh.
 
