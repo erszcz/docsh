@@ -3,6 +3,10 @@
 
 -compile([{parse_transform, parse_trans_codegen}]).
 
+-import(docsh_lib, [print/2]).
+
+-define(il2b(IOList), iolist_to_binary(IOList)).
+
 parse_transform(AST, _Options) ->
     {Attrs, Rest} = lists:partition(fun is_attribute/1, AST),
     ASTAfter = (Attrs ++
@@ -15,6 +19,7 @@ parse_transform(AST, _Options) ->
                  %%       and it must be stored somewhere for now
                  embed('__docs', convert(docsh_edoc, docsh_elixir_docs_v1, AST))
                  | Rest]),
+    %print("after: ~p~n", [ASTAfter]),
     ASTAfter.
 
 convert(From, To, AST) ->
@@ -25,29 +30,35 @@ file(AST) ->
     {_,_,file,{File,_}} = lists:keyfind(file, 3, AST),
     File.
 
-export(FunArity) ->
-    {attribute,1,export,[FunArity]}.
-
 embed(EmbeddedName, Docs) ->
     codegen:gen_function(EmbeddedName, fun () -> {'$var', Docs} end).
 
 is_attribute({attribute,_,_,_}) -> true;
 is_attribute(_) -> false.
 
-%% TODO: this suffers from pathological indentosis,
-%%       but it's a parse transform trigger...
-%%       the fun can't be bound to a variable,
-%%       and it doesn't compile as a named function due to calling
-%%       local non-existent '__docs'/0
 h0() ->
-    codegen:gen_function('h',
+    with_docs_v1('h', codegen:exprs
+        (fun () ->
+             fun (Docs) ->
+                     {_, ModDoc} = proplists:get_value(moduledoc, Docs),
+                     ModDoc
+             end
+         end)).
+
+with_docs_v1(Name, [F]) ->
+    codegen:gen_function(Name,
         fun () ->
-            T = case '__docs'() of
-                    {elixir_docs_v1, Docs} ->
-                        {_, ModDoc} = proplists:get_value(moduledoc, Docs),
-                        ModDoc;
-                    _ ->
-                        <<"Module documentation not found">>
-                end,
-            io:format("~s~n", [T])
+                T = try '__docs'() of
+                        {elixir_docs_v1, DocsV1} ->
+                            ({'$form', F})(DocsV1);
+                        _ ->
+                            <<"Documentation format unrecognized">>
+                    catch
+                        error:undef ->
+                            <<"Module documentation not found">>;
+                        E:R ->
+                            ?il2b([<<"Internal error: ">>,
+                                   io_lib:format("~p:~p", [E, R])])
+                    end,
+                io:format("~s~n", [T])
         end).
