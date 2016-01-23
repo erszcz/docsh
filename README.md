@@ -22,8 +22,8 @@ ok
 ```
 
 You're in the right place.
-`docsh` is an effort to make online (as in _when connected to a live
-system_, not _in the internets_) access to documentation possible in Erlang.
+`docsh` makes online (as in _when connected to a live system_,
+not _in the internets_) access to documentation possible in Erlang.
 
 ## Try it
 
