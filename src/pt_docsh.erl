@@ -36,18 +36,6 @@ embed(EmbeddedName, Docs) ->
 is_attribute({attribute,_,_,_}) -> true;
 is_attribute(_) -> false.
 
-%h0() ->
-%    Expr = codegen:exprs (fun () ->
-%                                  (fun () -> 13 end)()
-%                          end),
-%    [G] = guard(Expr),
-%    codegen:gen_function ('h', fun () -> {'$form', G} end).
-
-%guard([F]) ->
-%    codegen:exprs (fun () ->
-%                           ({'$form', F})
-%                   end).
-
 h0() ->
     H0 = codegen:exprs (fun () ->
                                 fun ({elixir_docs_v1, Docs}) ->
