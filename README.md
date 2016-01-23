@@ -24,13 +24,13 @@ system_, not _in the internets_) access to documentation possible in Erlang.
 Rebar3:
 
 ```erlang
-{docsh, {git, "", {branch, master}}}
+{docsh, {git, "https://github.com/lavrin/docsh.git", {branch, master}}}
 ```
 
 Rebar2, if you still have to (sorry, no semantic versioning yet):
 
 ```erlang
-{docsh, ".*", {git, "", {branch, master}}}
+{docsh, ".*", {git, "https://github.com/lavrin/docsh.git", {branch, master}}}
 ```
 
 Include the public header file in your module exposing a shell-usable API
@@ -43,7 +43,7 @@ with embedded documentation:
 The header contains a `parse_transform` directive which will embed the
 documentation straight into the generated `.beam` file,
 therefore making it accessible wherever you ship your code.
-No extra build steps, no separate doc package - if you deploy your code,
+No extra build steps, no separate doc package - when you deploy your code,
 you automagically deploy your docs.
 
 
