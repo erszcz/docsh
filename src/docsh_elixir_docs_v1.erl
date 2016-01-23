@@ -1,6 +1,6 @@
 -module(docsh_elixir_docs_v1).
 -export([from_internal/1]).
--import(docsh_lib, [get/2]).
+-import(docsh_lib, [get/2, get/3]).
 
 from_internal(Internal) ->
     Intermediate = [ Out || In <- Internal, Out <- [do(In)], Out /= ignore ],
@@ -9,9 +9,9 @@ from_internal(Internal) ->
 
 %% TODO: `x`s below are only placeholders - find out what should be there
 do({module, Info}) ->
-    {moduledoc, {x, get(description, Info)}};
+    {moduledoc, {x, get(description, Info, <<"(description missing)">>)}};
 do({function, Info}) ->
     {docs, {{get(name, Info), get(arity, Info)},
             x, def,
             x,
-            get(description, Info)}}.
+            get(description, Info, <<"(description missing)">>)}}.
