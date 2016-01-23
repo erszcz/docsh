@@ -36,28 +36,48 @@ embed(EmbeddedName, Docs) ->
 is_attribute({attribute,_,_,_}) -> true;
 is_attribute(_) -> false.
 
-h0() ->
-    guard('h', codegen:exprs
-        (fun () ->
-             fun ({elixir_docs_v1, Docs}) ->
-                     {_, ModDoc} = proplists:get_value(moduledoc, Docs),
-                     ModDoc;
-                 (_) ->
-                     <<"Documentation format unrecognized">>
-             end
-         end)).
+%h0() ->
+%    Expr = codegen:exprs (fun () ->
+%                                  (fun () -> 13 end)()
+%                          end),
+%    [G] = guard(Expr),
+%    codegen:gen_function ('h', fun () -> {'$form', G} end).
 
-guard(Name, [F]) ->
-    codegen:gen_function(Name,
-        fun () ->
-                T = try
-                        ({'$form', F})('__docs'())
-                    catch
-                        error:undef ->
-                            <<"Module documentation not found">>;
-                        E:R ->
-                            ?il2b([<<"Internal error: ">>,
-                                   io_lib:format("~p:~p", [E, R])])
-                    end,
-                io:format("~s~n", [T])
-        end).
+%guard([F]) ->
+%    codegen:exprs (fun () ->
+%                           ({'$form', F})
+%                   end).
+
+h0() ->
+    H0 = codegen:exprs (fun () ->
+                                fun ({elixir_docs_v1, Docs}) ->
+                                        {_, ModDoc} = proplists:get_value(moduledoc, Docs),
+                                        ModDoc;
+                                    (_) ->
+                                        <<"Documentation format unrecognized">>
+                                end
+                        end),
+    %% {'$form', F} parameter F has to be a single form,
+    %% therefore we strip the outer list.
+    [G] = guard(H0),
+    codegen:gen_function ('h', fun () -> {'$form', G} end).
+
+guard([F]) ->
+    codegen:exprs
+        (fun () ->
+                 %% The return value has to be a single value in a list,
+                 %% but T = ..., io:format(...) would be a 2-element list.
+                 %% Therefore we use a IIFE to return a single value.
+                 (fun () ->
+                          T = try
+                                  ({'$form', F})('__docs'())
+                              catch
+                                  error:undef ->
+                                      <<"Module documentation not found">>;
+                                  E:R ->
+                                      ?il2b([<<"Internal error: ">>,
+                                             io_lib:format("~p:~p", [E, R])])
+                              end,
+                          io:format("~s~n", [T])
+                  end)()
+         end).
