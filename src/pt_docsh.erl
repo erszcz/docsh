@@ -7,6 +7,8 @@
 
 -define(il2b(IOList), iolist_to_binary(IOList)).
 
+-spec parse_transform(AST, [compile:option()]) -> AST when
+      AST :: [erl_parse:abstract_form()].
 parse_transform(AST, _Options) ->
     {Attrs, Rest} = lists:partition(fun is_attribute/1, AST),
     ASTAfter = (Attrs ++
