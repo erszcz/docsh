@@ -30,7 +30,7 @@ not _in the internets_) access to documentation possible in Erlang.
 Just copy and paste:
 
 ```
-git clone https://github.com/lavrin/docsh.git
+git clone https://github.com/erszcz/docsh.git
 cd docsh
 ./rebar3 ct
 ./rebar3 as test shell
@@ -42,13 +42,13 @@ recon:h().
 Rebar3:
 
 ```erlang
-{docsh, {git, "https://github.com/lavrin/docsh.git", {branch, master}}}
+{docsh, {git, "https://github.com/erszcz/docsh.git", {branch, master}}}
 ```
 
 Rebar2, if you still have to (sorry, no semantic versioning yet):
 
 ```erlang
-{docsh, ".*", {git, "https://github.com/lavrin/docsh.git", {branch, master}}}
+{docsh, ".*", {git, "https://github.com/erszcz/docsh.git", {branch, master}}}
 ```
 
 Include the public header file in your module exposing a shell-usable API
