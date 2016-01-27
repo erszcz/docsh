@@ -10,11 +10,9 @@
 -spec parse_transform(AST, [compile:option()]) -> AST when
       AST :: [erl_parse:abstract_form()].
 parse_transform(AST, _Options) ->
-    {Attrs, Rest} = lists:partition(fun is_attribute/1, AST),
+    {Attrs, Rest} = lists:splitwith(fun is_not_spec/1, AST),
     ASTAfter = (Attrs ++
-                [%% TODO: adding this export dynamically breaks compilation,
-                 %%       see also include/pt_docsh.hrl
-                 %export([{h,0}]),
+                [export([{h, 0}, {h, 2}]),
                  h0(),
                  h2(),
                  %% TODO: this should be stored in the "ExDc" chunk,
@@ -24,6 +22,9 @@ parse_transform(AST, _Options) ->
                  | Rest]),
     %print("after: ~p~n", [ASTAfter]),
     ASTAfter.
+
+export(Functions) ->
+    {attribute, 1, export, Functions}.
 
 convert(From, To, AST) ->
     Internal = From:to_internal(file(AST)),
@@ -36,8 +37,8 @@ file(AST) ->
 embed(EmbeddedName, Docs) ->
     codegen:gen_function(EmbeddedName, fun () -> {'$var', Docs} end).
 
-is_attribute({attribute,_,_,_}) -> true;
-is_attribute(_) -> false.
+is_not_spec({attribute,_,spec,_}) -> false;
+is_not_spec(_) -> true.
 
 h0() ->
     H0 = codegen:exprs
