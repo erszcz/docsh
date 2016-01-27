@@ -65,31 +65,40 @@ No extra build steps, no separate doc package - when you deploy your code,
 you automagically deploy your docs.
 
 
+## Goals
+
+- Provide added value to existing community projects and libraries as well as OTP.
+- Require minimum fuss to enable in a project.
+- Elixir `iex` doesn't provide access to documentation for Erlang modules.
+  If possible, change that.
+
 ## ToDo
 
 In no particular order:
 
-- [ ] Fix doc formatting (strip / add whitespace as needed?).
+- [ ] Fix EDdoc formatting by calculating element indentation based on
+      its path in the document tree and its formatting based on its type.
 
-- [ ] Make whole [Recon](https://github.com/ferd/recon) compile with docsh.
+- [ ] Make [Recon](https://github.com/ferd/recon) compile with `docsh`
+      and provide useful docs for all commented modules.
 
-- [ ] Extract specs from the AST.
+- [ ] Provide an example repo/branch showing how to use `docs`.
 
-- [ ] Figure out how to embed the docs into the "ExDc" chunk like Elixir does.
-      It's most likely not possible from within a parse transformation.
-      What would be a sensible approach?
-      A Rebar3 plugin embedding the extra chunk after actual compilation?
+- [ ] Include specs in function descriptions.
+      Extract specs from the AST or input docs if possible.
 
-- [ ] Add support for type spec extraction from the AST.
+- [ ] Provide tools to embed docs into an "ExDc" chunk like Elixir does:
+
+    * [ ] EScript for command-line use.
+    * [ ] Rebar3 plugin for a post-compile build step.
 
 - [ ] `user_default` extensions:
 
-    * [ ] to allow for functional `h(Mod)`, `h(Mod, Fun, Arity)`
-          style calls
-
-    * [ ] to enable reading Elixir embedded documentation;
+    * [ ] To allow for functional `h(Mod)`, `h(Mod, Fun, Arity)`
+          style calls.
+    * [ ] To enable reading Elixir embedded documentation;
           the same doc format is used intentionally,
-          though for now docsh doesn't store docs in the same place as Elixir does
+          though for now `docsh` doesn't store docs in the same place as Elixir does.
 
 
 ## ?!
