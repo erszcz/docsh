@@ -41,26 +41,45 @@
     %% Flatten all text content from child elements.
     [{description, ?il2b(Data)}];
 '#element#'(Tag, Data, _Attrs, _Parents, _E)
-        when Tag =:= p;
-             Tag =:= fullDescription ->
-     strip_leading_whitespace(?il2b(Data));
+        when Tag =:= p ->
+     strip_whitespace(?il2b(Data));
 '#element#'(Tag, Data, _Attrs, _Parents, _E)
         when Tag =:= a;
              Tag =:= code;
              Tag =:= dd;
              Tag =:= dl;
              Tag =:= dt;
+             Tag =:= em;
+             Tag =:= fullDescription;
+             Tag =:= h4;
+             Tag =:= h5;
+             Tag =:= h6;
              Tag =:= li;
+             Tag =:= ol;
+             Tag =:= pre;
+             Tag =:= tt;
              Tag =:= ul ->
     %% Just get the text.
     Data;
+'#element#'(Tag, Data, _Attrs, _Parents, _E)
+        when Tag =:= h1;
+             Tag =:= h2;
+             Tag =:= h3 ->
+    header(Tag, Data);
 '#element#'(Tag, Data, _Attrs, _Parents, _E) ->
     [{Tag, Data}].
 
-strip_leading_whitespace(BString) ->
+strip_whitespace(BString) ->
     String = binary_to_list(BString),
     Lines = string:tokens(String, "\n"),
     ?il2b(string:join([ string:strip(L) || L <- Lines ], "\n")).
+
+header(Level, Data) ->
+    [header_prefix(Level), Data].
+
+header_prefix(h1) -> <<"# ">>;
+header_prefix(h2) -> <<"## ">>;
+header_prefix(h3) -> <<"### ">>.
 
 %% Unused.
 '#xml-inheritance#'() -> [].
