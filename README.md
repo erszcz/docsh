@@ -15,8 +15,8 @@ Shorthand call to recon:get_state(PidTerm, 5000)
 ok
 > recon:h(get_state, 2).
 Fetch the internal state of an OTP process.
-  Calls sys:get_state/2 directly in R16B01+, and fetches
-  it dynamically on older versions of OTP.
+Calls sys:get_state/2 directly in R16B01+, and fetches
+it dynamically on older versions of OTP.
 ok
 >
 ```
