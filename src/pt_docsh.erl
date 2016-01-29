@@ -35,6 +35,8 @@ file(AST) ->
     File.
 
 embed(EmbeddedName, Docs) ->
+    %% codegen:gen_function is expanded by a parse tree transformation,
+    %% see https://github.com/uwiger/parse_trans/
     codegen:gen_function(EmbeddedName, fun () -> {'$var', Docs} end).
 
 is_not_spec({attribute,_,spec,_}) -> false;
@@ -72,6 +74,8 @@ h2() ->
     codegen:gen_function ('h', fun (Fun, Arity) -> {'$form', G} end).
 
 guard([F]) ->
+    %% codegen:exprs is expanded by a parse tree transformation,
+    %% see https://github.com/uwiger/parse_trans/
     codegen:exprs
         (fun () ->
                  %% The return value has to be a single value in a list,
