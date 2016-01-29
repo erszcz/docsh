@@ -35,3 +35,8 @@ Spec = {attribute,17,spec,
                [{var,18,'R'},{user_type,18,r,[]}]]}]]}]}}.
 iolist_to_binary(erl_pp:form(Spec)).
 % <<"-spec g() -> R when is_subtype(R, r()).\n">>
+
+RTBeam = code:where_is_file("docsh_rt.beam"),
+beam_lib:chunks(RTBeam, ["Abst"]),
+{ok, {_, [{"Abst", Abst}]}} = beam_lib:chunks(RTBeam, ["Abst"]),
+io:format("~p~n", [binary_to_term(Abst)]).
