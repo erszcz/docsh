@@ -18,8 +18,8 @@ from_internal(Internal) ->
 %% TODO: `x`s below are only placeholders - find out what should be there
 do({module, Info}) ->
     {moduledoc, {x, get(description, Info, <<"(description missing)">>)}};
-do({function, Info}) ->
-    {docs, {{get(name, Info), get(arity, Info)},
+do({function, {NameArity, _, _, {description, D}}}) ->
+    {docs, {NameArity,
             x, def,
             x,
-            get(description, Info, <<"(description missing)">>)}}.
+            D}}.

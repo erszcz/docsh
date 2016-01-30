@@ -25,7 +25,7 @@ edoc_to_internal(_) ->
 
 edoc_format(_) ->
     File = source_file(edoc_example2),
-    D = function_description(g, ?TESTED:to_internal(File)),
+    D = function_description({g,0}, ?TESTED:to_internal(File)),
     ct:pal("~s", [D]),
     ?eq([<<"g() returns a more complex value,\n"
            "while its documentation uses more complex markup.\n"
@@ -50,9 +50,9 @@ edoc_format(_) ->
 
 function_description(F, Docs) ->
     %% TODO: grrr... the internal format sucks
-    [Function] = proplists:get_all_values(function, Docs),
-    [{name,F},_,_,_,{description, D}] = Function,
-    D.
+    Functions = proplists:get_all_values(function, Docs),
+    {F,_,_,Description} = lists:keyfind(F, 1, Functions),
+    Description.
 
 source_file(Mod) ->
     proplists:get_value(source, Mod:module_info(compile)).
