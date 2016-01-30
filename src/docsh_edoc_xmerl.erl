@@ -5,6 +5,8 @@
          '#text#'/1,
          '#xml-inheritance#'/0]).
 
+-record(function, {name, arity, exported, label, description}).
+
 -include_lib("xmerl/include/xmerl.hrl").
 
 -define(il2b(IOList), iolist_to_binary(IOList)).
@@ -22,8 +24,12 @@
 
 %% The '#element#' function is the default handler for XML elements.
 '#element#'(function, Data, Attrs, _Parents, _E) ->
-    [{function, (function_details_from_attrs(Attrs) ++
-                 function_details_from_data(Data))}];
+    F1 = function_details_from_attrs(Attrs, #function{}),
+    F2 = function_details_from_data(Data, F1),
+    [{function, {{F2#function.name, F2#function.arity},
+                 {exported,    F2#function.exported},
+                 {label,       F2#function.label},
+                 {description, F2#function.description}}}];
 '#element#'(equiv, Data, _Attrs, _Parents, _E) ->
     {see, [Reference]} = lists:keyfind(see, 1, lists:flatten(Data)),
     [{description, ?il2b([<<"See ">>, Reference])}];
@@ -101,24 +107,19 @@ module_detail_from_data([{functions, _}] = Functions) ->
     Functions;
 module_detail_from_data(_) -> [].
 
-function_details_from_attrs(Attrs) ->
-    [ function_detail(At) || At <- Attrs ].
+function_details_from_attrs(Attrs, F) ->
+    lists:foldl(fun fda/2, F, Attrs).
 
-function_detail(#xmlAttribute{name = name} = At) ->
-    {name, ?l2ea(value(At))};
-function_detail(#xmlAttribute{name = arity} = At) ->
-    {arity, ?l2i(value(At))};
-function_detail(#xmlAttribute{name = exported} = At) ->
-    {exported, string_to_boolean(value(At))};
-function_detail(#xmlAttribute{name = label} = At) ->
-    {label, ?l2b(value(At))}.
+fda(#xmlAttribute{name = name} = At, F)     -> F#function{name = ?l2ea(value(At))};
+fda(#xmlAttribute{name = arity} = At, F)    -> F#function{arity = ?l2i(value(At))};
+fda(#xmlAttribute{name = exported} = At, F) -> F#function{exported = string_to_boolean(value(At))};
+fda(#xmlAttribute{name = label} = At, F)    -> F#function{label = ?l2b(value(At))}.
 
-function_details_from_data(Data) ->
-    lists:flatmap(fun function_detail_from_data/1, Data).
+function_details_from_data(Data, F) ->
+    lists:foldl(fun fdd/2, F, Data).
 
-function_detail_from_data([{description, _}] = Desc) ->
-    Desc;
-function_detail_from_data(_) -> [].
+fdd([{description, Desc}], F) -> F#function{description = Desc};
+fdd(_, F)                     -> F.
 
 value(#xmlAttribute{value = V}) -> V.
 

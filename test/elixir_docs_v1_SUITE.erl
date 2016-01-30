@@ -24,8 +24,7 @@ internal_to_elixir_docs_v1(_) ->
 
 internal() ->
     [{module,[{name,edoc_example},{description,<<"Top-level module doc.">>}]},
-     {function,[{name,f},
-                {arity,0},
+     {function,{{f, 0},
                 {exported,true},
                 {label,<<"f-0">>},
-                {description,<<"Doc for f/0.">>}]}].
+                {description,<<"Doc for f/0.">>}}}].
