@@ -42,11 +42,11 @@ g() ->
     {some, [more, <<"complex">>, Value]}.
 
 %% @doc
-%% <pre>
+%% ```
 %%   pre
 %%     formatted
 %%       text
-%% </pre>
+%% '''
 %% @end
 -spec pre() -> ok.
 pre() -> ok.

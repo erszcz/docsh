@@ -49,20 +49,22 @@ edoc_format(_) ->
            "      - c\n">>],
         [D]).
 
-edoc_format_pre(_) ->
+edoc_format_pre(C) ->
+    edoc_format(C, pre, <<"    pre\n"
+                          "      formatted\n"
+                          "        text">>).
+
+edoc_format(_, Element, Expected) ->
     File = source_file(edoc_example2),
-    D = function_description({pre,0}, ?TESTED:to_internal(File)),
+    D = function_description({Element, 0}, ?TESTED:to_internal(File)),
     ct:pal("~s", [D]),
-    ?eq([<<"  pre\n"
-           "    formatted\n"
-           "      text\n">>],
-        [D]).
+    ?eq([Expected], [D]).
 
 function_description(F, Docs) ->
     %% TODO: grrr... the internal format sucks
     Functions = proplists:get_all_values(function, Docs),
-    {F,_,_,Description} = lists:keyfind(F, 1, Functions),
-    Description.
+    {F,_,_,{description, D}} = lists:keyfind(F, 1, Functions),
+    D.
 
 source_file(Mod) ->
     proplists:get_value(source, Mod:module_info(compile)).
