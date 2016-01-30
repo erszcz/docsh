@@ -154,7 +154,7 @@ collect_loose_text([LooseText | T], Data, Fmt) when is_binary(LooseText);
     collect_loose_text(T, [LooseText | Data], Fmt).
 
 header(Level, Data) ->
-    [header_prefix(Level), Data].
+    ["\n", header_prefix(Level), Data, "\n"].
 
 header_prefix(h1) -> <<"# ">>;
 header_prefix(h2) -> <<"## ">>;
