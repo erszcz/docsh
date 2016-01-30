@@ -1,7 +1,8 @@
 %% @doc Top-level module doc.
 %% @end
 -module(edoc_example2).
--export([g/0]).
+-export([g/0,
+         pre/0]).
 
 -include_lib("docsh/include/pt_docsh.hrl").
 
@@ -39,3 +40,13 @@
 g() ->
     Value = fun edoc_example:f/0,
     {some, [more, <<"complex">>, Value]}.
+
+%% @doc
+%% <pre>
+%%   pre
+%%     formatted
+%%       text
+%% </pre>
+%% @end
+-spec pre() -> ok.
+pre() -> ok.
