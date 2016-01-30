@@ -9,7 +9,8 @@
 
 all() ->
     [edoc_to_internal,
-     edoc_format].
+     edoc_format,
+     edoc_format_pre].
 
 edoc_to_internal(_) ->
     File = source_file(edoc_example),
@@ -46,6 +47,15 @@ edoc_format(_) ->
            "      - a\n"
            "      - b\n"
            "      - c\n">>],
+        [D]).
+
+edoc_format_pre(_) ->
+    File = source_file(edoc_example2),
+    D = function_description({pre,0}, ?TESTED:to_internal(File)),
+    ct:pal("~s", [D]),
+    ?eq([<<"  pre\n"
+           "    formatted\n"
+           "      text\n">>],
         [D]).
 
 function_description(F, Docs) ->
