@@ -34,7 +34,7 @@
                  {description, F2#function.description}}}];
 '#element#'(equiv, [Reference], _Attrs, _Parents, _E) ->
     debug(equiv, Reference),
-    [{description, ?il2b([<<"See ">>, Reference])}];
+    [{description, [<<"See ">>, Reference]}];
 '#element#'(functions, Data, _Attrs, _Parents, _E) ->
     %% Functions are already extracted.
     [{functions, Data}];
@@ -46,7 +46,6 @@
 '#element#'(briefDescription, _Data, _Attrs, _Parents, _E) ->
     [];
 '#element#'(description, Data, _Attrs, _Parents, _E) ->
-    %% Flatten all text content from child elements.
     [{description, ?il2b(Data)}];
 '#element#'(Tag, Data, _Attrs, _Parents, _E)
         when Tag =:= h1;
@@ -73,7 +72,7 @@
     [].
 
 unwrap_inline({inline, Elements}) when is_list(Elements) -> Elements;
-unwrap_inline(IOList) when is_list(IOList) -> ?il2b(IOList);
+unwrap_inline(IOList) when is_list(IOList) -> IOList;
 unwrap_inline(BString) when is_binary(BString) -> BString.
 
 debug(Tag, Content) ->
