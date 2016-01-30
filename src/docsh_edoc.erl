@@ -1,7 +1,9 @@
 -module(docsh_edoc).
--behaviour(docsh_from).
 
+-behaviour(docsh_from).
 -export([to_internal/1]).
+
+-export([flat/1]).
 
 -import(docsh_lib, [debug/3]).
 
@@ -17,3 +19,7 @@ to_internal(File) ->
 edoc(File) ->
     {_Mod, EDoc} = edoc:get_doc(File, []),
     EDoc.
+
+flat(File) ->
+    EDoc = edoc(File),
+    xmerl:export_simple([EDoc], docsh_edoc_xmerl_flat).

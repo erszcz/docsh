@@ -1,0 +1,35 @@
+#!/bin/sh
+
+do_erl () {
+    erl -sname docsh -noinput -noshell \
+    -pa _build/default/lib/docsh/ebin/ \
+    -pa _build/default/lib/docsh/test \
+    $@
+}
+
+edoc () {
+    local subcmd=$1
+    local module=$2
+    case $subcmd in
+    flat)
+        export DOCSH_DEBUG=flat
+        do_erl -eval 'docsh_edoc:flat("'$module'"),halt().'
+        ;;
+    xml)
+        export DOCSH_DEBUG=xml
+        do_erl -eval 'docsh_edoc:to_internal("test/edoc_example2.erl"),halt().' \
+            | sed -n -e '/^<?xml/,$p' \
+            | xmllint --format -
+    esac
+}
+
+case $1 in
+edoc)
+    shift
+    edoc $@
+    ;;
+*)
+    echo $0: $cmd unknown
+    usage
+    ;;
+esac
