@@ -14,13 +14,13 @@
 %% @doc g() returns a more complex value,
 %% while its documentation uses more complex markup.
 %%
-%% <dt>
+%% <dl>
 %%     <dt>Why?</dt>
 %%     <dd>To test the documentation extraction and formatting process.</dd>
 %%
 %%     <dt>Any other reason?</dt>
 %%     <dd>Not really.</dd>
-%% </dt>
+%% </dl>
 %%
 %% <ul>
 %%     <li>Some</li>
