@@ -62,8 +62,8 @@
              Tag =:= ol;
              Tag =:= tt;
              Tag =:= ul ->
-    %% Just get the text.
-    Data;
+    %% Discard.
+    [];
 '#element#'(Tag, Data, _Attrs, _Parents, _E) when
         Tag =:= p ->
      {fmt, debug(Tag, cleanup_lines(Data))};
@@ -92,7 +92,26 @@ cleanup_lines(BString) ->
     ?il2b(string:strip(lists:flatten(Lines), both, $\n)).
 
 fullDescription(Data, _Attrs, _Parents, _E) ->
-    ?il2b([ E || {fmt, E} <- Data ]).
+    [{fmt, H} | T] = collect_loose_text(Data),
+    ?il2b([H] ++ [ ["\n\n", E] || {fmt, E} <- T ]).
+
+collect_loose_text(Data) ->
+    debug(loose, collect_loose_text(Data, [], [])).
+
+collect_loose_text([], [], Fmt) -> Fmt;
+collect_loose_text([], Data, Fmt) ->
+    [{fmt, cleanup_lines(Data)} | Fmt];
+collect_loose_text([{fmt, Element} | T], [], Fmt) ->
+    [{fmt, Element} | collect_loose_text(T, [], Fmt)];
+collect_loose_text([{fmt, Element} | T], Data, Fmt) ->
+    Clean = cleanup_lines(?il2b(lists:reverse(Data))),
+    case Clean of
+        <<>> -> [{fmt, Element}];
+        _ -> [{fmt, Element}, {fmt, Clean}]
+    end ++ collect_loose_text(T, [], Fmt);
+collect_loose_text([LooseText | T], Data, Fmt) when is_binary(LooseText);
+                                                    is_list(LooseText) ->
+    collect_loose_text(T, [LooseText | Data], Fmt).
 
 header(Level, Data) ->
     [header_prefix(Level), Data].

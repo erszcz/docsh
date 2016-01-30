@@ -11,7 +11,9 @@ all() ->
     [edoc_to_internal,
      edoc_format,
      edoc_format_p,
-     edoc_format_pre].
+     edoc_format_pre,
+     edoc_format_text1,
+     edoc_format_text2].
 
 edoc_to_internal(_) ->
     File = source_file(edoc_example),
@@ -58,6 +60,18 @@ edoc_format_pre(C) ->
     edoc_format(C, pre, <<"    pre\n"
                           "      formatted\n"
                           "        text">>).
+
+edoc_format_text1(C) ->
+    edoc_format(C, text1, <<"Some\n"
+                            "loose text,\n"
+                            "not a paragraph.">>).
+
+edoc_format_text2(C) ->
+    edoc_format(C, text2, <<"Some\n"
+                            "loose text,\n"
+                            "not a paragraph.\n"
+                            "\n"
+                            "A paragraph.">>).
 
 edoc_format(_, Element, Expected) ->
     File = source_file(edoc_example2),

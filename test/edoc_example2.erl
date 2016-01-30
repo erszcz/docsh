@@ -3,7 +3,9 @@
 -module(edoc_example2).
 -export([g/0,
          p/0,
-         pre/0]).
+         pre/0,
+         text1/0,
+         text2/0]).
 
 -include_lib("docsh/include/pt_docsh.hrl").
 
@@ -59,3 +61,19 @@ p() -> ok.
 %% @end
 -spec pre() -> ok.
 pre() -> ok.
+
+%% @doc Some
+%%  loose text,
+%%     not a paragraph.
+%% @end
+-spec text1() -> ok.
+text1() -> ok.
+
+%% @doc Some
+%%  loose text,
+%%     not a paragraph.
+%%
+%% <p>A paragraph.</p>
+%% @end
+-spec text2() -> ok.
+text2() -> ok.
