@@ -64,7 +64,7 @@
 '#element#'(Tag, Data, _Attrs, _Parents, _E) when
         Tag =:= p ->
     {fmt, debug(Tag, cleanup_lines(Data))};
-'#element#'(Tag, Data, _Attrs, _Parents, E) when
+'#element#'(Tag, Data, _Attrs, _Parents, _E) when
         Tag =:= pre ->
     {fmt, debug(Tag, Data)};
 '#element#'(Tag, Data, _Attrs, _Parents, _E) ->
