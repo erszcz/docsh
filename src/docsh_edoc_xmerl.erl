@@ -68,7 +68,7 @@
     {fmt, debug(Tag, cleanup_lines(Data))};
 '#element#'(Tag, Data, _Attrs, _Parents, _E) when
         Tag =:= pre ->
-    {fmt, debug(Tag, Data)};
+    {fmt, debug(Tag, [Data, "\n"])};
 '#element#'(Tag, Data, _Attrs, _Parents, _E) ->
     debug(discarded, {Tag, Data}),
     [].
@@ -90,14 +90,15 @@ strip_whitespace(BString) ->
 
 cleanup_lines(BString) when is_binary(BString) ->
     Lines = re:replace(BString, <<"\s*\n\s*">>, <<"\n">>, [global, {return, list}]),
-    ?il2b(string:strip(lists:flatten(Lines), both, $\n));
+    S = string:strip(lists:flatten(Lines), both, $\n),
+    [ [T, "\n"] || T <- string:tokens(S, "\n") ];
 cleanup_lines(IOList) ->
     BString = ?il2b([ unwrap_inline(E) || E <- IOList ]),
     cleanup_lines(BString).
 
 fullDescription(Data, _Attrs, _Parents, _E) ->
     [{fmt, H} | T] = collect_loose_text(Data),
-    ?il2b([H] ++ [ ["\n\n", E] || {fmt, E} <- T ]).
+    ?il2b([H] ++ [ ["\n", E] || {fmt, E} <- T ]).
 
 collect_loose_text(Data) ->
     debug(loose, collect_loose_text(Data, [], [])).
@@ -114,7 +115,7 @@ collect_loose_text([{inline, Element} | T], Data, Fmt) ->
 collect_loose_text([{fmt, Element} | T], Data, Fmt) ->
     Clean = cleanup_lines(?il2b(lists:reverse(Data))),
     case Clean of
-        <<>> -> [{fmt, Element}];
+        [] -> [{fmt, Element}];
         _ -> [{fmt, Clean}, {fmt, Element}]
     end ++ collect_loose_text(T, [], Fmt);
 collect_loose_text([LooseText | T], Data, Fmt) when is_binary(LooseText);
