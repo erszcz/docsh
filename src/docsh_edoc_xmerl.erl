@@ -46,7 +46,7 @@
 '#element#'(briefDescription, _Data, _Attrs, _Parents, _E) ->
     [];
 '#element#'(description, Data, _Attrs, _Parents, _E) ->
-    [{description, ?il2b(Data)}];
+    [{description, debug(description, ?il2b(Data))}];
 '#element#'(Tag, Data, _Attrs, _Parents, _E)
         when Tag =:= h1;
              Tag =:= h2;
