@@ -10,6 +10,7 @@
 all() ->
     [edoc_to_internal,
      edoc_format,
+     edoc_format_p,
      edoc_format_pre].
 
 edoc_to_internal(_) ->
@@ -49,6 +50,10 @@ edoc_format(_) ->
            "      - c\n">>],
         [D]).
 
+edoc_format_p(C) ->
+    edoc_format(C, p, <<"Just\n"
+                        "a paragraph.">>).
+
 edoc_format_pre(C) ->
     edoc_format(C, pre, <<"    pre\n"
                           "      formatted\n"
@@ -61,7 +66,6 @@ edoc_format(_, Element, Expected) ->
     ?eq([Expected], [D]).
 
 function_description(F, Docs) ->
-    %% TODO: grrr... the internal format sucks
     Functions = proplists:get_all_values(function, Docs),
     {F,_,_,{description, D}} = lists:keyfind(F, 1, Functions),
     D.

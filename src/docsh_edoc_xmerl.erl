@@ -7,8 +7,6 @@
 
 -export([fullDescription/4]).
 
--import(docsh_lib, [debug/3]).
-
 -record(function, {name, arity, exported, label, description}).
 
 -include_lib("xmerl/include/xmerl.hrl").
@@ -51,9 +49,6 @@
     %% Flatten all text content from child elements.
     [{description, ?il2b(Data)}];
 '#element#'(Tag, Data, _Attrs, _Parents, _E)
-        when Tag =:= p ->
-     strip_whitespace(?il2b(Data));
-'#element#'(Tag, Data, _Attrs, _Parents, _E)
         when Tag =:= a;
              Tag =:= code;
              Tag =:= dd;
@@ -69,10 +64,12 @@
              Tag =:= ul ->
     %% Just get the text.
     Data;
+'#element#'(Tag, Data, _Attrs, _Parents, _E) when
+        Tag =:= p ->
+     {fmt, debug(Tag, cleanup_lines(Data))};
 '#element#'(Tag, Data, _Attrs, _Parents, E) when
         Tag =:= pre ->
-     debug(pre, "pre: ~p~n", [E]),
-     {fmt, Data};
+     {fmt, debug(Tag, Data)};
 '#element#'(Tag, Data, _Attrs, _Parents, _E)
         when Tag =:= h1;
              Tag =:= h2;
@@ -81,10 +78,18 @@
 '#element#'(Tag, Data, _Attrs, _Parents, _E) ->
     [{Tag, Data}].
 
+debug(Tag, Content) ->
+    docsh_lib:debug(Tag, "~s: ~p~n", [Tag, Content]),
+    Content.
+
 strip_whitespace(BString) ->
     String = binary_to_list(BString),
     Lines = string:tokens(String, "\n"),
     ?il2b(string:join([ string:strip(L) || L <- Lines ], "\n")).
+
+cleanup_lines(BString) ->
+    Lines = re:replace(BString, <<"\s*\n\s*">>, <<"\n">>, [global, {return, list}]),
+    ?il2b(string:strip(lists:flatten(Lines), both, $\n)).
 
 fullDescription(Data, _Attrs, _Parents, _E) ->
     ?il2b([ E || {fmt, E} <- Data ]).
