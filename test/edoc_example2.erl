@@ -1,7 +1,8 @@
 %% @doc Top-level module doc.
 %% @end
 -module(edoc_example2).
--export([g/0,
+-export([code_in_loose_text/0,
+         g/0,
          p/0,
          pre/0,
          text1/0,
@@ -77,3 +78,9 @@ text1() -> ok.
 %% @end
 -spec text2() -> ok.
 text2() -> ok.
+
+%% @doc Fetch the internal state of an OTP process.
+%% Calls `sys:get_state/2' directly in R16B01+, and fetches
+%% it dynamically on older versions of OTP.
+-spec code_in_loose_text() -> ok.
+code_in_loose_text() -> ok.
