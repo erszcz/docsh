@@ -107,16 +107,22 @@ li(Data, _Attrs, _Parents, _E) ->
                             lists:append([ unwrap_fmt(E) || E <- Formatted ])
                     end)}.
 
-ol(Data, _Attrs, _Parents, _E) ->
-    [].
+ol(Data, _Attrs, _Parents, _E) -> list(ol, Data).
 
-ul(Data, _Attrs, _Parents, _E) ->
-    {fmt, debug(ul, lists:append([ [bullet(ul, I, L), Item]
-                                   || {I, E} <- enumerate(Data),
-                                      {L, Item} <- enumerate(unwrap_fmt(E)) ]))}.
+ul(Data, _Attrs, _Parents, _E) -> list(ul, Data).
+
+list(Type, Data) ->
+    Items = enumerate([ Unwrapped
+                        || E <- Data,
+                           [_|_] = Unwrapped <- [unwrap_fmt(E)] ]),
+    {fmt, debug(Type, [ [bullet(Type, I, L), Item]
+                        || {I, E} <- Items,
+                           {L, Item} <- enumerate(E) ])}.
 
 bullet(ul, _Item, 1) -> "  - ";
-bullet(ul, _Item, _) -> "    ".
+bullet(ul, _Item, _) -> "    ";
+bullet(ol,  Item, 1) -> io_lib:format("  ~b. ", [Item]);
+bullet(ol, _Item, _) -> "    ".
 
 enumerate(List) ->
     lists:zip(lists:seq(1, length(List)), List).
