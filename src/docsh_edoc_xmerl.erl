@@ -83,11 +83,6 @@ debug(Tag, Content) ->
     docsh_lib:debug(Tag, "~s: ~p~n", [Tag, Content]),
     Content.
 
-strip_whitespace(BString) ->
-    String = binary_to_list(BString),
-    Lines = string:tokens(String, "\n"),
-    ?il2b(string:join([ string:strip(L) || L <- Lines ], "\n")).
-
 cleanup_lines(BString) when is_binary(BString) ->
     Lines = re:replace(BString, <<"\s*\n\s*">>, <<"\n">>, [global, {return, list}]),
     S = string:strip(lists:flatten(Lines), both, $\n),
