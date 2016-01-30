@@ -56,6 +56,7 @@
         when Tag =:= a;
              Tag =:= code;
              Tag =:= em;
+             Tag =:= expr;
              Tag =:= h4;
              Tag =:= h5;
              Tag =:= h6 ->
@@ -100,16 +101,16 @@ collect_loose_text(Data) ->
 
 collect_loose_text([], [], Fmt) -> Fmt;
 collect_loose_text([], Data, Fmt) ->
-    [{fmt, cleanup_lines(Data)} | Fmt];
+    [{fmt, cleanup_lines(?il2b(lists:reverse(Data)))} | Fmt];
 collect_loose_text([{fmt, Element} | T], [], Fmt) ->
     [{fmt, Element} | collect_loose_text(T, [], Fmt)];
 collect_loose_text([{inline, Element} | T], Data, Fmt) ->
-    collect_loose_text([{fmt, Element} | T], Data, Fmt);
+    collect_loose_text(T, [Element | Data], Fmt);
 collect_loose_text([{fmt, Element} | T], Data, Fmt) ->
     Clean = cleanup_lines(?il2b(lists:reverse(Data))),
     case Clean of
         <<>> -> [{fmt, Element}];
-        _ -> [{fmt, Element}, {fmt, Clean}]
+        _ -> [{fmt, Clean}, {fmt, Element}]
     end ++ collect_loose_text(T, [], Fmt);
 collect_loose_text([LooseText | T], Data, Fmt) when is_binary(LooseText);
                                                     is_list(LooseText) ->

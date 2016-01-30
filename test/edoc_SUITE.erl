@@ -10,6 +10,7 @@
 all() ->
     [edoc_to_internal,
      edoc_format,
+     edoc_format_code_in_loose_text,
      edoc_format_p,
      edoc_format_pre,
      edoc_format_text1,
@@ -51,6 +52,11 @@ edoc_format(_) ->
            "      - b\n"
            "      - c\n">>],
         [D]).
+
+edoc_format_code_in_loose_text(C) ->
+    edoc_format(C, code_in_loose_text, <<"Fetch the internal state of an OTP process.\n"
+                                         "Calls sys:get_state/2 directly in R16B01+, and fetches\n"
+                                         "it dynamically on older versions of OTP.">>).
 
 edoc_format_p(C) ->
     edoc_format(C, p, <<"Just\n"
