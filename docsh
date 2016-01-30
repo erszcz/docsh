@@ -17,9 +17,14 @@ edoc () {
         ;;
     xml)
         export DOCSH_DEBUG=xml
-        do_erl -eval 'docsh_edoc:to_internal("test/edoc_example2.erl"),halt().' \
+        do_erl -eval 'docsh_edoc:to_internal("'$module'"),halt().' \
             | sed -n -e '/^<?xml/,$p' \
             | xmllint --format -
+        ;;
+    tree)
+        export DOCSH_DEBUG=edoc
+        do_erl -eval 'docsh_edoc:to_internal("'$module'"),halt().'
+        ;;
     esac
 }
 
