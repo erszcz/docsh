@@ -51,7 +51,7 @@
         when Tag =:= h1;
              Tag =:= h2;
              Tag =:= h3 ->
-    {fmt, debug(inline, header(Tag, Data))};
+    {fmt, debug(inline, header(Tag, unwrap_inline(Data)))};
 '#element#'(Tag, Data, _Attrs, _Parents, _E)
         when Tag =:= a;
              Tag =:= code;
@@ -59,7 +59,8 @@
              Tag =:= expr;
              Tag =:= h4;
              Tag =:= h5;
-             Tag =:= h6 ->
+             Tag =:= h6;
+             Tag =:= tt ->
     debug('inline:before', Data),
     {inline, debug('inline:after', [ unwrap_inline(E) || E <- Data ])};
 '#element#'(Tag, Data, _Attrs, _Parents, _E) when
@@ -72,8 +73,10 @@
     debug(discarded, {Tag, Data}),
     [].
 
+unwrap_inline([]) -> [];
+unwrap_inline([{inline, Elements}]) when is_list(Elements) -> Elements;
 unwrap_inline({inline, Elements}) when is_list(Elements) -> Elements;
-unwrap_inline(IOList) when is_list(IOList) -> IOList;
+unwrap_inline([BString]) when is_binary(BString) -> BString;
 unwrap_inline(BString) when is_binary(BString) -> BString.
 
 debug(Tag, Content) ->
@@ -102,6 +105,8 @@ collect_loose_text(Data) ->
 collect_loose_text([], [], Fmt) -> Fmt;
 collect_loose_text([], Data, Fmt) ->
     [{fmt, cleanup_lines(?il2b(lists:reverse(Data)))} | Fmt];
+collect_loose_text([{inline, Element} | T], [], Fmt) ->
+    collect_loose_text(T, [Element], Fmt);
 collect_loose_text([{fmt, Element} | T], [], Fmt) ->
     [{fmt, Element} | collect_loose_text(T, [], Fmt)];
 collect_loose_text([{inline, Element} | T], Data, Fmt) ->
