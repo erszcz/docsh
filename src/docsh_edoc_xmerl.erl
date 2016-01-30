@@ -5,7 +5,10 @@
          '#text#'/1,
          '#xml-inheritance#'/0]).
 
--export([fullDescription/4]).
+-export([fullDescription/4,
+         li/4,
+         ol/4,
+         ul/4]).
 
 -record(function, {name, arity, exported, label, description}).
 
@@ -94,6 +97,33 @@ cleanup_lines(IOList) ->
 fullDescription(Data, _Attrs, _Parents, _E) ->
     [{fmt, H} | T] = collect_loose_text(Data),
     ?il2b([H] ++ [ ["\n", E] || {fmt, E} <- T ]).
+
+li({fmt, Formatted}, _Attrs, _Parents, _E) ->
+    {fmt, debug(li, Formatted)};
+li(Data, _Attrs, _Parents, _E) ->
+    {fmt, debug(li, case collect_loose_text(Data) of
+                        [] -> [];
+                        Formatted ->
+                            lists:append([ unwrap_fmt(E) || E <- Formatted ])
+                    end)}.
+
+ol(Data, _Attrs, _Parents, _E) ->
+    [].
+
+ul(Data, _Attrs, _Parents, _E) ->
+    {fmt, debug(ul, lists:append([ [bullet(ul, I, L), Item]
+                                   || {I, E} <- enumerate(Data),
+                                      {L, Item} <- enumerate(unwrap_fmt(E)) ]))}.
+
+bullet(ul, _Item, 1) -> "  - ";
+bullet(ul, _Item, _) -> "    ".
+
+enumerate(List) ->
+    lists:zip(lists:seq(1, length(List)), List).
+
+unwrap_fmt({fmt, Lines}) -> Lines;
+unwrap_fmt({fmt, []}) -> [];
+unwrap_fmt(_) -> [].
 
 collect_loose_text(Data) ->
     debug(loose, collect_loose_text(Data, [], [])).
