@@ -57,28 +57,28 @@ edoc_format(_) ->
 edoc_format_code_in_loose_text(C) ->
     edoc_format(C, code_in_loose_text, <<"Fetch the internal state of an OTP process.\n"
                                          "Calls sys:get_state/2 directly in R16B01+, and fetches\n"
-                                         "it dynamically on older versions of OTP.">>).
+                                         "it dynamically on older versions of OTP.\n">>).
 
 edoc_format_p(C) ->
     edoc_format(C, p, <<"Just\n"
-                        "a paragraph.">>).
+                        "a paragraph.\n">>).
 
 edoc_format_pre(C) ->
     edoc_format(C, pre, <<"    pre\n"
                           "      formatted\n"
-                          "        text">>).
+                          "        text\n">>).
 
 edoc_format_text1(C) ->
     edoc_format(C, text1, <<"Some\n"
                             "loose text,\n"
-                            "not a paragraph.">>).
+                            "not a paragraph.\n">>).
 
 edoc_format_text2(C) ->
     edoc_format(C, text2, <<"Some\n"
                             "loose text,\n"
                             "not a paragraph.\n"
                             "\n"
-                            "A paragraph.">>).
+                            "A paragraph.\n">>).
 
 edoc_format_ul(C) ->
     edoc_format(C, ul, <<"  - Module is any atom representing a module\n"
@@ -88,7 +88,7 @@ edoc_format_ul(C) ->
                          "    pattern ('_'), a\n"
                          "    match specification,\n"
                          "    or a function from a shell session that can be transformed into\n"
-                         "    a match specification">>).
+                         "    a match specification\n">>).
 
 edoc_format(_, Element, Expected) ->
     File = source_file(edoc_example2),
