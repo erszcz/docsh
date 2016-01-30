@@ -2,6 +2,7 @@
 %% @end
 -module(edoc_example2).
 -export([g/0,
+         p/0,
          pre/0]).
 
 -include_lib("docsh/include/pt_docsh.hrl").
@@ -40,6 +41,14 @@
 g() ->
     Value = fun edoc_example:f/0,
     {some, [more, <<"complex">>, Value]}.
+
+%% @doc <p>
+%% Just
+%%  a paragraph.
+%%  </p>
+%% @end
+-spec p() -> ok.
+p() -> ok.
 
 %% @doc
 %% ```
