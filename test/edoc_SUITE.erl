@@ -14,7 +14,8 @@ all() ->
      edoc_format_p,
      edoc_format_pre,
      edoc_format_text1,
-     edoc_format_text2].
+     edoc_format_text2,
+     edoc_format_ul].
 
 edoc_to_internal(_) ->
     File = source_file(edoc_example),
@@ -78,6 +79,16 @@ edoc_format_text2(C) ->
                             "not a paragraph.\n"
                             "\n"
                             "A paragraph.">>).
+
+edoc_format_ul(C) ->
+    edoc_format(C, ul, <<"  - Module is any atom representing a module\n"
+                         "  - Function is any atom representing a function, or the wildcard\n"
+                         "    '_'\n"
+                         "  - Args is either the arity of a function (0..255), a wildcard\n"
+                         "    pattern ('_'), a\n"
+                         "    match specification,\n"
+                         "    or a function from a shell session that can be transformed into\n"
+                         "    a match specification">>).
 
 edoc_format(_, Element, Expected) ->
     File = source_file(edoc_example2),
