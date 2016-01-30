@@ -5,6 +5,10 @@
          '#text#'/1,
          '#xml-inheritance#'/0]).
 
+-export([fullDescription/4]).
+
+-import(docsh_lib, [debug/3]).
+
 -record(function, {name, arity, exported, label, description}).
 
 -include_lib("xmerl/include/xmerl.hrl").
@@ -56,17 +60,19 @@
              Tag =:= dl;
              Tag =:= dt;
              Tag =:= em;
-             Tag =:= fullDescription;
              Tag =:= h4;
              Tag =:= h5;
              Tag =:= h6;
              Tag =:= li;
              Tag =:= ol;
-             Tag =:= pre;
              Tag =:= tt;
              Tag =:= ul ->
     %% Just get the text.
     Data;
+'#element#'(Tag, Data, _Attrs, _Parents, E) when
+        Tag =:= pre ->
+     debug(pre, "pre: ~p~n", [E]),
+     {fmt, Data};
 '#element#'(Tag, Data, _Attrs, _Parents, _E)
         when Tag =:= h1;
              Tag =:= h2;
@@ -79,6 +85,9 @@ strip_whitespace(BString) ->
     String = binary_to_list(BString),
     Lines = string:tokens(String, "\n"),
     ?il2b(string:join([ string:strip(L) || L <- Lines ], "\n")).
+
+fullDescription(Data, _Attrs, _Parents, _E) ->
+    ?il2b([ E || {fmt, E} <- Data ]).
 
 header(Level, Data) ->
     [header_prefix(Level), Data].
