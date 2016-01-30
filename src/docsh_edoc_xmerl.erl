@@ -32,8 +32,8 @@
                  {exported,    F2#function.exported},
                  {label,       F2#function.label},
                  {description, F2#function.description}}}];
-'#element#'(equiv, Data, _Attrs, _Parents, _E) ->
-    {see, [Reference]} = lists:keyfind(see, 1, lists:flatten(Data)),
+'#element#'(equiv, [Reference], _Attrs, _Parents, _E) ->
+    debug(equiv, Reference),
     [{description, ?il2b([<<"See ">>, Reference])}];
 '#element#'(functions, Data, _Attrs, _Parents, _E) ->
     %% Functions are already extracted.
@@ -49,34 +49,32 @@
     %% Flatten all text content from child elements.
     [{description, ?il2b(Data)}];
 '#element#'(Tag, Data, _Attrs, _Parents, _E)
-        when Tag =:= a;
-             Tag =:= code;
-             Tag =:= dd;
-             Tag =:= dl;
-             Tag =:= dt;
-             Tag =:= em;
-             Tag =:= h4;
-             Tag =:= h5;
-             Tag =:= h6;
-             Tag =:= li;
-             Tag =:= ol;
-             Tag =:= tt;
-             Tag =:= ul ->
-    %% Discard.
-    [];
-'#element#'(Tag, Data, _Attrs, _Parents, _E) when
-        Tag =:= p ->
-     {fmt, debug(Tag, cleanup_lines(Data))};
-'#element#'(Tag, Data, _Attrs, _Parents, E) when
-        Tag =:= pre ->
-     {fmt, debug(Tag, Data)};
-'#element#'(Tag, Data, _Attrs, _Parents, _E)
         when Tag =:= h1;
              Tag =:= h2;
              Tag =:= h3 ->
-    header(Tag, Data);
+    {fmt, debug(inline, header(Tag, Data))};
+'#element#'(Tag, Data, _Attrs, _Parents, _E)
+        when Tag =:= a;
+             Tag =:= code;
+             Tag =:= em;
+             Tag =:= h4;
+             Tag =:= h5;
+             Tag =:= h6 ->
+    debug('inline:before', Data),
+    {inline, debug('inline:after', [ unwrap_inline(E) || E <- Data ])};
+'#element#'(Tag, Data, _Attrs, _Parents, _E) when
+        Tag =:= p ->
+    {fmt, debug(Tag, cleanup_lines(Data))};
+'#element#'(Tag, Data, _Attrs, _Parents, E) when
+        Tag =:= pre ->
+    {fmt, debug(Tag, Data)};
 '#element#'(Tag, Data, _Attrs, _Parents, _E) ->
-    [{Tag, Data}].
+    debug(discarded, {Tag, Data}),
+    [].
+
+unwrap_inline({inline, Elements}) when is_list(Elements) -> Elements;
+unwrap_inline(IOList) when is_list(IOList) -> ?il2b(IOList);
+unwrap_inline(BString) when is_binary(BString) -> BString.
 
 debug(Tag, Content) ->
     docsh_lib:debug(Tag, "~s: ~p~n", [Tag, Content]),
@@ -87,9 +85,12 @@ strip_whitespace(BString) ->
     Lines = string:tokens(String, "\n"),
     ?il2b(string:join([ string:strip(L) || L <- Lines ], "\n")).
 
-cleanup_lines(BString) ->
+cleanup_lines(BString) when is_binary(BString) ->
     Lines = re:replace(BString, <<"\s*\n\s*">>, <<"\n">>, [global, {return, list}]),
-    ?il2b(string:strip(lists:flatten(Lines), both, $\n)).
+    ?il2b(string:strip(lists:flatten(Lines), both, $\n));
+cleanup_lines(IOList) ->
+    BString = ?il2b([ unwrap_inline(E) || E <- IOList ]),
+    cleanup_lines(BString).
 
 fullDescription(Data, _Attrs, _Parents, _E) ->
     [{fmt, H} | T] = collect_loose_text(Data),
@@ -103,6 +104,8 @@ collect_loose_text([], Data, Fmt) ->
     [{fmt, cleanup_lines(Data)} | Fmt];
 collect_loose_text([{fmt, Element} | T], [], Fmt) ->
     [{fmt, Element} | collect_loose_text(T, [], Fmt)];
+collect_loose_text([{inline, Element} | T], Data, Fmt) ->
+    collect_loose_text([{fmt, Element} | T], Data, Fmt);
 collect_loose_text([{fmt, Element} | T], Data, Fmt) ->
     Clean = cleanup_lines(?il2b(lists:reverse(Data))),
     case Clean of
