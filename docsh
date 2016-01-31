@@ -21,6 +21,11 @@ edoc () {
             | sed -n -e '/^<?xml/,$p' \
             | xmllint --format -
         ;;
+    html)
+        export DOCSH_DEBUG=html
+        do_erl -eval 'docsh_edoc:to_internal("'$module'"),halt().' \
+            | sed -n -e '/^<!DOCTYPE/,$p'
+        ;;
     tree)
         export DOCSH_DEBUG=edoc
         do_erl -eval 'docsh_edoc:to_internal("'$module'"),halt().'
