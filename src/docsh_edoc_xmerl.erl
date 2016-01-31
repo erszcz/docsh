@@ -115,11 +115,7 @@ dd(Data, _Attrs, _Parents, _E) ->
     item(dd, dd, Data).
 
 item(Type, Out, Data) ->
-    {Out, debug(Type, case collect_loose_text(Data) of
-                          [] -> [];
-                          Formatted ->
-                              lists:append([ unwrap_fmt(E) || E <- Formatted ])
-                      end)}.
+    {Out, debug(Type, lists:flatmap(fun unwrap_fmt/1, collect_loose_text(Data)))}.
 
 dl(Data, _Attrs, _Parents, _E) ->
     debug('dl:in', Data),
