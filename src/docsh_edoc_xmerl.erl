@@ -5,10 +5,10 @@
          '#text#'/1,
          '#xml-inheritance#'/0]).
 
--export([fullDescription/4,
-         li/4,
-         ol/4,
-         ul/4]).
+-export([dd/4,
+         dl/4,
+         fullDescription/4,
+         li/4]).
 
 -record(function, {name, arity, exported, label, description}).
 
@@ -65,13 +65,23 @@
              Tag =:= h6;
              Tag =:= tt ->
     debug('inline:before', Data),
-    {inline, debug('inline:after', [ unwrap_inline(E) || E <- Data ])};
+    After = [ unwrap_inline(E) || E <- Data ],
+    debug('inline:after', After),
+    debug(Tag, After),
+    {inline, After};
+'#element#'(Tag, Data, _Attrs, _Parents, _E) when
+        Tag =:= dt ->
+    {dt, debug(Tag, Data)};
 '#element#'(Tag, Data, _Attrs, _Parents, _E) when
         Tag =:= p ->
     {fmt, debug(Tag, cleanup_lines(Data))};
 '#element#'(Tag, Data, _Attrs, _Parents, _E) when
         Tag =:= pre ->
     {fmt, debug(Tag, [Data, "\n"])};
+'#element#'(Tag, Data, _Attrs, _Parents, _E) when
+        Tag =:= ol;
+        Tag =:= ul ->
+    list(Tag, Data);
 '#element#'(Tag, Data, _Attrs, _Parents, _E) ->
     debug(discarded, {Tag, Data}),
     [].
@@ -99,28 +109,58 @@ fullDescription(Data, _Attrs, _Parents, _E) ->
     ?il2b([H] ++ [ ["\n", E] || {fmt, E} <- T ]).
 
 li(Data, _Attrs, _Parents, _E) ->
-    {fmt, debug(li, case collect_loose_text(Data) of
-                        [] -> [];
-                        Formatted ->
-                            lists:append([ unwrap_fmt(E) || E <- Formatted ])
-                    end)}.
+    item(li, fmt, Data).
 
-ol(Data, _Attrs, _Parents, _E) -> list(ol, Data).
+dd(Data, _Attrs, _Parents, _E) ->
+    item(dd, dd, Data).
 
-ul(Data, _Attrs, _Parents, _E) -> list(ul, Data).
+item(Type, Out, Data) ->
+    {Out, debug(Type, case collect_loose_text(Data) of
+                          [] -> [];
+                          Formatted ->
+                              lists:append([ unwrap_fmt(E) || E <- Formatted ])
+                      end)}.
+
+dl(Data, _Attrs, _Parents, _E) ->
+    debug('dl:in', Data),
+    {fmt, debug(dl, [ itemize(Type, undefined, undefined, Content)
+                      || E <- Data,
+                         {Type, Content} <- unwrap_dl_content(E) ])}.
+
+unwrap_dl_content({dt, BString}) when is_binary(BString) -> [{dt, BString}];
+unwrap_dl_content({dt, [BString]}) when is_binary(BString) -> [{dt, BString}];
+unwrap_dl_content({dd, Lines}) when is_list(Lines) ->
+    Length = length(Lines),
+    [ {dd, append_dd_trailing_newline(Nth, Length, L)}
+      || {Nth, L} <- enumerate(Lines) ];
+unwrap_dl_content(C) ->
+    debug('unwrap_dl_content:discard', C),
+    [].
+
+append_dd_trailing_newline(Length, Length, L) -> [L, "\n"];
+append_dd_trailing_newline(_Nth, _Length, L) -> L.
 
 list(Type, Data) ->
+    %% Two passes to only enumerate items that get through the first pass.
+    %% Whitespace is filtered out, the remainings are the list items.
     Items = enumerate([ Unwrapped
                         || E <- Data,
                            [_|_] = Unwrapped <- [unwrap_fmt(E)] ]),
-    {fmt, debug(Type, [ [bullet(Type, I, L), Item]
-                        || {I, E} <- Items,
-                           {L, Item} <- enumerate(E) ])}.
+    {fmt, debug(Type, [ debug(itemize, itemize(Type, N, Line, Item))
+                        || {N, E} <- Items,
+                           {Line, Item} <- enumerate(E) ])}.
 
-bullet(ul, _Item, 1) -> "  - ";
-bullet(ul, _Item, _) -> "    ";
-bullet(ol,  Item, 1) -> io_lib:format("  ~b. ", [Item]);
-bullet(ol, _Item, _) -> "    ".
+-spec itemize(Type, Nth, Line, Content) -> iolist() when
+      Type :: dl | ol | ul,
+      Nth :: pos_integer(),
+      Line :: pos_integer(),
+      Content :: iolist().
+itemize(dt, _Nth, _, Content) -> ["  ", Content, "\n\n"];
+itemize(dd, _Nth, _, Content) -> ["      ", Content];
+itemize(ol,  Nth, 1, Content) -> [io_lib:format("  ~b. ", [Nth]), Content];
+itemize(ol, _Nth, _, Content) -> ["    ", Content];
+itemize(ul, _Nth, 1, Content) -> ["  - ", Content];
+itemize(ul, _Nth, _, Content) -> ["    ", Content].
 
 enumerate(List) ->
     lists:zip(lists:seq(1, length(List)), List).
