@@ -61,11 +61,11 @@ edoc_format_code_in_loose_text(C) ->
                                          "it dynamically on older versions of OTP.\n">>).
 
 edoc_format_dl(C) ->
-    edoc_format(C, dl, <<"  sys_alloc ::\n"
+    edoc_format(C, dl, <<"  sys_alloc\n"
                          "\n"
                          "      System allocator, usually just malloc\n"
                          "\n"
-                         "  mseg_alloc ::\n"
+                         "  mseg_alloc\n"
                          "\n"
                          "      Used by other allocators, can do mmap. Caches allocations\n"
                          "\n">>).
