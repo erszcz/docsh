@@ -11,6 +11,7 @@
       AST :: [erl_parse:abstract_form()].
 parse_transform(AST, _Options) ->
     {Attrs, Rest} = lists:splitwith(fun is_not_spec/1, AST),
+    docsh_lib:debug(syntax, "~p~n", [AST]),
     ASTAfter = (Attrs ++
                 [export([{h, 0}, {h, 2}]),
                  h0(),
