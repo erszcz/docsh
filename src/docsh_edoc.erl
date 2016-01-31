@@ -14,6 +14,7 @@ to_internal(File) ->
     EDoc = edoc(File),
     debug(edoc, "edoc:~n~p~n~n", ?l([EDoc])),
     debug(xml,  "xml:~n~s~n~n",  ?l([xmerl:export_simple([EDoc], xmerl_xml)])),
+    debug(html, "html:~n~s~n~n",  ?l([edoc:layout(EDoc)])),
     xmerl:export_simple([EDoc], docsh_edoc_xmerl).
 
 edoc(File) ->
