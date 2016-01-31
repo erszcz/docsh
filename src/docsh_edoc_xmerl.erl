@@ -98,8 +98,6 @@ fullDescription(Data, _Attrs, _Parents, _E) ->
     [{fmt, H} | T] = collect_loose_text(Data),
     ?il2b([H] ++ [ ["\n", E] || {fmt, E} <- T ]).
 
-li({fmt, Formatted}, _Attrs, _Parents, _E) ->
-    {fmt, debug(li, Formatted)};
 li(Data, _Attrs, _Parents, _E) ->
     {fmt, debug(li, case collect_loose_text(Data) of
                         [] -> [];
