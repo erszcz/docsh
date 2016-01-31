@@ -11,6 +11,7 @@ all() ->
     [edoc_to_internal,
      edoc_format,
      edoc_format_code_in_loose_text,
+     edoc_format_dl,
      edoc_format_p,
      edoc_format_pre,
      edoc_format_text1,
@@ -58,6 +59,16 @@ edoc_format_code_in_loose_text(C) ->
     edoc_format(C, code_in_loose_text, <<"Fetch the internal state of an OTP process.\n"
                                          "Calls sys:get_state/2 directly in R16B01+, and fetches\n"
                                          "it dynamically on older versions of OTP.\n">>).
+
+edoc_format_dl(C) ->
+    edoc_format(C, dl, <<"  sys_alloc ::\n"
+                         "\n"
+                         "      System allocator, usually just malloc\n"
+                         "\n"
+                         "  mseg_alloc ::\n"
+                         "\n"
+                         "      Used by other allocators, can do mmap. Caches allocations\n"
+                         "\n">>).
 
 edoc_format_p(C) ->
     edoc_format(C, p, <<"Just\n"
