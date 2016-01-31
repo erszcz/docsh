@@ -30,6 +30,8 @@ edoc () {
         export DOCSH_DEBUG=edoc
         do_erl -eval 'docsh_edoc:to_internal("'$module'"),halt().'
         ;;
+    to_internal)
+        do_erl -eval 'docsh_edoc:to_internal("'$module'"),halt().'
     esac
 }
 
