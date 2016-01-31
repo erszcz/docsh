@@ -5,9 +5,11 @@
     (edoc@x4)17> h(lists, keyfind).
     ** exception error: undefined shell command h/2
 
+
 # Useful
 
     code:where_is_file("lists.beam").
+
 
 # Using Core Erlang
 
@@ -71,3 +73,51 @@ There're two more points, though, which require some comments:
     at compile time (see `docsh_rt:h/1` and compare with `docsh_rt.core:10`).
     Either this last step would have to be monkey-patched or a generic core
     transformation pass could be developed (doesn't seem hard at the first glance).
+
+
+# Pretty printing
+
+First we need an AST: `epp:parse_file/2` is the easiest way to get it
+apart from running a `parse_transform`.
+
+However, some of the tools below don't work with this AST,
+only with the one defined by `erl_syntax`.
+See `erl_tidy` for getting the latter from the former.
+`epp_dodger:parse_file/1` seems to return `erl_syntax` trees.
+
+Nothing I could find works as expected:
+
+- `prettypr` - generic pretty printer
+- `erl_prettypr` - print ASTs, not that easy to use
+- `erl_pp` - built in, easy to use, ugly output
+- `erl_tidy` - reading it shows how to use `erl_prettypr`
+- `edoc_layout` - a terrible mess of tiny functions,
+  but gives the best results; see branch `dead-end-edoc-types`
+
+The biggest surprise is that
+`erl_tidy:file("test/edoc_example.erl", [{stdout, true}])`,
+which seemed to be the most advanced / best tool for the job,
+gives this:
+
+```
+ 1	%% @doc Top-level module doc.
+ 2	%% @end
+ 3	-module(edoc_example).
+ 4	-export([f/0]).
+ 5	-include_lib("docsh/include/pt_docsh.hrl").
+ 6	-type({r, {atom, 8, ok}, []}).
+ 7	%% @doc Doc for f/0.
+ 8	%% @end
+ 9	-spec({{f, 0},
+10	       [{type, 12, 'fun',
+11	         [{type, 12, product, []}, {user_type, 12, r, []}]}]}).
+12	f() -> ok.
+```
+
+I.e. lines 6 and 9-11 are mangled, the file doesn't even compile anymore.
+No support for `-type` and `-spec`?
+
+There might be a way forward thanks to the `hook()` (see
+`erl_prettypr.erl:199`).
+It can be used to pretty-print terms the default formatter doesn't recognize.
+See `dialyzer_utils.erl:746` for an example.
