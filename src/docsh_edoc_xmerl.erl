@@ -30,14 +30,21 @@
 %% The '#element#' function is the default handler for XML elements.
 '#element#'(function, Data, Attrs, _Parents, _E) ->
     F1 = function_details_from_attrs(Attrs, #function{}),
-    F2 = function_details_from_data(Data, F1),
-    [{function, {{F2#function.name, F2#function.arity},
-                 {exported,    F2#function.exported},
-                 {label,       F2#function.label},
-                 {description, F2#function.description}}}];
-'#element#'(equiv, [Reference], _Attrs, _Parents, _E) ->
-    debug(equiv, Reference),
-    [{description, [<<"See ">>, Reference]}];
+    F2 = function_details_from_data(lists:flatten(Data), F1),
+    [{function, debug(function, {{F2#function.name, F2#function.arity},
+                                 {exported,    F2#function.exported},
+                                 {label,       F2#function.label},
+                                 {description, F2#function.description}})}];
+'#element#'(see, Data, _Attrs, _Parents, _E) ->
+    {fmt, debug(see, ["See ", Data, "\n"])};
+'#element#'(equiv, Data, _Attrs, _Parents, _E) ->
+    Desc = case collect_loose_text(Data) of
+               [{fmt, Eq}, {fmt, See}] ->
+                   {description, ?il2b(["Equivalent to ", Eq, See])};
+               [{fmt, Eq}] ->
+                   {description, ?il2b(["Equivalent to ", Eq, "\n"])}
+           end,
+    debug(equiv, Desc);
 '#element#'(functions, Data, _Attrs, _Parents, _E) ->
     %% Functions are already extracted.
     [{functions, Data}];
@@ -225,8 +232,8 @@ fda(#xmlAttribute{name = label} = At, F)    -> F#function{label = ?l2b(value(At)
 function_details_from_data(Data, F) ->
     lists:foldl(fun fdd/2, F, Data).
 
-fdd([{description, Desc}], F) -> F#function{description = Desc};
-fdd(_, F)                     -> F.
+fdd({description, Desc}, F) -> F#function{description = Desc};
+fdd(_, F)                   -> F.
 
 value(#xmlAttribute{value = V}) -> V.
 
