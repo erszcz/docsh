@@ -22,12 +22,11 @@ edoc_to_internal(_) ->
     File = source_file(edoc_example),
     ct:pal("~p", [File]),
     ?eq([{module, [{name, edoc_example},
-                   {description, <<"Top-level module doc.">>}]},
-         {function, [{name, f},
-                     {arity, 0},
+                   {description, <<"Top-level module doc.\n">>}]},
+         {function, {{f,0},
                      {exported, true},
                      {label, <<"f-0">>},
-                     {description, <<"Doc for f/0.">>}]}],
+                     {description, <<"Doc for f/0.\n">>}}}],
         ?TESTED:to_internal(File)).
 
 edoc_format(_) ->
@@ -38,18 +37,21 @@ edoc_format(_) ->
            "while its documentation uses more complex markup.\n"
            "\n"
            "  Why?\n"
-           "  To test the documentation extraction and formatting process.\n"
+           "\n"
+           "      To test the documentation extraction and formatting process.\n"
            "\n"
            "  Any other reason?\n"
-           "  Not really.\n"
            "\n"
-           "  1. Some\n"
-           "  2. Random\n"
-           "  3. Items\n"
+           "      Not really.\n"
            "\n"
-           "  - One\n"
-           "  - Two\n"
-           "  - Three:\n"
+           "\n"
+           "  - Some\n"
+           "  - Random\n"
+           "  - Items\n"
+           "\n"
+           "  1. One\n"
+           "  2. Two\n"
+           "  3. Three:\n"
            "      - a\n"
            "      - b\n"
            "      - c\n">>],
