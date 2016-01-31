@@ -2,6 +2,7 @@
 %% @end
 -module(edoc_example2).
 -export([code_in_loose_text/0,
+         dl/0,
          g/0,
          p/0,
          pre/0,
@@ -85,6 +86,18 @@ text2() -> ok.
 %% it dynamically on older versions of OTP.
 -spec code_in_loose_text() -> ok.
 code_in_loose_text() -> ok.
+
+%% @doc
+%% <dl>
+%%   <dt>sys_alloc</dt>
+%%   <dd>System allocator, usually just malloc</dd>
+%%
+%%   <dt>mseg_alloc</dt>
+%%   <dd>Used by other allocators, can do mmap. Caches allocations</dd>
+%% </dl>
+%% @end
+-spec dl() -> ok.
+dl() -> ok.
 
 %% @doc
 %% <ul>
