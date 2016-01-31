@@ -76,18 +76,27 @@ you automagically deploy your docs.
 
 In no particular order:
 
-- [ ] Fix EDdoc formatting by calculating element indentation based on
-      its path in the document tree and its formatting based on its type.
-
-- [ ] Make [Recon](https://github.com/ferd/recon) compile with `docsh`
+- [x] Make [Recon](https://github.com/ferd/recon) compile with `docsh`
       and provide useful docs for all commented modules.
 
-- [ ] Provide an example repo/branch showing how to use `docs`.
+- [ ] Use a `core_transform` instead of a `parse_transform` to generate code.
+      [Notes on using Core Erlang](notes.md#using-core-erlang)
+      describe why it makes sense.
+
+- [ ] Include defined types in module description.
 
 - [ ] Include specs in function descriptions.
       Extract specs from the AST or input docs if possible.
 
-- [ ] Provide tools to embed docs into an "ExDc" chunk like Elixir does:
+- [ ] Fix EDdoc extraction and formatting ~~by calculating element
+      indentation based on its path in the document tree and its formatting
+      based on its type.~~ Almost done!
+
+    * [ ] Extract all [module tags][edoc:module-tags].
+
+- [ ] Provide an example repo/branch showing how to use `docsh`.
+
+- [ ] Provide a tool to embed docs into an "ExDc" chunk like Elixir does:
 
     * [ ] EScript for command-line use.
     * [ ] Rebar3 plugin for a post-compile build step.
@@ -99,6 +108,8 @@ In no particular order:
     * [ ] To enable reading Elixir embedded documentation;
           the same doc format is used intentionally,
           though for now `docsh` doesn't store docs in the same place as Elixir does.
+
+[edoc:module-tags]: http://erlang.org/doc/apps/edoc/chapter.html#Module_tags
 
 
 ## ?!

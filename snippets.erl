@@ -38,7 +38,19 @@ Spec = {attribute,17,spec,
 iolist_to_binary(erl_pp:form(Spec)).
 % <<"-spec g() -> R when is_subtype(R, r()).\n">>
 
+%% Get abstract code from a .beam file.
 RTBeam = code:where_is_file("docsh_rt.beam"),
 beam_lib:chunks(RTBeam, ["Abst"]),
 {ok, {_, [{"Abst", Abst}]}} = beam_lib:chunks(RTBeam, ["Abst"]),
 io:format("~p~n", [binary_to_term(Abst)]).
+
+%% Compile file with debug_info / inlining / to Core Erlang and get the result.
+compile:file("test/edoc_example.erl", [debug_info]).
+compile:file("test/edoc_example.erl", [inline]).
+{ok, Mod, Core} = compile:file("test/edoc_example.erl", [binary, to_core]).
+
+%% Compile Core Erlang to .beam.
+{ok, [], BEAM} = compile:forms(Core, [from_core]).
+
+%% Print Core Erlang.
+io:format("~s~n", [core_pp:format(Core)]).
