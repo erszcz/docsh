@@ -4,8 +4,10 @@
   {registered, []},
   {applications,
    [kernel,
-    stdlib
-   ]},
+    stdlib,
+    edoc,
+    xmerl,
+    parse_trans]},
   {env,[]},
   {modules, []},
 
