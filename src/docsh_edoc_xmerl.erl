@@ -169,7 +169,6 @@ enumerate(List) ->
     lists:zip(lists:seq(1, length(List)), List).
 
 unwrap_fmt({fmt, Lines}) -> Lines;
-unwrap_fmt({fmt, []}) -> [];
 unwrap_fmt(_) -> [].
 
 collect_loose_text(Data) ->
