@@ -121,3 +121,23 @@ There might be a way forward thanks to the `hook()` (see
 `erl_prettypr.erl:199`).
 It can be used to pretty-print terms the default formatter doesn't recognize.
 See `dialyzer_utils.erl:746` for an example.
+
+## 2016-02-02 update
+
+`dialyzer_behaviours.erl:159` uses `erl_types:t_to_string/2` for pretty printing.
+The latter seems to support type unions, products and whatnot, but the type
+representation is yet different from EDoc, `erl_parse`, `erl_syntax`,
+and `erl_prettypr`.
+Compund types are represented as:
+
+```erlang
+-define(any,  any).
+-define(none, none).
+-define(unit, unit).
+%% Generic constructor - elements can be many things depending on the tag.
+-record(c, {tag               :: tag(),
+      elements  = []          :: term(),
+      qualifier = ?unknown_qual :: qual()}).
+
+-opaque erl_type() :: ?any | ?none | ?unit | #c{}.
+```
