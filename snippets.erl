@@ -54,3 +54,33 @@ compile:file("test/edoc_example.erl", [inline]).
 
 %% Print Core Erlang.
 io:format("~s~n", [core_pp:format(Core)]).
+
+%% Compound attribute
+CA = {attribute,98,type,
+      {proc_attrs,
+       {type,98,tuple,
+        [{type,98,pid,[]},
+         {ann_type,99,[{var,99,'Attr'},{var,99,'_'}]},
+         {type,100,nonempty_list,
+          [{ann_type,100,
+            [{var,100,'Name'},
+             {type,100,union,
+              [{type,100,atom,[]},
+               {type,101,tuple,[{atom,101,current_function},{type,101,mfa,[]}]},
+               {type,102,tuple,
+                [{atom,102,initial_call},{type,102,mfa,[]}]}]}]}]}]},
+       []}}.
+Pid = {type,98,pid,[]}.
+erl_types:from_form({type,98,pid,[]}).
+erl_types:t_from_form({type,98,pid,[]}).
+erl_types:t_from_form({type,98,pid,[]}, [], [], []).
+erl_types:t_from_form({type,98,pid,[]}, sets:empty(), [], []).
+erl_types:t_from_form({type,98,pid,[]}, sets:new(), [], []).
+erl_types:t_from_form({type,98,pid,[]}, sets:new(), {type, {m, t, 0}}, dict:new()).
+CPid = erl_types:t_from_form({type,98,pid,[]}, sets:new(), {type, {m, t, 0}}, dict:new()).
+erl_types:t_to_string(CPid).
+CAtom = erl_types:t_from_form({type,100,atom,[]}, sets:new(), {type, {m, t, 0}}, dict:new()).
+erl_types:t_to_string(CAtom).
+erl_types:t_from_form({type,101,mfa,[]}, sets:new(), {type, {m, t, 0}}, dict:new()).
+CMFA = erl_types:t_from_form({type,101,mfa,[]}, sets:new(), {type, {m, t, 0}}, dict:new()).
+erl_types:t_to_string(CMFA).
