@@ -56,20 +56,7 @@ compile:file("test/edoc_example.erl", [inline]).
 io:format("~s~n", [core_pp:format(Core)]).
 
 %% Compound attribute
-CA = {attribute,98,type,
-      {proc_attrs,
-       {type,98,tuple,
-        [{type,98,pid,[]},
-         {ann_type,99,[{var,99,'Attr'},{var,99,'_'}]},
-         {type,100,nonempty_list,
-          [{ann_type,100,
-            [{var,100,'Name'},
-             {type,100,union,
-              [{type,100,atom,[]},
-               {type,101,tuple,[{atom,101,current_function},{type,101,mfa,[]}]},
-               {type,102,tuple,
-                [{atom,102,initial_call},{type,102,mfa,[]}]}]}]}]}]},
-       []}}.
+CA = {attribute,98,type, {proc_attrs, {type,98,tuple, [{type,98,pid,[]}, {ann_type,99,[{var,99,'Attr'},{var,99,'_'}]}, {type,100,nonempty_list, [{ann_type,100, [{var,100,'Name'}, {type,100,union, [{type,100,atom,[]}, {type,101,tuple,[{atom,101,current_function},{type,101,mfa,[]}]}, {type,102,tuple, [{atom,102,initial_call},{type,102,mfa,[]}]}]}]}]}]}, []}}.
 Pid = {type,98,pid,[]}.
 erl_types:from_form({type,98,pid,[]}).
 erl_types:t_from_form({type,98,pid,[]}).
