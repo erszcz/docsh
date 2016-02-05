@@ -84,3 +84,10 @@ erl_types:t_to_string(CAtom).
 erl_types:t_from_form({type,101,mfa,[]}, sets:new(), {type, {m, t, 0}}, dict:new()).
 CMFA = erl_types:t_from_form({type,101,mfa,[]}, sets:new(), {type, {m, t, 0}}, dict:new()).
 erl_types:t_to_string(CMFA).
+
+%% Using prettypr.
+f(PParts),
+PParts = [ prettypr:text("| " ++ S)
+           || S1 <- string:tokens("int() | string() | f() | non_neg_integer() | asd() | qwe() | zxc() | some_other_type_with_a_tremendously_long_name()", "|"),
+              S <- [string:strip(S1)] ].
+io:format(prettypr:format(prettypr:par([prettypr:text("-type a() :: ")] ++ PParts, 11))).
