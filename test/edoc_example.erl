@@ -5,6 +5,9 @@
 
 -include_lib("docsh/include/pt_docsh.hrl").
 
+-type l(A) :: list(A).
+-type l() :: list().
+
 -type r() :: ok.
 
 %% @doc Doc for f/0.
