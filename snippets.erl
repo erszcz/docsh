@@ -139,3 +139,8 @@ CTuple = {c,tuple,
           {3,any}}.
 RecDict = dict:new().
 prettypr:format(erl_types:t_to_string(erl_types_prettypr_fmt, CList, RecDict)).
+
+ExpTypes = sets:new(), Site = {type, {m, t, 0}}, RecDict = dict:new().
+{attribute, _, type, {proc_attrs, Inner, []}} = CA.
+erl_types:t_from_form(Inner, ExpTypes, Site, RecDict).
+io:format(docsh_prettypr:pretty_type(Inner)).
