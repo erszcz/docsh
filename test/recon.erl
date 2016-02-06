@@ -118,8 +118,10 @@
                          | total_heap_size | garbage_collection.
 -type info_work_key() :: reductions.
 
--type info_key() :: info_meta_key() | info_signals_key() | info_location_key()
-                  | info_memory_key() | info_work_key().
+%% TODO: no support for pretty printing user defined types, yet
+-type info_key() :: info_meta_key | info_signals_key | info_location_key.
+%-type info_key() :: info_meta_key() | info_signals_key() | info_location_key()
+%                  | info_memory_key() | info_work_key().
 
 -type port_term() :: port() | string() | atom() | pos_integer().
 
@@ -131,9 +133,11 @@
 -type port_info_memory_key() :: memory | queue_size.
 -type port_info_specific_key() :: atom().
 
--type port_info_key() :: port_info_meta_key() | port_info_signals_key()
-                       | port_info_io_key() | port_info_memory_key()
-                       | port_info_specific_key().
+%% TODO: no support for pretty printing user defined types, yet
+-type port_info_key() :: port_info_meta_key | port_info_signals_key.
+%-type port_info_key() :: port_info_meta_key() | port_info_signals_key()
+%                       | port_info_io_key() | port_info_memory_key()
+%                       | port_info_specific_key().
 
 -export_type([proc_attrs/0, inet_attrs/0, pid_term/0, port_term/0]).
 -export_type([info_type/0, info_key/0,
