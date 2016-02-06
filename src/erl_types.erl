@@ -191,6 +191,7 @@
 	 t_timeout/0,
 	 t_to_string/1,
 	 t_to_string/2,
+	 t_to_string/3,
 	 t_to_tlist/1,
 	 t_tuple/0,
 	 t_tuple/1,
@@ -3807,66 +3808,69 @@ t_to_string(T) ->
 
 -spec t_to_string(erl_type(), type_table()) -> string().
 
-t_to_string(?any, _RecDict) ->
-  "any()";
-t_to_string(?none, _RecDict) ->
-  "none()";
-t_to_string(?unit, _RecDict) ->
-  "no_return()";
-t_to_string(?atom(?any), _RecDict) -> 
-  "atom()";
-t_to_string(?atom(Set), _RecDict) ->
+t_to_string(T, RecDict) ->
+  t_to_string(erl_types_flat_fmt, T, RecDict).
+
+t_to_string(F, ?any, _RecDict) ->
+  F:text("any()");
+t_to_string(F, ?none, _RecDict) ->
+  F:text("none()");
+t_to_string(F, ?unit, _RecDict) ->
+  F:text("no_return()");
+t_to_string(F, ?atom(?any), _RecDict) ->
+  F:text("atom()");
+t_to_string(F, ?atom(Set), _RecDict) ->
   case set_size(Set) of
     2 ->
       case set_is_element(true, Set) andalso set_is_element(false, Set) of
-	true -> "boolean()";
-	false -> set_to_string(Set)
+	true -> F:text("boolean()");
+	false -> set_to_string(F, Set)
       end;
     _ ->
-      set_to_string(Set)
+      set_to_string(F, Set)
   end;
-t_to_string(?bitstr(0, 0), _RecDict) ->
-  "<<>>";
-t_to_string(?bitstr(8, 0), _RecDict) ->
-  "binary()";
-t_to_string(?bitstr(1, 0), _RecDict) ->
-  "bitstring()";
-t_to_string(?bitstr(0, B), _RecDict) ->
-  flat_format("<<_:~w>>", [B]);
-t_to_string(?bitstr(U, 0), _RecDict) ->
-  flat_format("<<_:_*~w>>", [U]);
-t_to_string(?bitstr(U, B), _RecDict) ->
-  flat_format("<<_:~w,_:_*~w>>", [B, U]);
-t_to_string(?function(?any, ?any), _RecDict) ->
-  "fun()";
-t_to_string(?function(?any, Range), RecDict) ->
-  "fun((...) -> " ++ t_to_string(Range, RecDict) ++ ")";
-t_to_string(?function(?product(ArgList), Range), RecDict) ->
-  "fun((" ++ comma_sequence(ArgList, RecDict) ++ ") -> "
-    ++ t_to_string(Range, RecDict) ++ ")";
-t_to_string(?identifier(Set), _RecDict) ->
+t_to_string(F, ?bitstr(0, 0), _RecDict) ->
+  F:text("<<>>");
+t_to_string(F, ?bitstr(8, 0), _RecDict) ->
+  F:text("binary()");
+t_to_string(F, ?bitstr(1, 0), _RecDict) ->
+  F:text("bitstring()");
+t_to_string(F, ?bitstr(0, B), _RecDict) ->
+  F:flat_format("<<_:~w>>", [B]);
+t_to_string(F, ?bitstr(U, 0), _RecDict) ->
+  F:flat_format("<<_:_*~w>>", [U]);
+t_to_string(F, ?bitstr(U, B), _RecDict) ->
+  F:flat_format("<<_:~w,_:_*~w>>", [B, U]);
+t_to_string(F, ?function(?any, ?any), _RecDict) ->
+  F:text("fun()");
+t_to_string(F, ?function(?any, Range), RecDict) ->
+  F:concat(F:text("fun((...) -> "), t_to_string(F, Range, RecDict), F:text(")"));
+t_to_string(F, ?function(?product(ArgList), Range), RecDict) ->
+  F:concat(F:text("fun(("), F:comma_sequence(ArgList, RecDict), F:text(") -> "),
+	   t_to_string(F, Range, RecDict), F:text(")"));
+t_to_string(F, ?identifier(Set), _RecDict) ->
   case Set of
-    ?any -> "identifier()";
+    ?any -> F:text("identifier()");
     _ ->
-      string:join([flat_format("~w()", [T]) || T <- set_to_list(Set)], " | ")
+      F:join([F:flat_format("~w()", [T]) || T <- set_to_list(Set)], F:text(" | "))
   end;
-t_to_string(?opaque(Set), RecDict) ->
-  string:join([opaque_type(Mod, Name, Args, S, RecDict) ||
-                #opaque{mod = Mod, name = Name, struct = S, args = Args}
-                  <- set_to_list(Set)],
-	      " | ");
-t_to_string(?matchstate(Pres, Slots), RecDict) ->
-  flat_format("ms(~s,~s)", [t_to_string(Pres, RecDict),
-                            t_to_string(Slots,RecDict)]);
-t_to_string(?nil, _RecDict) ->
-  "[]";
-t_to_string(?nonempty_list(Contents, Termination), RecDict) ->
-  ContentString = t_to_string(Contents, RecDict),
+t_to_string(F, ?opaque(Set), RecDict) ->
+  F:join([ opaque_type(F, Mod, Name, Args, S, RecDict)
+	   || #opaque{mod = Mod, name = Name,
+		      struct = S, args = Args} <- set_to_list(Set) ],
+	 F:text(" | "));
+t_to_string(F, ?matchstate(Pres, Slots), RecDict) ->
+  F:flat_format("ms(~s,~s)", [t_to_string(F, Pres, RecDict),
+			      t_to_string(F, Slots,RecDict)]);
+t_to_string(F, ?nil, _RecDict) ->
+  F:text("[]");
+t_to_string(F, ?nonempty_list(Contents, Termination), RecDict) ->
+  ContentString = t_to_string(F, Contents, RecDict),
   case Termination of
     ?nil ->
       case Contents of
-	?char -> "nonempty_string()";
-	_ -> "["++ContentString++",...]"
+	?char -> F:text("nonempty_string()");
+	_ -> F:concat(F:text("["), ContentString, F:text(",...]"))
       end;
     ?any -> 
       %% Just a safety check.
@@ -3877,24 +3881,29 @@ t_to_string(?nonempty_list(Contents, Termination), RecDict) ->
           %% erlang:error({illegal_list, ?nonempty_list(Contents, Termination)})
           ok
       end,
-      "nonempty_maybe_improper_list()";
+      F:text("nonempty_maybe_improper_list()");
     _ ->
       case t_is_subtype(t_nil(), Termination) of
 	true ->
-	  "nonempty_maybe_improper_list("++ContentString++","
-	    ++t_to_string(Termination, RecDict)++")";
+	  F:concat( F:text("nonempty_maybe_improper_list("),
+		    ContentString,
+		    F:text(","),
+		    t_to_string(F, Termination, RecDict),
+		    F:text(")") );
 	false ->
-	  "nonempty_improper_list("++ContentString++","
-	    ++t_to_string(Termination, RecDict)++")"
+	  F:concat( F:text("nonempty_improper_list("),
+		    ContentString,
+		    F:text(","), t_to_string(F, Termination, RecDict),
+		    F:text(")") )
       end
   end;
-t_to_string(?list(Contents, Termination, ?unknown_qual), RecDict) ->
-  ContentString = t_to_string(Contents, RecDict),
+t_to_string(F, ?list(Contents, Termination, ?unknown_qual), RecDict) ->
+  ContentString = t_to_string(F, Contents, RecDict),
   case Termination of
     ?nil ->
       case Contents of
-	?char -> "string()";
-	_ -> "["++ContentString++"]"
+	?char -> F:text("string()");
+	_ -> F:concat(F:text("["), ContentString, F:text("]"))
       end;
     ?any ->
       %% Just a safety check.      
@@ -3907,66 +3916,69 @@ t_to_string(?list(Contents, Termination, ?unknown_qual), RecDict) ->
           %% L = ?list(Contents, Termination, ?unknown_qual),
           %% erlang:error({illegal_list, L})
       end,
-      "maybe_improper_list()";
+      F:text("maybe_improper_list()");
     _ -> 
       case t_is_subtype(t_nil(), Termination) of
 	true ->
-	  "maybe_improper_list("++ContentString++","
-	    ++t_to_string(Termination, RecDict)++")";
+	  F:concat( F:text("maybe_improper_list("),
+		    ContentString,
+		    F:text(","),
+		    t_to_string(F, Termination, RecDict),
+		    F:text(")") );
 	false ->
-	  "improper_list("++ContentString++","
-	    ++t_to_string(Termination, RecDict)++")"
+	  F:concat( F:text("improper_list("), ContentString, F:text(","),
+		    t_to_string(F, Termination, RecDict), F:text(")") )
       end
   end;
-t_to_string(?int_set(Set), _RecDict) ->
-  set_to_string(Set);
-t_to_string(?byte, _RecDict) -> "byte()";
-t_to_string(?char, _RecDict) -> "char()";
-t_to_string(?integer_pos, _RecDict) -> "pos_integer()";
-t_to_string(?integer_non_neg, _RecDict) -> "non_neg_integer()";
-t_to_string(?integer_neg, _RecDict) -> "neg_integer()";
-t_to_string(?int_range(From, To), _RecDict) ->
-  flat_format("~w..~w", [From, To]);
-t_to_string(?integer(?any), _RecDict) -> "integer()";
-t_to_string(?float, _RecDict) -> "float()";
-t_to_string(?number(?any, ?unknown_qual), _RecDict) -> "number()";
-t_to_string(?product(List), RecDict) -> 
-  "<" ++ comma_sequence(List, RecDict) ++ ">";
-t_to_string(?remote(Set), RecDict) ->
-  string:join([case Args =:= [] of
-		 true  -> flat_format("~w:~w()", [Mod, Name]);
-		 false ->
-		   ArgString = comma_sequence(Args, RecDict),
-		   flat_format("~w:~w(~s)", [Mod, Name, ArgString])
-	       end
-	       || #remote{mod = Mod, name = Name, args = Args} <-
-		    set_to_list(Set)],
-	      " | ");
-t_to_string(?map(Pairs), RecDict) ->
-    "#{" ++ map_pairs_to_string(Pairs,RecDict) ++ "}";
-t_to_string(?tuple(?any, ?any, ?any), _RecDict) -> "tuple()";
-t_to_string(?tuple(Elements, _Arity, ?any), RecDict) ->   
-  "{" ++ comma_sequence(Elements, RecDict) ++ "}";
-t_to_string(?tuple(Elements, Arity, Tag), RecDict) ->
+t_to_string(F, ?int_set(Set), _RecDict) ->
+  set_to_string(F, Set);
+t_to_string(F, ?byte, _RecDict) -> F:text("byte()");
+t_to_string(F, ?char, _RecDict) -> F:text("char()");
+t_to_string(F, ?integer_pos, _RecDict) -> F:text("pos_integer()");
+t_to_string(F, ?integer_non_neg, _RecDict) -> F:text("non_neg_integer()");
+t_to_string(F, ?integer_neg, _RecDict) -> F:text("neg_integer()");
+t_to_string(F, ?int_range(From, To), _RecDict) ->
+  F:flat_format("~w..~w", [From, To]);
+t_to_string(F, ?integer(?any), _RecDict) -> F:text("integer()");
+t_to_string(F, ?float, _RecDict) -> F:text("float()");
+t_to_string(F, ?number(?any, ?unknown_qual), _RecDict) -> F:text("number()");
+t_to_string(F, ?product(List), RecDict) ->
+  F:concat(F:text("<"), F:comma_sequence(List, RecDict), F:text(">"));
+t_to_string(F, ?remote(Set), RecDict) ->
+  F:join([ case Args =:= [] of
+	     true  -> F:flat_format("~w:~w()", [Mod, Name]);
+	     false ->
+	       ArgString = F:comma_sequence(Args, RecDict),
+	       F:flat_format("~w:~w(~s)", [Mod, Name, ArgString])
+	   end
+	   || #remote{mod = Mod, name = Name, args = Args} <-
+	      set_to_list(Set) ],
+	 F:text(" | "));
+t_to_string(F, ?map(Pairs), RecDict) ->
+  F:concat(F:text("#{"), map_pairs_to_string(F, Pairs, RecDict), F:text("}"));
+t_to_string(F, ?tuple(?any, ?any, ?any), _RecDict) -> F:text("tuple()");
+t_to_string(F, ?tuple(Elements, _Arity, ?any), RecDict) ->
+  F:concat(F:text("{"), F:comma_sequence(Elements, RecDict), F:text("}"));
+t_to_string(F, ?tuple(Elements, Arity, Tag), RecDict) ->
   [TagAtom] = atom_vals(Tag),
   case lookup_record(TagAtom, Arity-1, RecDict) of
-    error -> "{" ++ comma_sequence(Elements, RecDict) ++ "}";
+    error -> F:concat(F:text("{"), F:comma_sequence(Elements, RecDict), F:text("}"));
     {ok, FieldNames} ->
       record_to_string(TagAtom, Elements, FieldNames, RecDict)
   end;
-t_to_string(?tuple_set(_) = T, RecDict) ->
-  union_sequence(t_tuple_subtypes(T), RecDict);
-t_to_string(?union(Types), RecDict) ->
-  union_sequence([T || T <- Types, T =/= ?none], RecDict);
-t_to_string(?var(Id), _RecDict) when is_atom(Id) ->
-  flat_format("~s", [atom_to_list(Id)]);
-t_to_string(?var(Id), _RecDict) when is_integer(Id) ->
-  flat_format("var(~w)", [Id]).
+t_to_string(F, ?tuple_set(_) = T, RecDict) ->
+  F:union_sequence(t_tuple_subtypes(T), RecDict);
+t_to_string(F, ?union(Types), RecDict) ->
+  F:union_sequence([T || T <- Types, T =/= ?none], RecDict);
+t_to_string(F, ?var(Id), _RecDict) when is_atom(Id) ->
+  F:flat_format("~s", [atom_to_list(Id)]);
+t_to_string(F, ?var(Id), _RecDict) when is_integer(Id) ->
+  F:flat_format("var(~w)", [Id]).
 
 
-map_pairs_to_string([],_) -> [];
-map_pairs_to_string(Pairs,RecDict) ->
-    StrPairs = [{t_to_string(K,RecDict),t_to_string(V,RecDict)}||{K,V}<-Pairs],
+map_pairs_to_string(_F, [],_) -> [];
+map_pairs_to_string(F, Pairs,RecDict) ->
+    StrPairs = [{t_to_string(F, K,RecDict),t_to_string(F, V,RecDict)}||{K,V}<-Pairs],
     string:join([K ++ "=>" ++ V||{K,V}<-StrPairs], ", ").
 
 
@@ -3980,7 +3992,7 @@ record_fields_to_string([F|Fs], [{FName, _Abstr, _DefType}|FDefs],
     case t_is_equal(F, t_any()) orelse t_is_any_atom('undefined', F) of
       true -> Acc;
       false ->
-	StrFV = atom_to_string(FName) ++ "::" ++ t_to_string(F, RecDict),
+	StrFV = atom_to_string(FName) ++ "::" ++ t_to_string(F, F, RecDict),
 	%% ActualDefType = t_subtract(DefType, t_atom('undefined')),
 	%% Str = case t_is_any(ActualDefType) of
 	%% 	  true -> StrFV;
@@ -4007,41 +4019,30 @@ field_diffs([F|Fs], [{FName, _Abstr, DefType}|FDefs], RecDict, Acc) ->
     case not t_is_none(t_inf(F, DefType)) of
       true -> Acc;
       false ->
-	Str = atom_to_string(FName) ++ "::" ++ t_to_string(DefType, RecDict),
+	Str = atom_to_string(FName) ++ "::" ++ t_to_string(F, DefType, RecDict),
 	[Str|Acc]
     end,
   field_diffs(Fs, FDefs, RecDict, NewAcc);
 field_diffs([], [], _, Acc) ->
   lists:reverse(Acc).
 
-comma_sequence(Types, RecDict) ->
-  List = [case T =:= ?any of
-	    true -> "_";
-	    false -> t_to_string(T, RecDict)
-	  end || T <- Types],
-  string:join(List, ",").
-
-union_sequence(Types, RecDict) ->
-  List = [t_to_string(T, RecDict) || T <- Types], 
-  string:join(List, " | ").
-
 -ifdef(DEBUG).
-opaque_type(Mod, Name, _Args, S, RecDict) ->
-  ArgsString = comma_sequence(_Args, RecDict),
-  String = t_to_string(S, RecDict),
-  opaque_name(Mod, Name, ArgsString) ++ "[" ++ String ++ "]".
+opaque_type(F, Mod, Name, _Args, S, RecDict) ->
+  ArgsString = F:comma_sequence(_Args, RecDict),
+  String = t_to_string(F, S, RecDict),
+  F:concat(opaque_name(F, Mod, Name, ArgsString), F:text("["), String, F:text("]")).
 -else.
-opaque_type(Mod, Name, Args, _S, RecDict) ->
-  ArgsString = comma_sequence(Args, RecDict),
-  opaque_name(Mod, Name, ArgsString).
+opaque_type(F, Mod, Name, Args, _S, RecDict) ->
+  ArgsString = F:comma_sequence(Args, RecDict),
+  opaque_name(F, Mod, Name, ArgsString).
 -endif.
 
-opaque_name(Mod, Name, Extra) ->
-  S = mod_name(Mod, Name),
-  flat_format("~s(~s)", [S, Extra]).
+opaque_name(F, Mod, Name, Extra) ->
+  S = mod_name(F, Mod, Name),
+  F:flat_format("~s(~s)", [S, Extra]).
 
-mod_name(Mod, Name) ->
-  flat_format("~w:~w", [Mod, Name]).
+mod_name(F, Mod, Name) ->
+  F:flat_format("~w:~w", [Mod, Name]).
 
 %%=============================================================================
 %% 
@@ -4645,10 +4646,10 @@ t_form_to_string({op, _L, _Op, _Arg1, _Arg2} = Op) ->
 t_form_to_string({ann_type, _L, [Var, Type]}) ->
   t_form_to_string(Var) ++ "::" ++ t_form_to_string(Type);
 t_form_to_string({paren_type, _L, [Type]}) ->
-  flat_format("(~s)", [t_form_to_string(Type)]);
+  erl_types_flat_fmt:flat_format("(~s)", [t_form_to_string(Type)]);
 t_form_to_string({remote_type, _L, [{atom, _, Mod}, {atom, _, Name}, Args]}) ->
   ArgString = "(" ++ string:join(t_form_to_string_list(Args), ",") ++ ")",
-  flat_format("~w:~w", [Mod, Name]) ++ ArgString;
+  erl_types_flat_fmt:flat_format("~w:~w", [Mod, Name]) ++ ArgString;
 t_form_to_string({type, _L, arity, []}) -> "arity()";
 t_form_to_string({type, _L, binary, []}) -> "binary()";
 t_form_to_string({type, _L, binary, [Base, Unit]} = Type) ->
@@ -4659,9 +4660,9 @@ t_form_to_string({type, _L, binary, [Base, Unit]} = Type) ->
 	{0, 0} -> "<<>>";
 	{8, 0} -> "binary()";
 	{1, 0} -> "bitstring()";
-	{0, B} -> flat_format("<<_:~w>>", [B]);
-	{U, 0} -> flat_format("<<_:_*~w>>", [U]);
-	{U, B} -> flat_format("<<_:~w,_:_*~w>>", [B, U])
+	{0, B} -> erl_types_flat_fmt:flat_format("<<_:~w>>", [B]);
+	{U, 0} -> erl_types_flat_fmt:flat_format("<<_:_*~w>>", [U]);
+	{U, B} -> erl_types_flat_fmt:flat_format("<<_:~w,_:_*~w>>", [B, U])
       end;
     _ -> io_lib:format("Badly formed bitstr type ~w", [Type])
   end;
@@ -4689,16 +4690,16 @@ t_form_to_string({type, _L, product, Elements}) ->
 t_form_to_string({type, _L, range, [From, To]} = Type) ->
   case {erl_eval:partial_eval(From), erl_eval:partial_eval(To)} of
     {{integer, _, FromVal}, {integer, _, ToVal}} ->
-      flat_format("~w..~w", [FromVal, ToVal]);
-    _ -> flat_format("Badly formed type ~w",[Type])
+      erl_types_flat_fmt:flat_format("~w..~w", [FromVal, ToVal]);
+    _ -> erl_types_flat_fmt:flat_format("Badly formed type ~w",[Type])
   end;
 t_form_to_string({type, _L, record, [{atom, _, Name}]}) ->
-  flat_format("#~w{}", [Name]);
+  erl_types_flat_fmt:flat_format("#~w{}", [Name]);
 t_form_to_string({type, _L, record, [{atom, _, Name}|Fields]}) ->
   FieldString = string:join(t_form_to_string_list(Fields), ","),
-  flat_format("#~w{~s}", [Name, FieldString]);
+  erl_types_flat_fmt:flat_format("#~w{~s}", [Name, FieldString]);
 t_form_to_string({type, _L, field_type, [{atom, _, Name}, Type]}) ->
-  flat_format("~w::~s", [Name, t_form_to_string(Type)]);
+  erl_types_flat_fmt:flat_format("~w::~s", [Name, t_form_to_string(Type)]);
 t_form_to_string({type, _L, term, []}) -> "term()";
 t_form_to_string({type, _L, timeout, []}) -> "timeout()";
 t_form_to_string({type, _L, tuple, any}) -> "tuple()";
@@ -4714,12 +4715,12 @@ t_form_to_string({type, _L, Name, []} = T) ->
      S = {type, {M,Name,0}},
      {T1, _} =
        t_from_form(T, [], sets:new(), S, MR, D0, _Deep=1000, _ALot=100000),
-     t_to_string(T1)
+     t_to_string(erl_types_flat_fmt, T1)
   catch throw:{error, _} -> atom_to_string(Name) ++ "()"
   end;
 t_form_to_string({user_type, _L, Name, List}) ->
-  flat_format("~w(~s)",
-              [Name, string:join(t_form_to_string_list(List), ",")]);
+  erl_types_flat_fmt:flat_format("~w(~s)",
+				 [Name, string:join(t_form_to_string_list(List), ",")]);
 t_form_to_string({type, L, Name, List}) ->
   %% Compatibility: modules compiled before Erlang/OTP 18.0.
   t_form_to_string({user_type, L, Name, List}).
@@ -4735,7 +4736,7 @@ t_form_to_string_list([], Acc) ->
 -spec atom_to_string(atom()) -> string().
 
 atom_to_string(Atom) ->
-  flat_format("~w", [Atom]).
+  erl_types_flat_fmt:flat_format("~w", [Atom]).
 
 %%=============================================================================
 %% 
@@ -4907,20 +4908,17 @@ set_filter(Fun, Set) ->
 set_size(Set) ->
   ordsets:size(Set).
 
-set_to_string(Set) ->
+set_to_string(F, Set) ->
   L = [case is_atom(X) of
-	 true -> io_lib:write_string(atom_to_list(X), $'); % stupid emacs '
-	 false -> flat_format("~w", [X])
+	 true -> F:text(io_lib:write_string(atom_to_list(X), $')); % stupid emacs '
+	 false -> F:flat_format("~w", [X])
        end || X <- set_to_list(Set)],
-  string:join(L, " | ").
+  F:join(L, F:text(" | ")).
 
 set_min([H|_]) -> H.
 
 set_max(Set) ->
   hd(lists:reverse(Set)).
-
-flat_format(F, S) ->
-  lists:flatten(io_lib:format(F, S)).
 
 %%=============================================================================
 %% 
@@ -5147,6 +5145,6 @@ test() ->
 	   Union10,
 	   t_inf(Union10, t_tuple([t_atom(true), t_integer()]))
 	  ],
-  io:format("~p\n", [[t_to_string(X, RecDict) || X <- Types]]).
+  io:format("~p\n", [[t_to_string(F, X, RecDict) || X <- Types]]).
        
 -endif.
