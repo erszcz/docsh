@@ -1,4 +1,4 @@
--module(docsh_prettypr).
+-module(docsh_format).
 
 -export([type/1, type/2,
          type_attr/1, type_attr/2]).
