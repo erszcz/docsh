@@ -18,3 +18,10 @@ _tdeps
 logs
 _build
 tags
+*.P
+*.S
+*.E
+*.ast
+*.log
+*.html
+*.xml
