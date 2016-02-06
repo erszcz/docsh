@@ -35,7 +35,7 @@
 %% Author contact: richardc@it.uu.se, tobiasl@it.uu.se, kostis@cs.ntua.gr
 %% ======================================================================
 
--module(erl_types).
+-module(erl_types_fork).
 
 -export([any_none/1,
 	 any_none_or_unit/1,

@@ -5,12 +5,12 @@
 comma_sequence(Types, RecDict) ->
     List = [case T =:= any of
                 true -> text("_");
-                false -> erl_types:t_to_string(?MODULE, T, RecDict)
+                false -> erl_types_fork:t_to_string(?MODULE, T, RecDict)
             end || T <- Types],
     join(List, text(",")).
 
 union_sequence(Types, RecDict) ->
-    List = [erl_types:t_to_string(?MODULE, T, RecDict) || T <- Types],
+    List = [erl_types_fork:t_to_string(?MODULE, T, RecDict) || T <- Types],
     join(List, text(" | ")).
 
 flat_format(F, S) ->
