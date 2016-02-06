@@ -19,7 +19,7 @@ parse_transform(AST, _Options) ->
                  %% TODO: this should be stored in the "ExDc" chunk,
                  %%       but it's probably not possible from within a parse transform
                  %%       and it must be stored somewhere for now
-                 embed('__docs', convert(docsh_edoc, docsh_elixir_docs_v1, AST))
+                 embed('__docs', convert([docsh_edoc, docsh_syntax], docsh_elixir_docs_v1, AST))
                  | Rest]),
     %print("after: ~p~n", [ASTAfter]),
     ASTAfter.
@@ -27,9 +27,10 @@ parse_transform(AST, _Options) ->
 export(Functions) ->
     {attribute, 1, export, Functions}.
 
-convert(From, To, AST) ->
-    Internal = From:to_internal(file(AST)),
-    To:from_internal(Internal).
+convert(FromMods, ToMod, AST) ->
+    Internal = docsh_internal:merge([ FromMod:to_internal(file(AST))
+                                      || FromMod <- FromMods ]),
+    ToMod:from_internal(Internal).
 
 file(AST) ->
     {_,_,file,{File,_}} = lists:keyfind(file, 3, AST),
