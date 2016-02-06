@@ -30,9 +30,9 @@ type(Form, Opts) ->
     Site = {type, {m, t, 0}},
     RecDict = dict:new(),
     %% TODO: all the arguments are stubs - figure out what would make more sense
-    CRecord = erl_types:t_from_form(Form, ExpTypes, Site, RecDict),
+    CRecord = erl_types_fork:t_from_form(Form, ExpTypes, Site, RecDict),
     debug('type:c_record', CRecord),
-    Doc = erl_types:t_to_string(format(Opts), CRecord, RecDict),
+    Doc = erl_types_fork:t_to_string(format(Opts), CRecord, RecDict),
     debug('type:prettypr', Doc),
     debug('type', io_lib:format("~s", [prettypr:format(Doc)])).
 
