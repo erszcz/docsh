@@ -34,7 +34,7 @@ type(Form, Opts) ->
     debug('type:c_record', CRecord),
     Doc = erl_types_fork:t_to_string(format(Opts), CRecord, RecDict),
     debug('type:prettypr', Doc),
-    debug('type', io_lib:format("~s", [prettypr:format(Doc)])).
+    debug('type', io_lib:format("~s~n", [prettypr:format(Doc)])).
 
 debug(Tag, Content) ->
     docsh_lib:debug(Tag, "~s: ~p~n", [Tag, Content]),
