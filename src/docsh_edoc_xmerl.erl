@@ -31,10 +31,13 @@
 '#element#'(function, Data, Attrs, _Parents, _E) ->
     F1 = function_details_from_attrs(Attrs, #function{}),
     F2 = function_details_from_data(lists:flatten(Data), F1),
-    [{function, debug(function, {{F2#function.name, F2#function.arity},
-                                 {exported,    F2#function.exported},
-                                 {label,       F2#function.label},
-                                 {description, F2#function.description}})}];
+    NameArity = {F2#function.name, F2#function.arity},
+    [{{function, NameArity},
+      debug(function, {{name,        F2#function.name},
+                       {arity,       F2#function.arity},
+                       {exported,    F2#function.exported},
+                       {label,       F2#function.label},
+                       {description, F2#function.description}})}];
 '#element#'(see, Data, _Attrs, _Parents, _E) ->
     {fmt, debug(see, ["See ", Data, "\n"])};
 '#element#'(equiv, Data, _Attrs, _Parents, _E) ->
