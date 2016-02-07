@@ -23,10 +23,11 @@ edoc_to_internal(_) ->
     ct:pal("~p", [File]),
     ?eq([{module, [{name, edoc_example},
                    {description, <<"Top-level module doc.\n">>}]},
-         {function, {{f,0},
-                     {exported, true},
-                     {label, <<"f-0">>},
-                     {description, <<"Doc for f/0.\n">>}}}],
+         {{function, {f,0}}, {{name, f},
+                              {arity, 0},
+                              {exported, true},
+                              {label, <<"f-0">>},
+                              {description, <<"Doc for f/0.\n">>}}}],
         ?TESTED:to_internal(File)).
 
 edoc_format(_) ->
@@ -110,8 +111,8 @@ edoc_format(_, Element, Expected) ->
     ?eq([Expected], [D]).
 
 function_description(F, Docs) ->
-    Functions = proplists:get_all_values(function, Docs),
-    {F,_,_,{description, D}} = lists:keyfind(F, 1, Functions),
+    {{function, F},
+     {_,_,_,_,{description, D}}} = lists:keyfind({function, F}, 1, Docs),
     D.
 
 source_file(Mod) ->
