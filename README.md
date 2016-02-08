@@ -3,7 +3,7 @@
 Still can't write match specs from the top of your head?
 Forgetting again and again `dbg` flags or the syntax of `recon` trace patterns?
 Ever wished for access to documentation straight from `erl`
-the way it's possible in civilized languages like Python, Ruby or Elixir?
+the way it's possible in modern languages like Python, Ruby or Elixir?
 
 ```
 > recon:h().
