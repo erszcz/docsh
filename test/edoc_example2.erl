@@ -10,7 +10,7 @@
          text2/0,
          ul/0]).
 
--include_lib("docsh/include/pt_docsh.hrl").
+-include_lib("docsh/include/docsh.hrl").
 
 %% @doc g() returns a more complex value,
 %% while its documentation uses more complex markup.

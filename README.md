@@ -79,7 +79,7 @@ In no particular order:
 - [x] Make [Recon](https://github.com/ferd/recon) compile with `docsh`
       and provide useful docs for all commented modules.
 
-- [ ] Use a `core_transform` instead of a `parse_transform` to generate code.
+- [x] Use a `core_transform` instead of a `parse_transform` to generate code.
       [Notes on using Core Erlang](notes.md#using-core-erlang)
       describe why it makes sense.
 

@@ -3,7 +3,7 @@
 -module(edoc_example).
 -export([f/0]).
 
--include_lib("docsh/include/pt_docsh.hrl").
+-include_lib("docsh/include/docsh.hrl").
 
 -type l(A) :: list(A).
 -type l() :: list().
