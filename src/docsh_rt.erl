@@ -13,7 +13,12 @@
 h(Mod) ->
     F = fun (Docs) ->
                 {_, ModDoc} = proplists:get_value(moduledoc, Docs),
-                ModDoc
+                Types = proplists:get_value(types, Docs),
+                io_lib:format("## Description~n~n~s~n"
+                              "## Types~n~n~s~n",
+                              [ModDoc,
+                               [ io_lib:format("  ~p :: ~s~n", [Name, Desc])
+                                 || {Name, Desc} <- Types ]])
         end,
     guard_no_docs(Mod, F).
 
