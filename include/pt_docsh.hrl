@@ -1,1 +1,0 @@
--compile([{parse_transform, pt_docsh}]).
