@@ -1,3 +1,3 @@
--module(docsh_to).
+-module(docsh_writer).
 
 -callback from_internal(docsh:internal()) -> any().

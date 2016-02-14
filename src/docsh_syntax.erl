@@ -1,6 +1,6 @@
 -module(docsh_syntax).
 
--behaviour(docsh_from).
+-behaviour(docsh_reader).
 -export([to_internal/1]).
 -export([specs/1,
          types/1]).
