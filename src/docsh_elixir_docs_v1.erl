@@ -1,5 +1,5 @@
 -module(docsh_elixir_docs_v1).
--behaviour(docsh_to).
+-behaviour(docsh_writer).
 
 -export([from_internal/1]).
 

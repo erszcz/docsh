@@ -1,6 +1,6 @@
 -module(docsh_edoc).
 
--behaviour(docsh_from).
+-behaviour(docsh_reader).
 -export([to_internal/1]).
 
 -export([flat/1]).
