@@ -44,7 +44,7 @@
 %%% BIFs
 -export([keyfind/3, keymember/3, keysearch/3, member/2, reverse/2]).
 
--include_lib("docsh/include/pt_docsh.hrl").
+-include_lib("docsh/include/docsh.hrl").
 
 %% Shadowed by erl_bif_types: lists:keyfind/3
 -spec keyfind(Key, N, TupleList) -> Tuple | false when
