@@ -2,8 +2,7 @@
 
 -behaviour(docsh_reader).
 -export([to_internal/1]).
--export([specs/1,
-         types/1]).
+-export([types/1]).
 
 -import(docsh_lib, [debug/3]).
 
@@ -13,7 +12,6 @@
 -spec to_internal(file:filename()) -> docsh:internal().
 to_internal(File) ->
     {ok, Forms} = epp:parse_file(File, []),
-    %specs(Forms),
     [{module, [{name, module_name(Forms)}]}] ++ types(Forms).
 
 module_name(Forms) ->
@@ -26,22 +24,13 @@ find_module_name([]) -> throw('$__not_found__');
 find_module_name([{attribute, _, module, Mod} | _Forms]) -> throw(Mod);
 find_module_name([_ | Forms]) -> find_module_name(Forms).
 
-specs(Forms) ->
-    [].
-    %debug(specs, [ iolist_to_binary(desc(T))
-    %               || T <- lists:flatmap(fun spec/1, Forms)]).
-
 types(Forms) ->
     debug(types, [ {{type, type_name_arity(T)}, {description, ?il2b(desc(T))}}
-                   || T <- lists:flatmap(fun type/1, Forms)]).
-
-spec({attribute,_,spec,_} = A) -> [A];
-spec(_) -> [].
+                   || T <- lists:flatmap(fun type/1, Forms) ]).
 
 type({attribute,_,type,_} = A) -> [A];
 type(_) -> [].
 
-%desc({attribute,_,spec,_} = A) -> docsh_format:spec_attr(A);
 desc({attribute,_,type,_} = A) -> debug('repr:type', docsh_format:type_attr(A)).
 
 type_name_arity({attribute,_,type,Data}) ->
