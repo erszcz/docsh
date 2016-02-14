@@ -28,9 +28,15 @@ join_t([], _Sep) -> prettypr:empty();
 join_t([H], _Sep) -> H;
 join_t([H|T], Sep) -> prettypr:sep([prettypr:beside(H, Sep), join_t(T, Sep)]).
 
-join_l([], _Sep) -> prettypr:empty();
-join_l([H], _Sep) -> H;
-join_l([H|T], Sep) -> prettypr:follow(H, prettypr:follow(text(Sep), join_l(T, Sep), 0), 0).
+join_l(List, Sep) ->
+    {_, {beside, {sep,[_, Text], X, Y}, Rest}} = lists:foldr(fun do_join_l/2,
+                                                          {text(Sep), prettypr:empty()}, List),
+    Separated = {beside, Text, Rest},
+    docsh_lib:debug(join_l, "join_l: ~p~n", [Separated]),
+    Separated.
+
+do_join_l(E, {Sep, Acc}) ->
+    {Sep, prettypr:follow(Sep, prettypr:follow(E, Acc, 0), 0)}.
 
 text({text, _} = T) -> T;
 text([]) -> prettypr:empty();
