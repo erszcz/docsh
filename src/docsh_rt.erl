@@ -51,5 +51,4 @@ guard_not_supported(_, _) ->
 
 types(Docs) ->
     Types = proplists:get_value(types, Docs),
-    [ [<<"-type ">>, ?a2b(Name), $/, ?i2b(Arity), <<" :: ">>, Desc, $\n]
-      || {{Name, Arity}, Desc} <- Types ].
+    [ [Desc, $\n, $\n] || {{Name, Arity}, Desc} <- Types ].

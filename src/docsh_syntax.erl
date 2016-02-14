@@ -31,7 +31,8 @@ types(Forms) ->
 type({attribute,_,type,_} = A) -> [A];
 type(_) -> [].
 
-desc({attribute,_,type,_} = A) -> debug('repr:type', docsh_format:type_attr(A)).
+desc({attribute,_,type,_} = A) ->
+    debug('repr:type', docsh_format:type_attr(A)).
 
 type_name_arity({attribute,_,type,Data}) ->
     {Name, _, Args} = Data,
