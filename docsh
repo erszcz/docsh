@@ -35,10 +35,20 @@ edoc () {
     esac
 }
 
-case $1 in
-edoc)
+syntax () {
+    local subcmd=$1
+    local module=$2
+    case $subcmd in
+    to_internal)
+        do_erl -eval 'docsh_syntax:to_internal("'$module'"),halt().'
+    esac
+}
+
+SUBCMD=$1
+case $SUBCMD in
+edoc|syntax)
     shift
-    edoc $@
+    $SUBCMD $@
     ;;
 *)
     echo $0: $cmd unknown
