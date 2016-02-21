@@ -23,7 +23,7 @@ from_internal(Internal) ->
 do({module, Info}) ->
     {moduledoc, {x, get(description, Info, <<"(description missing)">>)}};
 do({{type, NameArity}, {description, Desc}}) ->
-    %% TODO: this is not complient with Elixir docs format! make it so!
+    %% TODO: this is not compliant with Elixir docs format! make it so!
     {types, {NameArity, Desc}};
 do({{function, NameArity}, {_, _, _, _, {description, D}}}) ->
     {docs, {NameArity,
