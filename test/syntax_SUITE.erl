@@ -14,9 +14,10 @@ syntax_to_internal(_) ->
     File = source_file(edoc_example),
     ct:pal("~p", [File]),
     ?eq([{module, [{name, edoc_example}]},
-         {{type, {l,1}}, {description, <<"[A]\n">>}},
-         {{type, {l,0}}, {description, <<"[any()]\n">>}},
-         {{type, {r,0}}, {description, <<"'ok'\n">>}}],
+         {{spec, {f,0}}, {description, <<"-spec f() -> r().\n">>}},
+         {{type, {l,0}}, {description, <<"-type l() :: list().\n">>}},
+         {{type, {l,1}}, {description, <<"-type l(A) :: [A].\n">>}},
+         {{type, {r,0}}, {description, <<"-type r() :: ok.\n">>}}],
         ?TESTED:to_internal(File)).
 
 source_file(Mod) ->

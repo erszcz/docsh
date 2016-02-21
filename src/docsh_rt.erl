@@ -25,10 +25,12 @@ h(Mod) ->
 h(Mod, Fun, Arity) ->
     F = fun (Docs) ->
                 {docs, FunDocs} = lists:keyfind(docs, 1, Docs),
+                {specs, Specs} = lists:keyfind(specs, 1, Docs),
                 FA = {Fun, Arity},
                 %% TODO: fragile
                 {FA,_,_,_,Doc} = lists:keyfind(FA, 1, FunDocs),
-                Doc
+                {FA,Spec} = lists:keyfind(FA, 1, Specs),
+                io_lib:format("~s~n~s", [Spec, Doc])
         end,
     guard_no_docs(Mod, F).
 
