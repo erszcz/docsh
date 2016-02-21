@@ -7,16 +7,41 @@ the way it's possible in modern languages like Python, Ruby or Elixir?
 
 ```
 > recon:h().
+## Description
+
 Recon, as a module, provides access to the high-level functionality
 contained in the Recon application.
-...
+... snip ...
+
+## Types
+
+-type proc_attrs() ::
+          {pid(),
+           Attr :: _,
+           [Name ::
+                atom() |
+                {current_function, mfa()} |
+                {initial_call, mfa()},
+            ...]}.
+
+-type inet_attrs() :: {port(), Attr :: _, [{atom(), term()}]}.
+
+... snip ...
+
 > recon:h(get_state, 1).
+-spec get_state(pid_term()) -> term().
+
 Shorthand call to recon:get_state(PidTerm, 5000)
+
 ok
 > recon:h(get_state, 2).
+-spec get_state(pid_term(), Ms :: non_neg_integer() | infinity) ->
+                   term().
+
 Fetch the internal state of an OTP process.
 Calls sys:get_state/2 directly in R16B01+, and fetches
 it dynamically on older versions of OTP.
+
 ok
 >
 ```
@@ -55,10 +80,10 @@ Include the public header file in your module exposing a shell-usable API
 with embedded documentation:
 
 ```erlang
--include_lib("docsh/include/pt_docsh.hrl").
+-include_lib("docsh/include/docsh.hrl").
 ```
 
-The header contains a `parse_transform` directive which will embed the
+The header contains a `compile` directive which will embed the
 documentation straight into the generated `.beam` file,
 therefore making it accessible wherever you ship your code.
 No extra build steps, no separate doc package - when you deploy your code,
@@ -83,9 +108,9 @@ In no particular order:
       [Notes on using Core Erlang](notes.md#using-core-erlang)
       describe why it makes sense.
 
-- [ ] Include defined types in module description.
+- [x] Include defined types in module description.
 
-- [ ] Include specs in function descriptions.
+- [x] Include specs in function descriptions.
       Extract specs from the AST or input docs if possible.
 
 - [ ] Fix EDdoc extraction and formatting ~~by calculating element
