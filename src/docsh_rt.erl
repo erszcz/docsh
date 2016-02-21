@@ -51,4 +51,4 @@ guard_not_supported(_, _) ->
 
 types(Docs) ->
     Types = proplists:get_value(types, Docs),
-    [ [Desc, $\n, $\n] || {{Name, Arity}, Desc} <- Types ].
+    docsh_lib:join([ Desc || {{_Name, _Arity}, Desc} <- Types ], "\n").

@@ -2,7 +2,8 @@
 
 -export([get/2, get/3,
          debug/3,
-         print/2]).
+         print/2,
+         join/2]).
 
 -type k() :: any().
 -type v() :: any().
@@ -42,3 +43,7 @@ debug_matching(Tags, Tag, Fmt, Args) ->
                                is_list(Args) -> Args
                            end)
     end.
+
+join([], _Sep) -> [];
+join([H], _Sep) -> [H];
+join([H|T], Sep) -> [H, Sep | join(T, Sep)].

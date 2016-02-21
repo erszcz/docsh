@@ -32,7 +32,7 @@ type({attribute,_,type,_} = A) -> [A];
 type(_) -> [].
 
 desc({attribute,_,type,_} = A) ->
-    debug('repr:type', docsh_format:type_attr(A)).
+    debug('repr:type', type_attr(A)).
 
 type_name_arity({attribute,_,type,Data}) ->
     {Name, _, Args} = Data,
@@ -42,3 +42,6 @@ type_name_arity({attribute,_,type,Data}) ->
 debug(Tag, Content) ->
     docsh_lib:debug(Tag, "~s: ~p~n", [Tag, Content]),
     Content.
+
+type_attr(Attr) ->
+    erl_pp:form(Attr).
