@@ -1,12 +1,22 @@
 -module(docsh_lib).
 
--export([get/2, get/3,
+-export([convert/3,
+         get/2, get/3,
          debug/3,
-         print/2,
+         print/2, print/3,
          join/2]).
 
 -type k() :: any().
 -type v() :: any().
+
+-spec convert(FromMods, ToMod, AST) -> docsh:external() when
+      FromMods :: [module()],
+      ToMod :: module(),
+      AST :: [erl_parse:abstract_form()].
+convert(FromMods, ToMod, AST) ->
+    Internal = docsh_internal:merge([ FromMod:to_internal(file(AST))
+                                      || FromMod <- FromMods ]),
+    ToMod:from_internal(Internal).
 
 %% Error if Key is not found!
 -spec get(k(), [{k(), v()}]) -> v().
@@ -25,7 +35,11 @@ get(Key, Props, Default) ->
 
 -spec print(io:format(), [term()]) -> ok.
 print(Fmt, Args) ->
-    io:format(Fmt, Args).
+    print(standard_io, Fmt, Args).
+
+-spec print(io:device(), io:format(), [term()]) -> ok.
+print(Handle, Fmt, Args) ->
+    io:format(Handle, Fmt, Args).
 
 -spec debug(atom(), io:format(), [term()] | fun(() -> [term()])) -> ok.
 debug(Tag, Fmt, Args) ->
@@ -44,6 +58,11 @@ debug_matching(Tags, Tag, Fmt, Args) ->
                            end)
     end.
 
+-spec join([v()], v()) -> [v()].
 join([], _Sep) -> [];
 join([H], _Sep) -> [H];
 join([H|T], Sep) -> [H, Sep | join(T, Sep)].
+
+file(AST) ->
+    {_,_,file,{File,_}} = lists:keyfind(file, 3, AST),
+    File.

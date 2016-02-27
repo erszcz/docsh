@@ -3,7 +3,8 @@
 
 -compile([{parse_transform, parse_trans_codegen}]).
 
--import(docsh_lib, [print/2]).
+-import(docsh_lib, [convert/3,
+                    print/2]).
 
 -define(il2b(IOList), iolist_to_binary(IOList)).
 
@@ -26,15 +27,6 @@ parse_transform(AST, _Options) ->
 
 export(Functions) ->
     {attribute, 1, export, Functions}.
-
-convert(FromMods, ToMod, AST) ->
-    Internal = docsh_internal:merge([ FromMod:to_internal(file(AST))
-                                      || FromMod <- FromMods ]),
-    ToMod:from_internal(Internal).
-
-file(AST) ->
-    {_,_,file,{File,_}} = lists:keyfind(file, 3, AST),
-    File.
 
 embed(EmbeddedName, Docs) ->
     %% codegen:gen_function is expanded by a parse tree transformation,
