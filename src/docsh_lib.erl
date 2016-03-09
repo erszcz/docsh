@@ -5,7 +5,6 @@
          get/2, get/3,
          debug/3,
          print/2, print/3,
-         join/2,
          process_beam/1]).
 
 -type k() :: any().
@@ -59,11 +58,6 @@ debug_matching(Tags, Tag, Fmt, Args) ->
                                is_list(Args) -> Args
                            end)
     end.
-
--spec join([v()], v()) -> [v()].
-join([], _Sep) -> [];
-join([H], _Sep) -> [H];
-join([H|T], Sep) -> [H, Sep | join(T, Sep)].
 
 %% @doc Find file name in an Erlang module abstract syntax tree.
 -spec file([erl_parse:abstract_form()]) -> string().

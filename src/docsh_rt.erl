@@ -18,7 +18,7 @@ h(Mod) ->
     F = fun (Docs) ->
                 {_, ModDoc} = proplists:get_value(moduledoc, Docs),
                 io_lib:format("## Description~n~n~s~n"
-                              "## Types~n~n~s~n",
+                              "## Types~n~s~n",
                               [ModDoc, types(Docs)])
         end,
     guard_no_docs(Mod, F).
@@ -54,7 +54,7 @@ guard_not_supported(_, _) ->
 
 types(Docs) ->
     Types = proplists:get_value(types, Docs),
-    docsh_lib:join([ Desc || {{_Name, _Arity}, Desc} <- Types ], "\n").
+    [ ["\n", Desc] || {{_Name, _Arity}, Desc} <- Types ].
 
 get_elixir_docs_v1(Mod) ->
     BEAMFile = code:which(Mod),
