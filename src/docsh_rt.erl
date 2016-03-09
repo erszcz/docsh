@@ -1,6 +1,7 @@
 -module(docsh_rt).
 -compile([debug_info,
-          {inline, [guard_no_docs/2,
+          {inline, [get_elixir_docs_v1/1,
+                    guard_no_docs/2,
                     guard_not_supported/2,
                     types/1]}]).
 
@@ -36,13 +37,13 @@ h(Mod, Fun, Arity) ->
 
 guard_no_docs(Mod, Fun) ->
     T = try
-            guard_not_supported(Fun, Mod:'__docs'())
+            guard_not_supported(Fun, get_elixir_docs_v1(Mod))
         catch
-            error:undef ->
+            error:no_exdc ->
                 <<"Module documentation not found">>;
-            E:R ->
-                ?il2b([<<"Internal error: ">>,
-                       io_lib:format("~p:~p", [E, R])])
+            _:R ->
+                ?il2b([<<"docsh error: ">>,
+                       io_lib:format("~p\n~p\n", [R, erlang:get_stacktrace()])])
         end,
     io:format("~s~n", [T]).
 
@@ -54,3 +55,12 @@ guard_not_supported(_, _) ->
 types(Docs) ->
     Types = proplists:get_value(types, Docs),
     docsh_lib:join([ Desc || {{_Name, _Arity}, Desc} <- Types ], "\n").
+
+get_elixir_docs_v1(Mod) ->
+    BEAMFile = code:which(Mod),
+    case beam_lib:chunks(BEAMFile, ["ExDc"]) of
+        {ok, {Mod, [{"ExDc", BExDc}]}} ->
+            erlang:binary_to_term(BExDc);
+        {error, _, {missing_chunk, _, _}} ->
+            error(no_exdc)
+    end.
