@@ -130,7 +130,7 @@ exdc({abst, BAbst}) ->
     FromMods = [docsh_edoc, docsh_syntax],
     ToMod = docsh_elixir_docs_v1,
     ExDc = convert(FromMods, ToMod, Abst),
-    {"ExDc", term_to_binary(ExDc)}.
+    {"ExDc", term_to_binary(ExDc, [compressed])}.
 %% TODO exdc from source file
 %exdc({source, File})) ->
 
