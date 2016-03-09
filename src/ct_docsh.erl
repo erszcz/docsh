@@ -16,7 +16,7 @@ core_transform(Mod, _Opts) ->
                                  exports(Addons, cerl:module_exports(Mod)),
                                  cerl:module_attrs(Mod),
                                  defs(Addons, cerl:module_defs(Mod))),
-    %print("after: ~p~n", [After]),
+    %print("after: ~s~n", [core_pp:format(After)]),
     After.
 
 addons(Mod, Templates) ->
