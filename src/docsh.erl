@@ -21,20 +21,31 @@
 %% Escript API
 %%
 
-main(["beam" | BEAMFile]) -> 'try'(fun () -> process_beam(BEAMFile) end);
+main(["transform", BEAMFile]) ->
+    'try'(fun () -> process_beam(BEAMFile) end);
+main(["transform", BEAMFile, "to", NewBEAMFile]) ->
+    'try'(fun () -> {ok, NewBEAM} = process_beam(BEAMFile),
+                    ok = file:write_file(NewBEAMFile, NewBEAM) end);
+main(["diff", BEAM1, BEAM2]) ->
+    'try'(fun () -> print("~p~n", [docsh_lib:beam_diff(BEAM1, BEAM2)]) end);
 main(_) ->
     usage(),
     erlang:halt(1).
 
 process_beam(BEAMFile) ->
-    case {has_debug_info(BEAMFile),
-          has_source_available(BEAMFile)}
+    case {has_exdc(BEAMFile),
+          get_debug_info(BEAMFile),
+          get_source_file(BEAMFile)}
     of
-        {{true, Abst}, _} ->
+        {true, _, _} ->
+            error("ExDc already present", [BEAMFile]);
+        {false, {ok, Abst}, _} ->
             rebuild(BEAMFile, [exdc({abst, Abst})]);
-        {_, {true, File}} ->
-            rebuild(BEAMFile, [exdc({source, File})]);
-        _ -> error("neither debug_info nor .erl available", [BEAMFile])
+        %% TODO exdc from source file
+        %{false, _, {ok, File}} ->
+        %    rebuild(BEAMFile, [exdc({source, File})]);
+        _ ->
+            error("neither debug_info nor .erl available", [BEAMFile])
     end.
 
 %%
@@ -45,31 +56,42 @@ process_beam(BEAMFile) ->
     try F()
     catch
         _:R -> print(standard_error, "~s: ~s~n", [progname(), R]),
+               print(standard_error, "~p~n", [erlang:get_stacktrace()]),
                erlang:halt(2)
     end.
 
 usage() ->
     print(standard_error,
-          "~s: usage~n", [progname()]).
+          "usage: ~s~n", [progname()]).
 
 progname() ->
     filename:basename(hd(init:get_plain_arguments())).
 
-has_debug_info(BEAMFile) ->
+has_exdc(BEAMFile) ->
+    {ok, _, Chunks} = beam_lib:all_chunks(BEAMFile),
+    case catch ([ throw(true) || {"ExDc", _} <- Chunks ]) of
+        true -> true;
+        _    -> false
+    end.
+
+-spec get_debug_info(file:filename()) -> binary().
+get_debug_info(BEAMFile) ->
     case beam_lib:chunks(BEAMFile, ["Abst"]) of
-        {ok, {_Module, [{"Abst", Abst}]}} -> {true, Abst};
+        {ok, {_Module, [{"Abst", Abst}]}} -> {ok, Abst};
         _ -> false
     end.
 
-has_source_available(BEAMFile) ->
+-spec get_source_file(file:filename()) -> file:filename().
+get_source_file(BEAMFile) ->
     try get_source((modname(BEAMFile)):module_info(compile)) of
         File when is_list(File) ->
             case filelib:is_regular(File) of
-                true -> {true, File};
+                true -> {ok, File};
                 _ -> false
             end
     catch _:_ -> false end.
 
+-spec modname(string()) -> module().
 modname(BEAMFile) ->
     Base = filename:basename(BEAMFile, ".beam"),
     list_to_atom(Base).
@@ -78,17 +100,15 @@ get_source(CompileInfo) ->
     {source, File} = lists:keyfind(source, 1, CompileInfo),
     File.
 
-exdc({abst, Abst}) ->
+exdc({abst, BAbst}) ->
+    {raw_abstract_v1, Abst} = binary_to_term(BAbst),
     FromMods = [docsh_edoc, docsh_syntax],
     ToMod = docsh_elixir_docs_v1,
-    ExDc = docsh_lib:convert(FromMods, ToMod, binary_to_term(Abst)),
+    ExDc = docsh_lib:convert(FromMods, ToMod, Abst),
     {"ExDc", term_to_binary(ExDc)}.
+%% TODO exdc from source file
 %exdc({source, File})) ->
 
 rebuild(BEAMFile, NewChunks) ->
     {ok, _, OldChunks} = beam_lib:all_chunks(BEAMFile),
-    check_for_exdc(OldChunks),
-    beam_lib:build_module(OldChunks ++ NewChunks).
-
-check_for_exdc(Chunks) ->
-    [ error("ExDc already present", [Chunks]) || {"ExDc", _} <- Chunks ].
+    {ok, _NewBEAM} = beam_lib:build_module(OldChunks ++ NewChunks).
