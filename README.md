@@ -64,6 +64,19 @@ recon:h().
 
 ## Use
 
+**WARNING: This section is temporarily invalid,
+since documentation is no longer embedded at the parse transformation stage,
+and no rebar3 plugin is available yet!**
+For now it's only possible to embed docs into a .beam file using the EScript, like so:
+
+```sh
+./rebar3 compile && ./rebar3 escriptize
+erlc +debug_info -pa _build/default/lib/docsh/ebin/ test/recon.erl
+_build/default/bin/docsh transform recon.beam to recon.beam
+```
+
+The resulting `recon` module will have embedded documentation and the `h/0,2` helpers available.
+
 Rebar3:
 
 ```erlang
