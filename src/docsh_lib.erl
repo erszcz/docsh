@@ -1,6 +1,7 @@
 -module(docsh_lib).
 
--export([convert/3,
+-export([beam_diff/2,
+         convert/3,
          get/2, get/3,
          debug/3,
          print/2, print/3,
@@ -63,6 +64,19 @@ join([], _Sep) -> [];
 join([H], _Sep) -> [H];
 join([H|T], Sep) -> [H, Sep | join(T, Sep)].
 
+%% @doc Find file name in an Erlang module abstract syntax tree.
+-spec file([erl_parse:abstract_form()]) -> string().
 file(AST) ->
     {_,_,file,{File,_}} = lists:keyfind(file, 3, AST),
     File.
+
+%% @doc Show the difference between chunk sets of two modules.
+-spec beam_diff(BEAM, BEAM) -> [{BEAM, module(), list()}] when
+      BEAM :: beam_lib:beam().
+beam_diff(BEAM1, BEAM2) ->
+    {ok, Name1, Chunks1} = beam_lib:all_chunks(BEAM1),
+    {ok, Name2, Chunks2} = beam_lib:all_chunks(BEAM2),
+    Keys1 = [ K || {K, _} <- Chunks1 ],
+    Keys2 = [ K || {K, _} <- Chunks2 ],
+    [{BEAM1, Name1, Keys1 -- Keys2},
+     {BEAM2, Name2, Keys2 -- Keys1}].
