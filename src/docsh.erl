@@ -23,7 +23,7 @@
 main(["beam" | BEAMFile]) -> 'try'(fun () -> process_beam(BEAMFile) end);
 main(_) ->
     usage(),
-    init:stop(1).
+    erlang:halt(1).
 
 process_beam(BEAMFile) ->
     case {has_debug_info(BEAMFile),
@@ -42,7 +42,10 @@ process_beam(BEAMFile) ->
 
 'try'(F) ->
     try F()
-    catch error:R -> print(standard_error, "~s: ~s~n", [progname(), R]) end.
+    catch
+        _:R -> print(standard_error, "~s: ~s~n", [progname(), R]),
+               erlang:halt(2)
+    end.
 
 usage() ->
     print(standard_error,
