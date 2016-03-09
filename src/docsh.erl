@@ -21,20 +21,38 @@
 %% Escript API
 %%
 
-main(["transform", BEAMFile]) ->
-    'try'(fun () -> docsh_lib:process_beam(BEAMFile) end);
-main(["transform", BEAMFile, "to", NewBEAMFile]) ->
-    'try'(fun () -> {ok, NewBEAM} = docsh_lib:process_beam(BEAMFile),
-                    ok = file:write_file(NewBEAMFile, NewBEAM) end);
-main(["diff", BEAM1, BEAM2]) ->
-    'try'(fun () -> print("~p~n", [docsh_lib:beam_diff(BEAM1, BEAM2)]) end);
-main(_) ->
-    usage(),
-    erlang:halt(1).
+main(Args) -> process_args(Args, opts()).
 
 %%
 %% Helpers
 %%
+
+opts() ->
+    [ {"transform BEAMFile to NewBEAMFile", fun transform/1},
+      {"diff BEAMFile1 BEAMFile2",          fun diff/1},
+      {"help",                              fun usage/1} ].
+
+transform(["transform", BEAMFile, "to", NewBEAMFile]) ->
+    'try'(fun () -> {ok, NewBEAM} = docsh_lib:process_beam(BEAMFile),
+                    ok = file:write_file(NewBEAMFile, NewBEAM) end).
+
+diff(["diff", BEAM1, BEAM2]) ->
+    'try'(fun () -> Diff = docsh_lib:beam_diff(BEAM1, BEAM2),
+                    print("~p~n", [Diff]) end).
+
+usage(_) ->
+    usage(),
+    erlang:halt(1).
+
+process_args(Args, Opts) ->
+    lists:foldl(fun process_arg/2, {next, Args}, Opts).
+
+process_arg({_Desc, F}, done) -> done;
+process_arg({_Desc, F}, {next, Args}) ->
+    case catch erlang:apply(F, [Args]) of
+        {'EXIT', {function_clause, _}} -> {next, Args};
+        _ -> done
+    end.
 
 'try'(F) ->
     try F()
@@ -46,7 +64,13 @@ main(_) ->
 
 usage() ->
     print(standard_error,
-          "usage: ~s~n", [progname()]).
+          "usage: ~s", [ [ [padding(I), progname(), " ", Desc, "\n"]
+                           || {I, {Desc, _}} <- enum(opts()) ] ]).
+
+padding(1) -> "";
+padding(_) -> "       ".
+
+enum(List) -> lists:zip(lists:seq(1, length(List)), List).
 
 progname() ->
     filename:basename(hd(init:get_plain_arguments())).
