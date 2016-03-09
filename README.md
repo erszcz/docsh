@@ -121,9 +121,11 @@ In no particular order:
 
 - [ ] Provide an example repo/branch showing how to use `docsh`.
 
-- [ ] Provide a tool to embed docs into an "ExDc" chunk like Elixir does:
+- [ ] Provide a tool to embed docs into a .beam file "ExDc" chunk like Elixir does:
 
-    * [ ] EScript for command-line use.
+    * [ ] Try to find source code and munge it to get the docs if debug
+          info is not available.
+    * [x] EScript for command-line use.
     * [ ] Rebar3 plugin for a post-compile build step.
 
 - [ ] `user_default` extensions:
@@ -133,6 +135,8 @@ In no particular order:
     * [ ] To enable reading Elixir embedded documentation;
           the same doc format is used intentionally,
           though for now `docsh` doesn't store docs in the same place as Elixir does.
+    * [ ] Provide documentation for well-known modules (read: OTP)
+          from a cache seeded from .erl sources or an external database?
 
 [edoc:module-tags]: http://erlang.org/doc/apps/edoc/chapter.html#Module_tags
 
