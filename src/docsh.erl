@@ -2,19 +2,20 @@
 
 -export([main/1]).
 
--export_type([internal/0]).
+-export_type([external/0,
+              internal/0]).
 
 -import(docsh_lib, [print/2, print/3]).
-
-%% Internal documentation format.
-%% All `docsh_reader` modules convert to this format from their input.
-%% All `docsh_writer` modules convert from this format to desired output.
--type internal() :: [{atom(), any()}].
 
 %% External documentation format.
 %% Right now the only supported format is docsh_elixir_docs_v1 which aims
 %% to be compatible with Elixir at some point in the future.
 -type external() :: any().
+
+%% Internal documentation format.
+%% All `docsh_reader` modules convert to this format from their input.
+%% All `docsh_writer` modules convert from this format to desired output.
+-type internal() :: [{atom(), any()}].
 
 %%
 %% Escript API
