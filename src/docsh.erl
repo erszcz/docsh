@@ -8,8 +8,8 @@
 -import(docsh_lib, [print/2, print/3]).
 
 %% External documentation format.
-%% Right now the only supported format is docsh_elixir_docs_v1 which aims
-%% to be compatible with Elixir at some point in the future.
+%% Right now the only supported format is docsh_elixir_docs_v1 which
+%% (TODO) aims to be compatible with Elixir at some point in the future.
 -type external() :: any().
 
 %% Internal documentation format.
