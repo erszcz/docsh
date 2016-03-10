@@ -57,9 +57,9 @@ process_arg({_Desc, F}, {next, Args}) ->
 'try'(F) ->
     try F()
     catch
-        _:R -> print(standard_error, "~s: ~s~n", [progname(),
-                                                  docsh_lib:format_error(R)]),
-               print(standard_error, "~p~n", [erlang:get_stacktrace()]),
+        _:R -> print(standard_error, "~s: ~s~n~s~n",
+                     [progname(), docsh_lib:format_error(R),
+                      erlang:get_stacktrace()]),
                erlang:halt(2)
     end.
 
