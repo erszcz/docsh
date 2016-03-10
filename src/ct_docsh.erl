@@ -4,11 +4,13 @@
 
 -import(docsh_lib, [print/2]).
 
+-compile({parse_transform, ct_expand}).
+
 -spec core_transform(cerl:c_module(), _) -> cerl:c_module().
 core_transform(Mod, _Opts) ->
     %print("core ast: ~p~n", [Mod]),
     %print("core: ~s~n", [core_pp:format(Mod)]),
-    Addons = addons(Mod, templates()),
+    Addons = addons(Mod, ct_templates()),
     Exports = cerl:module_exports(Mod),
     Defs = cerl:module_defs(Mod),
     After = cerl:update_c_module(Mod,
@@ -52,6 +54,14 @@ exports(Addons, Exports) ->
 defs(Addons, Defs) ->
     Addons ++ Defs.
 
+%% This won't work apart from the one time when *this* module is compiled
+%% and the ct_expand transform embeds the templates into this file.
 templates() ->
-    {ok, _, CoreTemplate} = compile:file("src/docsh_rt.erl", [to_core, binary]),
+    {source, Source} = lists:keyfind(source, 1, docsh_rt:module_info(compile)),
+    io:format("docsh_rt src: ~p~n", [Source]),
+    {ok, _, CoreTemplate} = compile:file(Source, [to_core, binary]),
     cerl:module_defs(CoreTemplate).
+
+ct_templates() ->
+    %% Bake the templates into this module.
+    ct_expand:term(templates()).
