@@ -2,16 +2,18 @@
 
 -export([init/1, do/1, format_error/1]).
 
--define(PROVIDER, docsh).
+-define(PROVIDER, compile).
 -define(DEPS, [{default, compile}]).
 
 %% ===================================================================
 %% Public API
 %% ===================================================================
+
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
 init(State) ->
     Provider = providers:create([
             {name, ?PROVIDER},            % The 'user friendly' name of the task
+            {namespace, docsh},
             {module, ?MODULE},            % The module implementation of the task
             {bare, true},                 % The task can be run by the user, always true
             {deps, ?DEPS},                % The list of dependencies
@@ -25,12 +27,23 @@ init(State) ->
 
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, string()}.
 do(State) ->
-    print("docsh do: state ~p~n", [State]),
+    CurrentApp = rebar_state:current_app(State),
+    print("docsh do:~n", []),
+    print("  beam files: ~p~n", [app_beam_files(CurrentApp)]),
     {ok, State}.
 
-print(Format, Args) ->
-    io:format(Format, Args).
+-spec app_beam_files(rebar_app_info:t()) -> [file:filename()].
+app_beam_files(App) ->
+    EbinDir = rebar_app_info:ebin_dir(App),
+    filelib:wildcard(filename:join([EbinDir, "*.beam"])).
 
 -spec format_error(any()) -> iolist().
 format_error(Reason) ->
     io_lib:format("~p", [Reason]).
+
+%% ===================================================================
+%% Helpers
+%% ===================================================================
+
+print(Format, Args) ->
+    io:format(Format, Args).
