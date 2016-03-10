@@ -32,26 +32,40 @@ init(State) ->
     ]),
     {ok, rebar_state:add_provider(State, Provider)}.
 
-
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, string()}.
 do(State) ->
-    CurrentApp = rebar_state:current_app(State),
-    print("docsh do:~n", []),
-    print("  beam files: ~p~n", [app_beam_files(CurrentApp)]),
+    Apps = case rebar_state:current_app(State) of
+            undefined ->
+                rebar_state:project_apps(State);
+            AppInfo ->
+                [AppInfo]
+           end,
+    [ process_app(State, App) || App <- Apps ],
     {ok, State}.
+
+-spec format_error(any()) -> iolist().
+format_error(Reason) ->
+    docsh_lib:format_error(Reason).
+
+%% ===================================================================
+%% Helpers
+%% ===================================================================
+
+-spec process_app(rebar_state:t(), rebar_app_info:t()) -> ok.
+process_app(State, App) ->
+    BEAMs = app_beam_files(App),
+    [ process_beam(State, B) || B <- BEAMs ].
 
 -spec app_beam_files(rebar_app_info:t()) -> [file:filename()].
 app_beam_files(App) ->
     EbinDir = rebar_app_info:ebin_dir(App),
     filelib:wildcard(filename:join([EbinDir, "*.beam"])).
 
--spec format_error(any()) -> iolist().
-format_error(Reason) ->
-    io_lib:format("~p", [Reason]).
-
-%% ===================================================================
-%% Helpers
-%% ===================================================================
-
-print(Format, Args) ->
-    io:format(Format, Args).
+-spec process_beam(rebar_state:t(), file:filename()) -> ok.
+process_beam(_State, BEAM) ->
+    try
+        {ok, NewBEAM} = docsh_lib:process_beam(BEAM),
+        ok = file:write_file(BEAM, NewBEAM)
+    catch
+        _:exdc_present -> ok
+    end.
