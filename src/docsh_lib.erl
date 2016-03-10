@@ -5,7 +5,8 @@
          get/2, get/3,
          debug/3,
          print/2, print/3,
-         process_beam/1]).
+         process_beam/1,
+         format_error/1]).
 
 -type k() :: any().
 -type v() :: any().
@@ -82,14 +83,14 @@ process_beam(BEAMFile) ->
           get_source_file(BEAMFile)}
     of
         {true, _, _} ->
-            error("ExDc already present", [BEAMFile]);
+            error(exdc_present, [BEAMFile]);
         {false, {ok, Abst}, _} ->
             rebuild(BEAMFile, [exdc({abst, Abst})]);
         %% TODO exdc from source file
         %{false, _, {ok, File}} ->
         %    rebuild(BEAMFile, [exdc({source, File})]);
         _ ->
-            error("neither debug_info nor .erl available", [BEAMFile])
+            error(no_debug_info_no_src, [BEAMFile])
     end.
 
 has_exdc(BEAMFile) ->
@@ -137,3 +138,14 @@ exdc({abst, BAbst}) ->
 rebuild(BEAMFile, NewChunks) ->
     {ok, _, OldChunks} = beam_lib:all_chunks(BEAMFile),
     {ok, _NewBEAM} = beam_lib:build_module(OldChunks ++ NewChunks).
+
+-spec format_error(any()) -> iolist().
+format_error(exdc_present) ->
+    <<"ExDc chunk already present">>;
+format_error(no_debug_info_no_src) ->
+    <<"neither debug_info nor .erl available">>;
+format_error(Reason) when is_list(Reason);
+                          is_binary(Reason) ->
+    Reason;
+format_error(Reason) ->
+    io_lib:format("~p", [Reason]).
