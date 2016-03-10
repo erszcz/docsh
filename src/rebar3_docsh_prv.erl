@@ -4,6 +4,14 @@
 
 -define(PROVIDER, compile).
 -define(DEPS, [{default, compile}]).
+-define(SHORT_DESC, "Provide embedded module docs for easy shell access").
+-define(DESC, "Provide embedded module docs for easy shell access.\n"
+              "Make sure {erl_opts, [{core_transform, ct_docsh}]} is in your rebar.config\n"
+              "or that you do\n"
+              "\n"
+              "    -include_lib(\"docsh/include/docsh.hrl\").\n"
+              "\n"
+              "in every module into which you want to embed documentation.\n").
 
 %% ===================================================================
 %% Public API
@@ -19,8 +27,8 @@ init(State) ->
             {deps, ?DEPS},                % The list of dependencies
             {example, "rebar3 docsh"},    % How to use the plugin
             {opts, []},                   % list of options understood by the plugin
-            {short_desc, "A rebar plugin"},
-            {desc, "A rebar plugin"}
+            {short_desc, ?SHORT_DESC},
+            {desc, ?DESC}
     ]),
     {ok, rebar_state:add_provider(State, Provider)}.
 
