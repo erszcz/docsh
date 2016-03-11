@@ -78,6 +78,7 @@ beam_diff(BEAM1, BEAM2) ->
     [{BEAM1, Name1, Keys1 -- Keys2},
      {BEAM2, Name2, Keys2 -- Keys1}].
 
+-spec process_beam(beam_lib:beam()) -> {ok, binary()}.
 process_beam(BEAMFile) ->
     case {has_exdc(BEAMFile),
           get_debug_info(BEAMFile),
@@ -94,6 +95,7 @@ process_beam(BEAMFile) ->
             error(no_debug_info_no_src, [BEAMFile])
     end.
 
+-spec has_exdc(beam_lib:beam()) -> boolean().
 has_exdc(BEAMFile) ->
     {ok, _, Chunks} = beam_lib:all_chunks(BEAMFile),
     case catch ([ throw(true) || {"ExDc", _} <- Chunks ]) of
