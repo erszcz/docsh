@@ -6,6 +6,7 @@
          debug/3,
          print/2, print/3,
          process_beam/1,
+         has_exdc/1,
          format_error/1]).
 
 -type k() :: any().
