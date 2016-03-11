@@ -23,6 +23,7 @@ edoc(File) ->
     {_Mod, EDoc} = edoc:get_doc(File, []),
     EDoc.
 
+-spec flat(file:filename()) -> any().
 flat(File) ->
     EDoc = edoc(File),
     xmerl:export_simple([EDoc], docsh_edoc_xmerl_flat).

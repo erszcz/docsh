@@ -11,6 +11,12 @@
 
 -import(docsh_lib, [debug/3]).
 
+-type ast() :: [form()].
+-type form() :: erl_parse:abstract_form().
+
+%% TODO: temporary type
+-type z() :: {{spec | type, {atom(), arity()}}, {description, binary()}}.
+
 -define(il2b(IOList), iolist_to_binary(IOList)).
 -define(l(Args), fun () -> Args end).
 
@@ -29,10 +35,13 @@ find_module_name([]) -> throw('$__not_found__');
 find_module_name([{attribute, _, module, Mod} | _Forms]) -> throw(Mod);
 find_module_name([_ | Forms]) -> find_module_name(Forms).
 
+-spec specs(ast()) -> [z()].
 specs(Forms) -> attrs(spec, Forms).
 
+-spec types(ast()) -> [z()].
 types(Forms) -> attrs(type, Forms).
 
+-spec attrs(spec | type, ast()) -> [z()].
 attrs(AttrName, Forms) ->
     debug(AttrName, [ {{AttrName, name_arity(AttrName, F)},
                        {description, ?il2b(desc(F))}}
@@ -41,13 +50,16 @@ attrs(AttrName, Forms) ->
 desc(Attr) ->
     debug('repr:type', format(Attr)).
 
+-spec spec(form()) -> [form()].
 spec(Attr) -> attr(spec, Attr).
 
+-spec type(form()) -> [form()].
 type(Attr) -> attr(type, Attr).
 
 attr(AttrName, {attribute,_,AttrName,_} = A) -> [A];
 attr(_, _) -> [].
 
+-spec name_arity(spec | type, form()) -> {atom(), arity()}.
 name_arity(type, {attribute, _, type, Data}) ->
     debug('name_arity:in', Data),
     {Name, _, Args} = Data,
