@@ -8,6 +8,7 @@
 -type l(A) :: list(A).
 -type l() :: list().
 
+%% @type r(). Doc for type r().
 -type r() :: ok.
 
 %% @doc Doc for f/0.
