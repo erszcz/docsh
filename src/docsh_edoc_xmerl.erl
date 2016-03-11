@@ -20,14 +20,17 @@
 -define(l2ea(L), list_to_existing_atom(L)).
 
 %% The '#text#' function is called for every text segment.
+-spec '#text#'(any()) -> any().
 '#text#'(Text) -> ?il2b(Text).
 
 %% The '#root#' tag is called when the entire structure has been
 %% exported. It does not appear in the structure itself.
+-spec '#root#'(any(), any(), any(), any()) -> any().
 '#root#'(Data, _Attrs, [], _E) ->
     lists:flatten(Data).
 
 %% The '#element#' function is the default handler for XML elements.
+-spec '#element#'(any(), any(), any(), any(), any()) -> any().
 '#element#'(function, Data, Attrs, _Parents, _E) ->
     F1 = function_details_from_attrs(Attrs, #function{}),
     F2 = function_details_from_data(lists:flatten(Data), F1),
@@ -114,19 +117,24 @@ cleanup_lines(IOList) ->
     BString = ?il2b([ unwrap_inline(E) || E <- IOList ]),
     cleanup_lines(BString).
 
+-spec fullDescription(any(), any(), any(), any()) -> binary().
 fullDescription(Data, _Attrs, _Parents, _E) ->
     [{fmt, H} | T] = collect_loose_text(Data),
     ?il2b([H] ++ [ ["\n", E] || {fmt, E} <- T ]).
 
+-spec li(any(), any(), any(), any()) -> {atom(), [any()]}.
 li(Data, _Attrs, _Parents, _E) ->
     item(li, fmt, Data).
 
+-spec dd(any(), any(), any(), any()) -> {atom(), [any()]}.
 dd(Data, _Attrs, _Parents, _E) ->
     item(dd, dd, Data).
 
+-spec item(atom(), atom(), any()) -> {atom(), [any()]}.
 item(Type, Out, Data) ->
     {Out, debug(Type, lists:flatmap(fun unwrap_fmt/1, collect_loose_text(Data)))}.
 
+-spec dl(any(), any(), any(), any()) -> {atom(), [any()]}.
 dl(Data, _Attrs, _Parents, _E) ->
     debug('dl:in', Data),
     {fmt, debug(dl, [ itemize(Type, undefined, undefined, Content)
@@ -204,6 +212,7 @@ header_prefix(h2) -> <<"## ">>;
 header_prefix(h3) -> <<"### ">>.
 
 %% Unused.
+-spec '#xml-inheritance#'() -> any().
 '#xml-inheritance#'() -> [].
 
 module_details_from_attrs(Attrs) ->
