@@ -36,5 +36,5 @@ h0(_, Module) ->
 h2(_, Module) ->
     code:ensure_loaded(Module),
     ?eq(true, erlang:function_exported(Module, h, 2)),
-    {Fun, Arity} = hd(recon:module_info(exports) -- [{h,0}, {h,2}]),
+    {Fun, Arity} = hd(Module:module_info(exports) -- [{h,0}, {h,2}]),
     ?eq(ok, Module:h(Fun, Arity)).
