@@ -9,18 +9,18 @@
 -define(eq(Expected, Actual), ?assertEqual(Expected, Actual)).
 
 all() ->
-    [edoc_example,
-     recon].
+    [edoc_example_has_helpers,
+     recon_has_helpers].
 
 %%
 %% Tests
 %%
 
-edoc_example(C) ->
+edoc_example_has_helpers(C) ->
     h0(C, edoc_example),
     h2(C, edoc_example).
 
-recon(C) ->
+recon_has_helpers(C) ->
     h0(C, recon),
     h2(C, recon).
 
