@@ -22,13 +22,13 @@
 %%
 
 -spec main([string()]) -> ok.
-main(Args) -> process_args(Args, opts()).
+main(Args) -> process_args(Args, commands()).
 
 %%
 %% Helpers
 %%
 
-opts() ->
+commands() ->
     [ {"transform BEAMFile to NewBEAMFile", fun transform/1},
       {"diff BEAMFile1 BEAMFile2",          fun diff/1},
       {"help",                              fun usage/1} ].
@@ -68,7 +68,7 @@ process_arg({_Desc, F}, {next, Args}) ->
 usage() ->
     print(standard_error,
           "usage: ~s", [ [ [padding(I), progname(), " ", Desc, "\n"]
-                           || {I, {Desc, _}} <- enum(opts()) ] ]).
+                           || {I, {Desc, _}} <- enum(commands()) ] ]).
 
 padding(1) -> "";
 padding(_) -> "       ".
