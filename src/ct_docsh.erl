@@ -2,7 +2,12 @@
 
 -export([core_transform/2]).
 
+%% Silence _unused_ warning. Don't use this function.
+-export([templates/0]).
+
 -import(docsh_lib, [print/2]).
+
+-type cerl() :: cerl:cerl().
 
 -compile({parse_transform, ct_expand}).
 
@@ -11,8 +16,6 @@ core_transform(Mod, _Opts) ->
     %print("core ast: ~p~n", [Mod]),
     %print("core: ~s~n", [core_pp:format(Mod)]),
     Addons = addons(Mod, ct_templates()),
-    Exports = cerl:module_exports(Mod),
-    Defs = cerl:module_defs(Mod),
     After = cerl:update_c_module(Mod,
                                  cerl:module_name(Mod),
                                  exports(Addons, cerl:module_exports(Mod)),
@@ -53,6 +56,7 @@ exports(Addons, Exports) ->
 defs(Addons, Defs) ->
     Addons ++ Defs.
 
+-spec templates() -> [{cerl(), cerl()}].
 templates() ->
     {source, Source} = lists:keyfind(source, 1, docsh_rt:module_info(compile)),
     {ok, _, CoreTemplate} = compile:file(Source, [to_core, binary]),
