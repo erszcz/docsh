@@ -8,12 +8,15 @@
 -export([h/1,
          h/3]).
 
+-type fname() :: atom().
+
 -import(docsh_lib, [print/2]).
 
 -define(a2b(A), atom_to_binary(A, utf8)).
 -define(i2b(I), integer_to_binary(I)).
 -define(il2b(IOList), iolist_to_binary(IOList)).
 
+-spec h(module()) -> ok.
 h(Mod) ->
     F = fun (Docs) ->
                 {_, ModDoc} = proplists:get_value(moduledoc, Docs),
@@ -23,6 +26,7 @@ h(Mod) ->
         end,
     guard_no_docs(Mod, F).
 
+-spec h(module(), fname(), arity()) -> ok.
 h(Mod, Fun, Arity) ->
     F = fun (Docs) ->
                 {docs, FunDocs} = lists:keyfind(docs, 1, Docs),

@@ -21,6 +21,7 @@
 %% Escript API
 %%
 
+-spec main([string()]) -> ok.
 main(Args) -> process_args(Args, opts()).
 
 %%
@@ -45,9 +46,10 @@ usage(_) ->
     erlang:halt(1).
 
 process_args(Args, Opts) ->
-    lists:foldl(fun process_arg/2, {next, Args}, Opts).
+    lists:foldl(fun process_arg/2, {next, Args}, Opts),
+    ok.
 
-process_arg({_Desc, F}, done) -> done;
+process_arg({_Desc, _}, done) -> done;
 process_arg({_Desc, F}, {next, Args}) ->
     case catch erlang:apply(F, [Args]) of
         {'EXIT', {function_clause, _}} -> {next, Args};
