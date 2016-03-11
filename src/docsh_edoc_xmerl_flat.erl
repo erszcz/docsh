@@ -22,8 +22,8 @@
 '#root#'(Data, _Attrs, [], _E) -> lists:reverse(Data).
 
 %% The '#element#' function is the default handler for XML elements.
-'#element#'(Tag, _Data, _Attrs, Parents, _E) ->
-    docsh_lib:debug(flat, "~p ~p~n", [Tag, Parents]),
+'#element#'(Tag, Data, _Attrs, Parents, _E) ->
+    docsh_lib:debug(flat, "~p ~p ~p~n", [Tag, Data, Parents]),
     [{Tag, Parents}].
 
 %% Unused.
