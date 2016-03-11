@@ -15,16 +15,20 @@
 -define(l2ea(L), list_to_existing_atom(L)).
 
 %% The '#text#' function is called for every text segment.
+-spec '#text#'(any()) -> any().
 '#text#'(Text) -> ?il2b(Text).
 
 %% The '#root#' tag is called when the entire structure has been
 %% exported. It does not appear in the structure itself.
+-spec '#root#'(any(), any(), any(), any()) -> any().
 '#root#'(Data, _Attrs, [], _E) -> lists:reverse(Data).
 
 %% The '#element#' function is the default handler for XML elements.
+-spec '#element#'(any(), any(), any(), any(), any()) -> any().
 '#element#'(Tag, Data, _Attrs, Parents, _E) ->
     docsh_lib:debug(flat, "~p ~p ~p~n", [Tag, Data, Parents]),
     [{Tag, Parents}].
 
 %% Unused.
+-spec '#xml-inheritance#'() -> any().
 '#xml-inheritance#'() -> [].
