@@ -50,69 +50,74 @@ You're in the right place.
 `docsh` makes online (as in _when connected to a live system_,
 not _in the internets_) access to documentation possible in Erlang.
 
+
 ## Try it
 
-Just copy and paste:
+Check out the [example project using docsh][docsh-example].
+Otherwise, here's an example session:
 
-```
+```sh
 git clone https://github.com/erszcz/docsh.git
 cd docsh
-./rebar3 ct
-./rebar3 as test shell
-recon:h().
+./rebar3 escriptize
+erlc +debug_info -pa _build/default/lib/docsh/ebin/ test/recon.erl
+_build/default/bin/docsh transform recon.beam to recon.beam
+erl # now try out the examples from the previous listing: recon:h() ...
 ```
+
+[docsh-example]: https://github.com/erszcz/docsh-example
+
 
 ## Use
 
-**WARNING: This section is temporarily invalid,
-since documentation is no longer embedded at the parse transformation stage,
-and no rebar3 plugin is available yet!**
-For now it's only possible to embed docs into a .beam file using the EScript, like so:
+### With Rebar 3
 
-```sh
-./rebar3 compile && ./rebar3 escriptize
-erlc +debug_info -pa _build/default/lib/docsh/ebin/ test/recon.erl
-_build/default/bin/docsh transform recon.beam to recon.beam
-```
-
-The resulting `recon` module will have embedded documentation and the `h/0,2` helpers available.
-
-Rebar3:
+The setup is a bit quirky right now, because I don't know yet how to use
+the same app as a plugin and a project dependency at the same time:
 
 ```erlang
-{docsh, {git, "https://github.com/erszcz/docsh.git", {branch, master}}}
+{erl_opts, [debug_info, {core_transform, ct_docsh}]}.
+
+{deps,
+ [
+  {docsh, {git, "https://github.com/erszcz/docsh", {branch, "rebar3-plugin"}}}
+ ]}.
+
+{plugins,
+ [
+  {rebar3_docsh, {git, "https://github.com/erszcz/docsh", {branch, "rebar3-plugin"}}}
+ ]}.
+
+{provider_hooks,
+ [
+  {post, [{compile, {docsh, compile}}]}
+ ]}.
 ```
 
-Rebar2, if you still have to (sorry, no semantic versioning yet):
-
-```erlang
-{docsh, ".*", {git, "https://github.com/erszcz/docsh.git", {branch, master}}}
-```
-
-Include the public header file in your module exposing a shell-usable API
-with embedded documentation:
+The `{core_transform, ct_docsh}` option enables documentation for all
+modules in the project.
+If you want to be more specific about modules which should contain
+embedded docs and which should not, don't use the option.
+Instead, include the header file in your module:
 
 ```erlang
 -include_lib("docsh/include/docsh.hrl").
 ```
 
-The header contains a `compile` directive which will embed the
-documentation straight into the generated `.beam` file,
-therefore making it accessible wherever you ship your code.
-No extra build steps, no separate doc package - when you deploy your code,
+Each approach of enabling the core transformation will embed helper code
+needed for accessing the documentation into your modules.
+The documentation itself is embedded straight into the `.beam` file by the
+post-compile `{docsh, compile}` hook.
+The support code makes your documentation accessible wherever you ship your code.
+No separate doc package - when you deploy your code,
 you automagically deploy your docs.
 
+`docsh` - the dependency - is needed so that Rebar can find `ct_docsh` transformation.
+`rebar3_docsh` - the plugin - provides the post-compile pass which bakes
+the docs into the modules.
 
-## Goals
-
-- Provide added value to existing community projects and libraries as well as OTP.
-- Require minimum fuss to enable in a project.
-- Elixir `iex` doesn't provide access to documentation for Erlang modules.
-  If possible, change that.
 
 ## ToDo
-
-In no particular order:
 
 - [x] Make [Recon](https://github.com/ferd/recon) compile with `docsh`
       and provide useful docs for all commented modules.
@@ -132,8 +137,7 @@ In no particular order:
 
     * [ ] Extract all [module tags][edoc:module-tags].
 
-- [x] Provide [an example repo](https://github.com/erszcz/docsh-example)/branch
-      showing how to use `docsh`.
+- [x] Provide [an example repo showing how to use `docsh`][docsh-example].
 
 - [ ] Provide a tool to embed docs into a .beam file "ExDc" chunk like Elixir does:
 
