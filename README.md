@@ -132,7 +132,8 @@ In no particular order:
 
     * [ ] Extract all [module tags][edoc:module-tags].
 
-- [ ] Provide an example repo/branch showing how to use `docsh`.
+- [x] Provide [an example repo](https://github.com/erszcz/docsh-example)/branch
+      showing how to use `docsh`.
 
 - [ ] Provide a tool to embed docs into a .beam file "ExDc" chunk like Elixir does:
 
@@ -140,6 +141,7 @@ In no particular order:
           info is not available.
     * [x] EScript for command-line use.
     * [ ] Rebar3 plugin for a post-compile build step.
+          Almost! Needs some polishing.
 
 - [ ] `user_default` extensions:
 
