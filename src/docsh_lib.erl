@@ -85,10 +85,10 @@ process_beam(BEAMFile) ->
         {true, _, _} ->
             error(exdc_present, [BEAMFile]);
         {false, {ok, Abst}, _} ->
-            rebuild(BEAMFile, [exdc({abst, Abst})]);
+            add_chunks(BEAMFile, [exdc({abst, Abst})]);
         %% TODO exdc from source file
         %{false, _, {ok, File}} ->
-        %    rebuild(BEAMFile, [exdc({source, File})]);
+        %    add_chunks(BEAMFile, [exdc({source, File})]);
         _ ->
             error(no_debug_info_no_src, [BEAMFile])
     end.
@@ -135,7 +135,7 @@ exdc({abst, BAbst}) ->
 %% TODO exdc from source file
 %exdc({source, File})) ->
 
-rebuild(BEAMFile, NewChunks) ->
+add_chunks(BEAMFile, NewChunks) ->
     {ok, _, OldChunks} = beam_lib:all_chunks(BEAMFile),
     {ok, _NewBEAM} = beam_lib:build_module(OldChunks ++ NewChunks).
 
