@@ -54,11 +54,8 @@ exports(Addons, Exports) ->
 defs(Addons, Defs) ->
     Addons ++ Defs.
 
-%% This won't work apart from the one time when *this* module is compiled
-%% and the ct_expand transform embeds the templates into this file.
 templates() ->
     {source, Source} = lists:keyfind(source, 1, docsh_rt:module_info(compile)),
-    io:format("docsh_rt src: ~p~n", [Source]),
     {ok, _, CoreTemplate} = compile:file(Source, [to_core, binary]),
     cerl:module_defs(CoreTemplate).
 
