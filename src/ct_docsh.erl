@@ -26,21 +26,20 @@ addons(Mod, Templates) ->
      h2(Mod, Templates)].
 
 h0(Mod, Templates) ->
-    ProtoFName = cerl:c_fname(h, 1),
-    ProtoF = get_proto(ProtoFName, Templates),
-    FBody = cerl:c_apply(ProtoF, [cerl:module_name(Mod)]),
-    F = cerl:c_fun([], FBody),
-    FName = cerl:c_fname(h, 0),
-    {FName, F}.
+    partially_apply_c_fun(h, get_proto(cerl:c_fname(h, 1), Templates),
+                          [cerl:module_name(Mod)], []).
 
 h2(Mod, Templates) ->
-    ProtoFName = cerl:c_fname(h, 3),
-    ProtoF = get_proto(ProtoFName, Templates),
-    Vars = [cerl:c_var(docsh0), cerl:c_var(docsh1)],
-    FBody = cerl:c_apply(ProtoF, [cerl:module_name(Mod)] ++ Vars),
-    F = cerl:c_fun(Vars, FBody),
-    FName = cerl:c_fname(h, 2),
-    {FName, F}.
+    partially_apply_c_fun(h, get_proto(cerl:c_fname(h, 3), Templates),
+                          [cerl:module_name(Mod)],
+                          [cerl:c_var(docsh0), cerl:c_var(docsh1)]).
+
+partially_apply_c_fun(Name, F, Args, Params) ->
+    cerl:fun_arity(F) == length(Args) + length(Params) orelse error(arity_mismatch),
+    Body = cerl:c_apply(F, Args ++ Params),
+    NewF = cerl:c_fun(Params, Body),
+    FName = cerl:c_fname(Name, length(Params)),
+    {FName, NewF}.
 
 get_proto(FName, Templates) ->
     case lists:keyfind(FName, 1, Templates) of
