@@ -65,14 +65,58 @@ _build/default/bin/docsh transform recon.beam to recon.beam
 erl # now try out the examples from the previous listing: recon:h() ...
 ```
 
-[docsh-example]: https://github.com/erszcz/docsh-example
-
 
 ## Use
 
-### With Rebar 3
 
-The setup is a bit quirky right now, because I don't know yet how to use
+### As a [Rebar3 global plugin][rebar3:plugins]
+
+[`docsh-example`][docsh-example] shows how to use this approach.
+
+Rebar3 global plugins are downloaded and installed automatically.
+Make sure `rebar3_docsh` plugin is in your `~/.config/rebar3/rebar.config`
+as shown below:
+
+```erlang
+{plugins,
+ [
+  {rebar3_docsh, {git, "https://github.com/erszcz/docsh", {branch, "rebar3-plugin"}}}
+ ]}.
+```
+
+With the plugin in place, the configuration of your project is minimal:
+
+```erlang
+{erl_opts, [debug_info, {core_transform, ct_docsh}]}.
+
+{provider_hooks,
+ [
+  {post, [{compile, {docsh, compile}}]}
+ ]}.
+```
+
+The `{core_transform, ct_docsh}` option enables documentation for all
+modules in the project.
+If you want to be more specific about which modules should provide
+embedded docs and which should not don't use the option.
+Instead, include the header file in your module:
+
+```erlang
+-include_lib("docsh/include/docsh.hrl").
+```
+
+Each approach of enabling the core transformation will embed helper code
+needed for accessing the documentation into your modules.
+The documentation itself is embedded straight into the `.beam` file by the
+post-compile `{docsh, compile}` hook.
+The support code makes your documentation accessible wherever you ship your code.
+No separate doc package - when you deploy your code,
+you automagically deploy your docs.
+
+
+### As a Rebar3 project plugin
+
+The setup is a bit quirky, because I don't know how to use
 the same app as a plugin and a project dependency at the same time:
 
 ```erlang
@@ -93,24 +137,6 @@ the same app as a plugin and a project dependency at the same time:
   {post, [{compile, {docsh, compile}}]}
  ]}.
 ```
-
-The `{core_transform, ct_docsh}` option enables documentation for all
-modules in the project.
-If you want to be more specific about modules which should contain
-embedded docs and which should not, don't use the option.
-Instead, include the header file in your module:
-
-```erlang
--include_lib("docsh/include/docsh.hrl").
-```
-
-Each approach of enabling the core transformation will embed helper code
-needed for accessing the documentation into your modules.
-The documentation itself is embedded straight into the `.beam` file by the
-post-compile `{docsh, compile}` hook.
-The support code makes your documentation accessible wherever you ship your code.
-No separate doc package - when you deploy your code,
-you automagically deploy your docs.
 
 `docsh` - the dependency - is needed so that Rebar can find `ct_docsh` transformation.
 `rebar3_docsh` - the plugin - provides the post-compile pass which bakes
@@ -144,8 +170,9 @@ the docs into the modules.
     * [ ] Try to find source code and munge it to get the docs if debug
           info is not available.
     * [x] EScript for command-line use.
-    * [ ] Rebar3 plugin for a post-compile build step.
-          Almost! Needs some polishing.
+    * [x] Rebar3 plugin for a post-compile build step.
+    * [ ] Make sure "ExDc" chunk format is compatible with Elixir and
+          works with IEx.
 
 - [ ] `user_default` extensions:
 
@@ -157,9 +184,17 @@ the docs into the modules.
     * [ ] Provide documentation for well-known modules (read: OTP)
           from a cache seeded from .erl sources or an external database?
 
-[edoc:module-tags]: http://erlang.org/doc/apps/edoc/chapter.html#Module_tags
+- [ ] Polish the UX:
+
+    * [ ] Don't error out when asked about local / undefined functions
+          (`Mod:h(some_local_fun, 0)`).
 
 
 ## ?!
 
 Yes, I've seen _Ghost in the Shell_ ;)
+
+
+[docsh-example]: https://github.com/erszcz/docsh-example
+[edoc:module-tags]: http://erlang.org/doc/apps/edoc/chapter.html#Module_tags
+[rebar3:plugins]: http://www.rebar3.org/docs/using-available-plugins
