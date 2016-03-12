@@ -80,7 +80,7 @@ as shown below:
 ```erlang
 {plugins,
  [
-  {rebar3_docsh, {git, "https://github.com/erszcz/docsh", {branch, "rebar3-plugin"}}}
+  {rebar3_docsh, {git, "https://github.com/erszcz/docsh", {tag, "0.2.0"}}}
  ]}.
 ```
 
@@ -124,12 +124,12 @@ the same app as a plugin and a project dependency at the same time:
 
 {deps,
  [
-  {docsh, {git, "https://github.com/erszcz/docsh", {branch, "rebar3-plugin"}}}
+  {docsh, {git, "https://github.com/erszcz/docsh", {tag, "0.2.0"}}}
  ]}.
 
 {plugins,
  [
-  {rebar3_docsh, {git, "https://github.com/erszcz/docsh", {branch, "rebar3-plugin"}}}
+  {rebar3_docsh, {git, "https://github.com/erszcz/docsh", {tag, "0.2.0"}}}
  ]}.
 
 {provider_hooks,
