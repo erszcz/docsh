@@ -194,7 +194,7 @@ the docs into the modules.
           functions / types of the given name.
     * [ ] Provide `M:t/2` to display just the `-spec` / `-type` attribute.
           In some cases we're only interested in the order
-          of parameters and in general already know what a functions does.
+          of parameters and in general already know what a function does.
 
 
 ## ?!
