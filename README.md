@@ -53,7 +53,8 @@ not _in the internets_) access to documentation possible in Erlang.
 
 ## Try it
 
-Check out the [example project using docsh][docsh-example].
+Check out the [example project using docsh][gh:docsh-example]
+or [Recon with docsh enabled out of the box][gh:recon-docsh].
 Otherwise, here's an example session:
 
 ```sh
@@ -162,6 +163,11 @@ the docs into the modules.
       based on its type.~~ Almost done!
 
     * [ ] Extract all [module tags][edoc:module-tags].
+    * [ ] EDoc doesn't extract doc for functions marked with `@private`.
+          See [`recon_trace:h(count_tracer, 1)`][gh:recon-docsh].
+          Extract the marker from the AST and provide a disclaimer in the shell.
+          This info should also be useful to present as `def` / `defp`
+          distinction for Elixir compatibility.
 
 - [x] Provide [an example repo showing how to use `docsh`][docsh-example].
 
@@ -202,6 +208,7 @@ the docs into the modules.
 Yes, I've seen _Ghost in the Shell_ ;)
 
 
-[docsh-example]: https://github.com/erszcz/docsh-example
 [edoc:module-tags]: http://erlang.org/doc/apps/edoc/chapter.html#Module_tags
+[gh:docsh-example]: https://github.com/erszcz/docsh-example
+[gh:recon-docsh]: https://github.com/erszcz/recon
 [rebar3:plugins]: http://www.rebar3.org/docs/using-available-plugins
