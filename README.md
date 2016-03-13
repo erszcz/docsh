@@ -188,6 +188,13 @@ the docs into the modules.
 
     * [ ] Don't error out when asked about local / undefined functions
           (`Mod:h(some_local_fun, 0)`).
+    * [ ] Make `M:h/2` display type info apart from the already
+          supported info for functions.
+    * [ ] Provide arity agnostic `M:h/1` to display information about all
+          functions / types of the given name.
+    * [ ] Provide `M:t/2` to display just the `-spec` / `-type` attribute.
+          In some cases we're only interested in the order
+          of parameters and in general already know what a functions does.
 
 
 ## ?!
