@@ -72,7 +72,7 @@ erl # now try out the examples from the previous listing: recon:h() ...
 
 ### As a [Rebar3 global plugin][rebar3:plugins]
 
-[`docsh-example`][docsh-example] shows how to use this approach.
+[`docsh-example`][gh:docsh-example] shows how to use this approach.
 
 Rebar3 global plugins are downloaded and installed automatically.
 Make sure `rebar3_docsh` plugin is in your `~/.config/rebar3/rebar.config`
@@ -169,7 +169,7 @@ the docs into the modules.
           This info should also be useful to present as `def` / `defp`
           distinction for Elixir compatibility.
 
-- [x] Provide [an example repo showing how to use `docsh`][docsh-example].
+- [x] Provide [an example repo showing how to use `docsh`][gh:docsh-example].
 
 - [ ] Provide a tool to embed docs into a .beam file "ExDc" chunk like Elixir does:
 
