@@ -141,3 +141,27 @@ Compund types are represented as:
 
 -opaque erl_type() :: ?any | ?none | ?unit | #c{}.
 ```
+
+# Some brainstorming on UI / API
+
+```erlang
+9> erlang:fun_info(fun lists:keyfind/3).
+[{module,lists},
+ {name,keyfind},
+ {arity,3},
+ {env,[]},
+ {type,external}]
+10> erlang:fun_info(fun lists:keyfind/3, module).
+{module,lists}
+11> erlang:fun_info(fun lists:keyfind/3, arity).
+{arity,3}
+12> erlang:is_function(fun lists:keyfind/3).
+true
+13> erlang:is_function({lists, keyfind}).
+false
+14> erlang:is_function({lists, keyfind, 3}).
+false
+15> t(fun lists:keyfind/3).
+** exception error: undefined shell command t/1
+16>
+```
