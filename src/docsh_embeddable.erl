@@ -1,4 +1,4 @@
--module(docsh_rt).
+-module(docsh_embeddable).
 -compile([debug_info,
           {inline, [get_elixir_docs_v1/1,
                     guard_no_docs/2,

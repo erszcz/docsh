@@ -58,7 +58,7 @@ defs(Addons, Defs) ->
 
 -spec templates() -> [{cerl(), cerl()}].
 templates() ->
-    {source, Source} = lists:keyfind(source, 1, docsh_rt:module_info(compile)),
+    {source, Source} = lists:keyfind(source, 1, docsh_embeddable:module_info(compile)),
     {ok, _, CoreTemplate} = compile:file(Source, [to_core, binary]),
     cerl:module_defs(CoreTemplate).
 
