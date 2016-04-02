@@ -20,6 +20,8 @@
 h(Mod) ->
     F = fun (Docs) ->
                 {_, ModDoc} = proplists:get_value(moduledoc, Docs),
+                %% TODO: work on the printout format in cases
+                %%       of unavailable docs
                 io_lib:format("## Description~n~n~s~n"
                               "## Types~n~s~n",
                               [ModDoc, types(Docs)])
