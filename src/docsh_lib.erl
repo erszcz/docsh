@@ -7,6 +7,8 @@
          print/2, print/3,
          process_beam/1,
          has_exdc/1,
+         get_debug_info/1,
+         get_source_file/1,
          format_error/1]).
 
 -type k() :: any().
@@ -88,9 +90,8 @@ process_beam(BEAMFile) ->
             error(exdc_present, [BEAMFile]);
         {false, {ok, Abst}, _} ->
             add_chunks(BEAMFile, [exdc({abst, Abst})]);
-        %% TODO exdc from source file
-        %{false, _, {ok, File}} ->
-        %    add_chunks(BEAMFile, [exdc({source, File})]);
+        {false, _, {ok, File}} ->
+            add_chunks(BEAMFile, [exdc({source, File})]);
         _ ->
             error(no_debug_info_no_src, [BEAMFile])
     end.
@@ -106,24 +107,24 @@ has_exdc(BEAMFile) ->
 -spec get_debug_info(file:filename()) -> binary().
 get_debug_info(BEAMFile) ->
     case beam_lib:chunks(BEAMFile, ["Abst"]) of
+        {ok, {_Module, [{"Abst", <<>>}]}} -> false;
         {ok, {_Module, [{"Abst", Abst}]}} -> {ok, Abst};
         _ -> false
     end.
 
 -spec get_source_file(file:filename()) -> file:filename().
 get_source_file(BEAMFile) ->
-    try get_source((modname(BEAMFile)):module_info(compile)) of
-        File when is_list(File) ->
-            case filelib:is_regular(File) of
-                true -> {ok, File};
-                _ -> false
-            end
+    try
+        {ok, {_, [{_, CInf}]}} = beam_lib:chunks(BEAMFile, ["CInf"]),
+        case get_source(erlang:binary_to_term(CInf)) of
+            File when is_list(File) ->
+                case filelib:is_regular(File) of
+                    true -> {ok, File};
+                    _ -> false
+                end;
+            _ -> false
+        end
     catch _:_ -> false end.
-
--spec modname(string()) -> module().
-modname(BEAMFile) ->
-    Base = filename:basename(BEAMFile, ".beam"),
-    list_to_atom(Base).
 
 get_source(CompileInfo) ->
     {source, File} = lists:keyfind(source, 1, CompileInfo),
@@ -134,9 +135,13 @@ exdc({abst, BAbst}) ->
     FromMods = [docsh_edoc, docsh_syntax],
     ToMod = docsh_elixir_docs_v1,
     ExDc = convert(FromMods, ToMod, Abst),
+    {"ExDc", term_to_binary(ExDc, [compressed])};
+exdc({source, File}) ->
+    FromMods = [docsh_edoc, docsh_syntax],
+    ToMod = docsh_elixir_docs_v1,
+    {ok, Abst} = epp:parse_file(File, []),
+    ExDc = convert(FromMods, ToMod, Abst),
     {"ExDc", term_to_binary(ExDc, [compressed])}.
-%% TODO exdc from source file
-%exdc({source, File})) ->
 
 add_chunks(BEAMFile, NewChunks) ->
     {ok, _, OldChunks} = beam_lib:all_chunks(BEAMFile),
