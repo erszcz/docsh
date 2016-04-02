@@ -57,7 +57,7 @@ guard_not_supported(_, _) ->
     <<"Documentation format not supported">>.
 
 types(Docs) ->
-    Types = proplists:get_value(types, Docs),
+    Types = proplists:get_value(types, Docs, []),
     [ ["\n", Desc] || {{_Name, _Arity}, Desc} <- Types ].
 
 get_elixir_docs_v1(Mod) ->
