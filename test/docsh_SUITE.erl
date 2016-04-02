@@ -10,9 +10,9 @@
 
 all() ->
     [edoc_example_has_helpers,
-     edoc_example_has_docs,
+     edoc_example_has_docs_from_debug_info,
      recon_has_helpers,
-     recon_has_docs].
+     recon_has_docs_from_debug_info].
 
 %%
 %% Tests
@@ -22,14 +22,14 @@ edoc_example_has_helpers(C) ->
     h0(C, edoc_example),
     h2(C, edoc_example).
 
-edoc_example_has_docs(C) ->
+edoc_example_has_docs_from_debug_info(C) ->
     ?assert(has_docs(docsh_transform_in_memory(edoc_example))).
 
 recon_has_helpers(C) ->
     h0(C, recon),
     h2(C, recon).
 
-recon_has_docs(C) ->
+recon_has_docs_from_debug_info(C) ->
     ?assert(has_docs(docsh_transform_in_memory(recon))).
 
 %%
