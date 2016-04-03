@@ -14,24 +14,23 @@
 -type k() :: any().
 -type v() :: any().
 
-%% TODO: This is broken.
-%%       Even though in process_beam/1 we extract the abstract code
-%%       this function only extracts the source file name from the AST.
--spec convert(Readers, Writer, AST) -> docsh:external() when
+-spec convert(Readers, Writer, Beam) -> docsh:external() when
       Readers :: [module()],
       Writer :: module(),
-      AST :: [erl_parse:abstract_form()].
-convert(Readers, Writer, AST) ->
-    InternalDocs = lists:flatmap(fun convert_one/1,
-                                 [ {R, file(AST)} || R <- Readers ]),
+      Beam :: docsh_beam:t().
+convert(Readers, Writer, Beam) ->
+    InternalDocs = lists:flatmap(fun convert_one/1, [ {R, Beam} || R <- Readers ]),
     Merged = docsh_internal:merge(InternalDocs),
     Writer:from_internal(Merged).
 
 convert_one({Reader, Mod}) ->
     case Reader:to_internal(Mod) of
-        {error, R} -> print(standard_error, "~s\n", [format_error(R)]),
-                      [];
-        {ok, InternalDoc} -> [InternalDoc]
+        {error, R} ->
+            %% TODO: this is a *_lib module - shouldn't we bubble it up?
+            print(standard_error, "~s\n", [format_error(R)]),
+            [];
+        {ok, InternalDoc} ->
+            [InternalDoc]
     end.
 
 %% Error if Key is not found!
@@ -93,18 +92,14 @@ beam_diff(BEAM1, BEAM2) ->
 
 -spec process_beam(beam_lib:beam()) -> {ok, binary()}.
 process_beam(BEAMFile) ->
-    case {has_exdc(BEAMFile),
-          get_debug_info(BEAMFile),
-          get_source_file(BEAMFile)}
-    of
-        {true, _, _} ->
-            error(exdc_present, [BEAMFile]);
-        {false, {ok, Abst}, _} ->
-            add_chunks(BEAMFile, [exdc({abst, Abst})]);
-        {false, _, {ok, File}} ->
-            add_chunks(BEAMFile, [exdc({source, File})]);
+    has_exdc(BEAMFile)
+        andalso error(exdc_present, [BEAMFile]),
+    {ok, Beam} = docsh_beam:from_beam_file(BEAMFile),
+    case {docsh_beam:abst(Beam), docsh_beam:source_file(Beam)} of
+        {false, false} ->
+            error(no_debug_info_no_src, [BEAMFile]);
         _ ->
-            error(no_debug_info_no_src, [BEAMFile])
+            add_chunks(BEAMFile, [exdc(Beam)])
     end.
 
 -spec has_exdc(beam_lib:beam()) -> boolean().
@@ -141,17 +136,11 @@ get_source(CompileInfo) ->
     {source, File} = lists:keyfind(source, 1, CompileInfo),
     File.
 
-exdc({abst, BAbst}) ->
-    {raw_abstract_v1, Abst} = binary_to_term(BAbst),
+-spec exdc(docsh_beam:t()) -> {string(), binary()}.
+exdc(Beam) ->
     FromMods = [docsh_edoc, docsh_syntax],
     ToMod = docsh_elixir_docs_v1,
-    ExDc = convert(FromMods, ToMod, Abst),
-    {"ExDc", term_to_binary(ExDc, [compressed])};
-exdc({source, File}) ->
-    FromMods = [docsh_edoc, docsh_syntax],
-    ToMod = docsh_elixir_docs_v1,
-    {ok, Abst} = epp:parse_file(File, []),
-    ExDc = convert(FromMods, ToMod, Abst),
+    ExDc = convert(FromMods, ToMod, Beam),
     {"ExDc", term_to_binary(ExDc, [compressed])}.
 
 add_chunks(BEAMFile, NewChunks) ->

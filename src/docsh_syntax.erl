@@ -20,12 +20,20 @@
 -define(il2b(IOList), iolist_to_binary(IOList)).
 -define(l(Args), fun () -> Args end).
 
--spec to_internal(file:filename()) -> R when
+-spec to_internal(docsh_beam:t()) -> R when
       R :: {ok, docsh:internal()}
          | {error, any()}.
-to_internal(File) ->
+to_internal(Beam) ->
     try
-        {ok, Forms} = epp:parse_file(File, []),
+        Forms = case {docsh_beam:abst(Beam), docsh_beam:source_file(Beam)} of
+                    {false, false} ->
+                        error(no_debug_info_no_src, [Beam]);
+                    {Abst, false} ->
+                        Abst;
+                    {_, Source} ->
+                        {ok, Fs} = epp:parse_file(Source, []),
+                        Fs
+                end,
         {ok, [{module, [{name, module_name(Forms)}]}] ++ specs(Forms) ++ types(Forms)}
     catch
         _:R -> {error, R}
