@@ -167,4 +167,5 @@ format_error(Reason) when is_list(Reason);
                           is_binary(Reason) ->
     Reason;
 format_error(Reason) ->
-    io_lib:format("~p", [Reason]).
+    Stacktrace = erlang:get_stacktrace(),
+    io_lib:format("docsh error: ~p~n~p~n", [Reason, Stacktrace]).
