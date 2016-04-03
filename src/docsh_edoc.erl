@@ -9,11 +9,15 @@
 
 -define(l(Args), fun () -> Args end).
 
--spec to_internal(file:filename()) -> R when
+-spec to_internal(docsh_beam:t()) -> R when
       R :: {ok, docsh:internal()}
          | {error, any()}.
-to_internal(File) ->
+to_internal(Beam) ->
     try
+        File = case docsh_beam:source_file(Beam) of
+                   false -> error(edoc_requires_source);
+                   F when is_list(F) -> F
+               end,
         EDoc = edoc(File),
         debug(edoc, "edoc:~n~p~n~n", ?l([EDoc])),
         debug(xml,  "xml:~n~s~n~n",  ?l([xmerl:export_simple([EDoc], xmerl_xml)])),
