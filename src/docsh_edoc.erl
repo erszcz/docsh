@@ -9,15 +9,21 @@
 
 -define(l(Args), fun () -> Args end).
 
--spec to_internal(file:filename()) -> docsh:internal().
+-spec to_internal(file:filename()) -> R when
+      R :: {ok, docsh:internal()}
+         | {error, any()}.
 to_internal(File) ->
-    EDoc = edoc(File),
-    debug(edoc, "edoc:~n~p~n~n", ?l([EDoc])),
-    debug(xml,  "xml:~n~s~n~n",  ?l([xmerl:export_simple([EDoc], xmerl_xml)])),
-    debug(html, "html:~n~s~n~n",  ?l([edoc:layout(EDoc)])),
-    Internal = xmerl:export_simple([EDoc], docsh_edoc_xmerl),
-    debug(internal, "internal:~n~p~n~n", [Internal]),
-    Internal.
+    try
+        EDoc = edoc(File),
+        debug(edoc, "edoc:~n~p~n~n", ?l([EDoc])),
+        debug(xml,  "xml:~n~s~n~n",  ?l([xmerl:export_simple([EDoc], xmerl_xml)])),
+        debug(html, "html:~n~s~n~n",  ?l([edoc:layout(EDoc)])),
+        Internal = xmerl:export_simple([EDoc], docsh_edoc_xmerl),
+        debug(internal, "internal:~n~p~n~n", [Internal]),
+        {ok, Internal}
+    catch
+        _:R -> {error, R}
+    end.
 
 edoc(File) ->
     {_Mod, EDoc} = edoc:get_doc(File, []),

@@ -14,14 +14,25 @@
 -type k() :: any().
 -type v() :: any().
 
--spec convert(FromMods, ToMod, AST) -> docsh:external() when
-      FromMods :: [module()],
-      ToMod :: module(),
+%% TODO: This is broken.
+%%       Even though in process_beam/1 we extract the abstract code
+%%       this function only extracts the source file name from the AST.
+-spec convert(Readers, Writer, AST) -> docsh:external() when
+      Readers :: [module()],
+      Writer :: module(),
       AST :: [erl_parse:abstract_form()].
-convert(FromMods, ToMod, AST) ->
-    Internal = docsh_internal:merge([ FromMod:to_internal(file(AST))
-                                      || FromMod <- FromMods ]),
-    ToMod:from_internal(Internal).
+convert(Readers, Writer, AST) ->
+    InternalDocs = lists:flatmap(fun convert_one/1,
+                                 [ {R, file(AST)} || R <- Readers ]),
+    Merged = docsh_internal:merge(InternalDocs),
+    Writer:from_internal(Merged).
+
+convert_one({Reader, Mod}) ->
+    case Reader:to_internal(Mod) of
+        {error, R} -> print(standard_error, "~s\n", [format_error(R)]),
+                      [];
+        {ok, InternalDoc} -> [InternalDoc]
+    end.
 
 %% Error if Key is not found!
 -spec get(k(), [{k(), v()}]) -> v().
