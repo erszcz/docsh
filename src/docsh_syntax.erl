@@ -20,10 +20,16 @@
 -define(il2b(IOList), iolist_to_binary(IOList)).
 -define(l(Args), fun () -> Args end).
 
--spec to_internal(file:filename()) -> docsh:internal().
+-spec to_internal(file:filename()) -> R when
+      R :: {ok, docsh:internal()}
+         | {error, any()}.
 to_internal(File) ->
-    {ok, Forms} = epp:parse_file(File, []),
-    [{module, [{name, module_name(Forms)}]}] ++ specs(Forms) ++ types(Forms).
+    try
+        {ok, Forms} = epp:parse_file(File, []),
+        {ok, [{module, [{name, module_name(Forms)}]}] ++ specs(Forms) ++ types(Forms)}
+    catch
+        _:R -> {error, R}
+    end.
 
 module_name(Forms) ->
     case lists:keyfind(module, 3, Forms) of

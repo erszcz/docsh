@@ -18,7 +18,10 @@ syntax_to_internal(_) ->
          {{type, {l,0}}, {description, <<"-type l() :: list().\n">>}},
          {{type, {l,1}}, {description, <<"-type l(A) :: [A].\n">>}},
          {{type, {r,0}}, {description, <<"-type r() :: ok.\n">>}}],
-        ?TESTED:to_internal(File)).
+        unwrap(?TESTED:to_internal(File))).
 
 source_file(Mod) ->
     proplists:get_value(source, Mod:module_info(compile)).
+
+unwrap({ok, V}) -> V;
+unwrap(Else) -> error(not_ok, [Else]).
