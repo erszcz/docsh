@@ -26,14 +26,10 @@ to_internal(File) ->
     [{module, [{name, module_name(Forms)}]}] ++ specs(Forms) ++ types(Forms).
 
 module_name(Forms) ->
-    case catch find_module_name(Forms) of
-        '$__not_found__' -> error(not_found, [Forms]);
-        Mod when is_atom(Mod) -> Mod
+    case lists:keyfind(module, 3, Forms) of
+        false -> error(not_found, [Forms]);
+        {_, _, module, Mod} -> Mod
     end.
-
-find_module_name([]) -> throw('$__not_found__');
-find_module_name([{attribute, _, module, Mod} | _Forms]) -> throw(Mod);
-find_module_name([_ | Forms]) -> find_module_name(Forms).
 
 -spec specs(ast()) -> [z()].
 specs(Forms) -> attrs(spec, Forms).
