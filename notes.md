@@ -184,11 +184,18 @@ documentation generation.
 Erlang installation with docsh support on a developer's workstation
 requires further consideration.
 
+It seems that `beam_lib` and `code`/`code_server` can't fetch chunks which
+are actually loaded by the emulator - they always read them from the `.beam`
+file or the passed in binary.
+This means that simply reloading the module (see `reload_with_exdc/2`
+at `docsh_shell.erl:28`) won't be sufficient for `docsh_embeddable:h/1,3`
+to pick up the newly generated ExDc chunk.
+
 # `user_default` extensions
 
 TODO: Put this into the README later.
 
-A functional calling style is worked on:
+A functional calling style is being worked on:
 
 ```erlang
 > h(fun lists:keyfind/3).
