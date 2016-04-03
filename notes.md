@@ -183,3 +183,29 @@ This allows me to proceed with development of the mechanism for runtime
 documentation generation.
 Erlang installation with docsh support on a developer's workstation
 requires further consideration.
+
+# `user_default` extensions
+
+TODO: Put this into the README later.
+
+A functional calling style is worked on:
+
+```erlang
+> h(fun lists:keyfind/3).
+> h(lists, keyfind, 3).
+```
+
+To be able to use it add this to your `user_default` module and make sure `docsh`
+are in the Erlang code path (e.g. install it as a Rebar3 global plugin and use
+`rebar3 shell` or use `ERL_LIBS` when calling `erl`):
+
+```erlang
+%% file: user_default.erl
+h(M) -> docsh_shell:h(M).
+h(M, F, A) -> docsh_shell:h(M, F, A).
+```
+
+`docsh_shell` is also the entry point into providing docs for modules
+which don't carry them embedded inside - i.e. when `docsh_shell` is called
+we might try fetching the docs from different places (initially the source
+code if it's available).
