@@ -165,3 +165,21 @@ false
 ** exception error: undefined shell command t/1
 16>
 ```
+
+# Generating documentation at runtime
+
+The assumption I had for generating documentation for OTP modules was that
+if Erlang was installed via kerl, I could rely on `M:module_info/0`
+returning valid paths to source files in the local file system.
+This assumption is invalid, as the `otp_src_VERSION.tar.gz` bundles come
+with precompiled `.beam` files - not just for the `bootstrap/` subtree,
+but also for the modules under `lib/`.
+This means returned paths to source files point at some arbitrary
+locations in the package builder's file system not in mine.
+
+For the time being, I've manually deleted all the `.beam` files in the
+build directory and rebuilt the whole tree.
+This allows me to proceed with development of the mechanism for runtime
+documentation generation.
+Erlang installation with docsh support on a developer's workstation
+requires further consideration.
