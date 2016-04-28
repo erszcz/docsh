@@ -216,3 +216,11 @@ h(M, F, A) -> docsh_shell:h(M, F, A).
 which don't carry them embedded inside - i.e. when `docsh_shell` is called
 we might try fetching the docs from different places (initially the source
 code if it's available).
+
+# `.beam` file cache for modules
+
+Rely on `DOCSH_CACHE` env var to look for `.beam` files with embedded docs
+for use from the shell.
+This way, for each looked up module, we would first look into the cache,
+rebuild the module if not present, but source code is available,
+and then provide docs from the cached `.beam` instead of the original.

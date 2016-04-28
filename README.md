@@ -158,18 +158,24 @@ the docs into the modules.
 - [x] Include specs in function descriptions.
       Extract specs from the AST or input docs if possible.
 
-- [ ] Fix EDdoc extraction and formatting ~~by calculating element
-      indentation based on its path in the document tree and its formatting
-      based on its type.~~ Almost done!
-
-    * [ ] Extract all [module tags][edoc:module-tags].
-    * [ ] EDoc doesn't extract doc for functions marked with `@private`.
-          See [`recon_trace:h(count_tracer, 1)`][gh:recon-docsh].
-          Extract the marker from the AST and provide a disclaimer in the shell.
-          This info should also be useful to present as `def` / `defp`
-          distinction for Elixir compatibility.
-
 - [x] Provide [an example repo showing how to use `docsh`][gh:docsh-example].
+
+- [ ] `user_default` extensions:
+
+    * [x] To allow for functional `h(Mod)`, `h(Mod, Fun, Arity)`
+          style calls.
+
+          Done.
+          See `notes.md` for usage and `src/docsh_shell.erl` for
+          implementation.
+          See notes on UX in the todos.
+
+    * [ ] Provide documentation for modules which don't have it embedded.
+          See _`.beam` file cache for modules_ in `notes.md` for details.
+
+    * [ ] To enable reading Elixir embedded documentation;
+          the same doc format is used intentionally,
+          though for now `docsh` doesn't store docs in the same place as Elixir does.
 
 - [ ] Provide a tool to embed docs into a .beam file "ExDc" chunk like Elixir does:
 
@@ -179,16 +185,6 @@ the docs into the modules.
     * [x] Rebar3 plugin for a post-compile build step.
     * [ ] Make sure "ExDc" chunk format is compatible with Elixir and
           works with IEx.
-
-- [ ] `user_default` extensions:
-
-    * [ ] To allow for functional `h(Mod)`, `h(Mod, Fun, Arity)`
-          style calls.
-    * [ ] To enable reading Elixir embedded documentation;
-          the same doc format is used intentionally,
-          though for now `docsh` doesn't store docs in the same place as Elixir does.
-    * [ ] Provide documentation for well-known modules (read: OTP)
-          from a cache seeded from .erl sources or an external database?
 
 - [ ] Polish the UX:
 
@@ -201,6 +197,17 @@ the docs into the modules.
     * [ ] Provide `M:t/2` to display just the `-spec` / `-type` attribute.
           In some cases we're only interested in the order
           of parameters and in general already know what a function does.
+
+- [ ] Fix EDdoc extraction and formatting ~~by calculating element
+      indentation based on its path in the document tree and its formatting
+      based on its type.~~ Almost done!
+
+    * [ ] Extract all [module tags][edoc:module-tags].
+    * [ ] EDoc doesn't extract doc for functions marked with `@private`.
+          See [`recon_trace:h(count_tracer, 1)`][gh:recon-docsh].
+          Extract the marker from the AST and provide a disclaimer in the shell.
+          This info should also be useful to present as `def` / `defp`
+          distinction for Elixir compatibility.
 
 
 ## ?!
