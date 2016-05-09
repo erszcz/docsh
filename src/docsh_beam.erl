@@ -46,22 +46,22 @@ from_beam_file(BEAMFile) ->
                      beam_file = BEAMFile,
                      source_file = bind(docsh_lib:get_source_file(BEAMFile))}}.
 
-name(DS) -> DS#docsh_beam.name.
+name(B) -> B#docsh_beam.name.
 
-abst(DS) -> DS#docsh_beam.abst.
+abst(B) -> B#docsh_beam.abst.
 
-abst(DS, Abst) ->
-    DS#docsh_beam{abst = Abst}.
+abst(B, Abst) ->
+    B#docsh_beam{abst = Abst}.
 
-beam_file(DS) -> DS#docsh_beam.beam_file.
+beam_file(B) -> B#docsh_beam.beam_file.
 
-beam_file(DS, beam_file) ->
-    DS#docsh_beam{beam_file = beam_file}.
+beam_file(B, beam_file) ->
+    B#docsh_beam{beam_file = beam_file}.
 
-source_file(DS) -> DS#docsh_beam.source_file.
+source_file(B) -> B#docsh_beam.source_file.
 
-source_file(DS, source_file) ->
-    DS#docsh_beam{source_file = source_file}.
+source_file(B, source_file) ->
+    B#docsh_beam{source_file = source_file}.
 
 %%
 %% Helpers
