@@ -4,18 +4,16 @@
          from_loadable_module/1,
 
          name/1,
-         abst/1, abst/2,
-         beam_file/1, beam_file/2,
-         source_file/1, source_file/2,
+         abst/1,
+         beam_file/1,
+         source_file/1,
          attribute/2]).
 
 -export_type([t/0]).
 
--record(docsh_beam, {name, abst, beam_file, source_file}).
+-record(docsh_beam, {name, beam_file, source_file}).
 
 -opaque t() :: #docsh_beam{name :: module(),
-                           %% Abst chunk which may or may not be present in a loaded module.
-                           abst :: [erl_parse:abstract_form()] | false,
                            %% `beam_file` has to be defined and is a file name.
                            %% TODO: Support dynamically compiled or network-loaded modules later.
                            beam_file :: file:filename(),
@@ -35,7 +33,6 @@ from_loadable_module(Mod) ->
             {error, {no_beam_file, E}};
         BEAMFile ->
             {ok, #docsh_beam{name = Mod,
-                             abst = debug_info(BEAMFile),
                              beam_file = BEAMFile,
                              source_file = bind(docsh_lib:get_source_file(BEAMFile))}}
     end.
@@ -43,26 +40,17 @@ from_loadable_module(Mod) ->
 -spec from_beam_file(file:filename()) -> {ok, t()} | {error, any()}.
 from_beam_file(BEAMFile) ->
     {ok, #docsh_beam{name = beam_name(BEAMFile),
-                     abst = debug_info(BEAMFile),
                      beam_file = BEAMFile,
                      source_file = bind(docsh_lib:get_source_file(BEAMFile))}}.
 
 name(B) -> B#docsh_beam.name.
 
-abst(B) -> B#docsh_beam.abst.
-
-abst(B, Abst) ->
-    B#docsh_beam{abst = Abst}.
+abst(B) ->
+    debug_info(beam_file(B)).
 
 beam_file(B) -> B#docsh_beam.beam_file.
 
-beam_file(B, beam_file) ->
-    B#docsh_beam{beam_file = beam_file}.
-
 source_file(B) -> B#docsh_beam.source_file.
-
-source_file(B, source_file) ->
-    B#docsh_beam{source_file = source_file}.
 
 attribute(B, Name) ->
     docsh_lib:get(Name, (B#docsh_beam.name):module_info(attributes)).
