@@ -224,3 +224,30 @@ for use from the shell.
 This way, for each looked up module, we would first look into the cache,
 rebuild the module if not present, but source code is available,
 and then provide docs from the cached `.beam` instead of the original.
+
+# 2016-05-17 status update
+
+Shell extensions can now extract type specs and docs (when available)
+from the OTP apps' modules:
+
+```erlang
+> h(fun compile:file/1).
+-spec file(module() | file:filename()) -> comp_ret().
+
+undefined
+ok
+> h(fun lists:keyfind/3).
+-spec keyfind(Key, N, TupleList) -> Tuple | false
+                 when
+                     Key :: term(),
+                     N :: pos_integer(),
+                     TupleList :: [Tuple],
+                     Tuple :: tuple().
+
+undefined
+ok
+```
+
+This still requires one manual step when building Erlang,
+because the tarballs from erlang.org carry compiled `.beam` files,
+not just the source code.
