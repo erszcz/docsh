@@ -138,9 +138,9 @@ get_source(CompileInfo) ->
 
 -spec exdc(docsh_beam:t()) -> {string(), binary()}.
 exdc(Beam) ->
-    %% TODO: Detect available Readers in a smart way:
-    %%       maybe we only need types from the syntax tree in some cases?
-    FromMods = [docsh_edoc, docsh_syntax],
+    FromMods = available_readers(),
+    FromMods == []
+        andalso error(no_readers_available),
     ToMod = docsh_elixir_docs_v1,
     ExDc = convert(FromMods, ToMod, Beam),
     {"ExDc", term_to_binary(ExDc, [compressed])}.
@@ -160,3 +160,14 @@ format_error(Reason) when is_list(Reason);
 format_error(Reason) ->
     Stacktrace = erlang:get_stacktrace(),
     io_lib:format("docsh error: ~p~n~p~n", [Reason, Stacktrace]).
+
+available_readers() ->
+    [ M || M <- [docsh_edoc, docsh_syntax], is_module_available(M) ].
+
+is_module_available(Mod) ->
+    try
+        Mod:module_info(),
+        true
+    catch
+        _:undef -> false
+    end.
