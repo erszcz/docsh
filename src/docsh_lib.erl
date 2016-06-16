@@ -138,6 +138,8 @@ get_source(CompileInfo) ->
 
 -spec exdc(docsh_beam:t()) -> {string(), binary()}.
 exdc(Beam) ->
+    %% TODO: Detect available Readers in a smart way:
+    %%       maybe we only need types from the syntax tree in some cases?
     FromMods = [docsh_edoc, docsh_syntax],
     ToMod = docsh_elixir_docs_v1,
     ExDc = convert(FromMods, ToMod, Beam),
