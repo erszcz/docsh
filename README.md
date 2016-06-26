@@ -77,6 +77,7 @@ With the shell extensions in place:
 ```
 git clone https://github.com/ferd/recon
 cd recon
+./rebar compile
 ERL_LIBS=$DOCSH_ROOT/docsh/_build/default/lib erl -pa ebin
 ```
 
