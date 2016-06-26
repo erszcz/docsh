@@ -65,8 +65,7 @@ cd docsh
 ./rebar3 compile
 ```
 
-Now make sure to place these lines in your
-[`user_default`](http://erlang.org/doc/man/shell_default.html) file:
+Now make sure to [place these lines in your `user_default` file](#the-user_default-file):
 
 ```erlang
 h(M) -> docsh_shell:h(M).
@@ -104,8 +103,89 @@ function calls.
 ...
 ```
 
+[`docsh` also supports OTP libraries and applications](#use-it-with-otp),
+but requires a small hack for it to work.
+Moreover, this is not well tested yet, so _expect bugs_.
+
+```erlang
+> h(fun proplists:get_value/3).
+-spec get_value(Key, List, Default) -> term()
+                   when
+                       is_subtype(Key, term()),
+                       is_subtype(List, [term()]),
+                       is_subtype(Default, term()).
+
+ok
+```
+
 Try it with your project and let me know what the results are!
 Better yet, send a PR if you find any issues ;)
+
+
+### The `user_default` file
+
+The Erlang shell can be customized by using
+the [`user_default`](http://erlang.org/doc/man/shell_default.html) file.
+To do so you first need to create `$HOME/.erlang` which will load
+your customizations into the shell:
+
+```erlang
+% file: $HOME/.erlang
+code:load_abs(os:getenv("HOME") ++ "/.erlang.d/user_default").
+```
+
+Then create `$HOME/.erlang.d` directory, `user_default.erl` inside it,
+and compile the module:
+
+```
+mkdir $HOME/.erlang.d
+cd $HOME/.erlang.d
+cat <<EOF > user_default.erl
+-module(user_default).
+-compile(export_all).
+h(M) -> docsh_shell:h(M).
+h(M, F, A) -> docsh_shell:h(M, F, A).
+EOF
+erlc user_default.erl
+```
+
+That's it!
+If you're curious about what else might go into this file then have a look at
+[Serge Aleynikov's example `user_default`](https://github.com/saleyn/util/blob/master/src/user_default.erl).
+
+
+### Use it with OTP
+
+Erlang "source" tarballs aren't really source tarballs - just the
+C code is compiled on your machine if you "install from source".
+What does it mean for docsh?
+
+If `debug_info` isn't available in a .beam file
+(and it's not the case for the OTP modules)
+docsh looks for a source file the module is compiled from.
+If the location of this file is not a valid path on the local machine,
+docsh won't find the .erl and fail.
+
+Here's how to fix it for an Erlang built by kerl.
+Go to the Erlang/OTP build directory, remove all .beam files below it
+and rebuild them:
+
+```
+cd ~/.kerl/builds/18.1/otp_src_18.1
+find . -name \*.beam -exec rm '{}' \;
+make
+```
+
+Now reinstall the build (possibly under a new name) as you would usually
+do with kerl:
+
+```
+kerl install 18.1 ~/apps/erlang/18.1-rebuilt
+```
+
+Once you activate this installation,
+all the source paths in OTP modules will target local files on your machine.
+This will enable docsh to work even for Erlang/OTP modules.
 
 
 ## ToDo
