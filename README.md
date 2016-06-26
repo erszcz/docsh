@@ -128,12 +128,13 @@ Better yet, send a PR if you find any issues ;)
 
     * [x] To allow for functional `h(Mod)`, `h(Mod, Fun, Arity)`
           style calls.
+
+    * [x] Provide documentation for modules which don't have it embedded.
+          See _`.beam` file cache for modules_ in `notes.md` for details.
+
           If debug info/source code is available the shell extension
           will just extract any documentation and type information it can find
           and present it.
-
-    * [ ] Provide documentation for modules which don't have it embedded.
-          See _`.beam` file cache for modules_ in `notes.md` for details.
 
     * [ ] To enable reading Elixir embedded documentation;
           the same doc format is used intentionally,
