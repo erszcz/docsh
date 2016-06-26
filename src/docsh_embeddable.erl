@@ -34,9 +34,9 @@ h(Mod, Fun, Arity) ->
                 case {lists:keyfind(docs, 1, Docs),
                       lists:keyfind(specs, 1, Docs)} of
                     {false, false} -> error({no_docs, <<"neither docs nor specs found">>});
-                    {false, {_, Specs}}     -> format({Fun, Arity}, no_docs, Specs);
-                    {{_, Docs}, false}      -> format({Fun, Arity}, Docs, no_specs);
-                    {{_, Docs}, {_, Specs}} -> format({Fun, Arity}, Docs, Specs)
+                    {false, {_, Specs}} -> format({Fun, Arity}, no_docs, Specs);
+                    {{_, FDocs}, false} -> format({Fun, Arity}, FDocs, no_specs);
+                    {{_, FDocs}, {_, Specs}} -> format({Fun, Arity}, FDocs, Specs)
                 end
         end,
     guard_no_docs(Mod, F).
