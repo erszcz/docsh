@@ -34,7 +34,7 @@ contained in the Recon application.
 Shorthand call to recon:get_state(PidTerm, 5000)
 
 ok
-> recon:h(get_state, 2).
+> h(fun recon:get_state/2).
 -spec get_state(pid_term(), Ms :: non_neg_integer() | infinity) ->
                    term().
 
