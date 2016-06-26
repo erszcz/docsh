@@ -6,7 +6,7 @@ Ever wished for access to documentation straight from `erl`
 the way it's possible in modern languages like Python, Ruby or Elixir?
 
 ```
-> recon:h().
+> h(recon).
 ## Description
 
 Recon, as a module, provides access to the high-level functionality
@@ -28,7 +28,7 @@ contained in the Recon application.
 
 ... snip ...
 
-> recon:h(get_state, 1).
+> h(fun recon:get_state/1).
 -spec get_state(pid_term()) -> term().
 
 Shorthand call to recon:get_state(PidTerm, 5000)
@@ -51,97 +51,58 @@ You're in the right place.
 not _in the internets_) access to documentation possible in Erlang.
 
 
-## Try it
+## Use it
 
-Check out the [example project using docsh][gh:docsh-example]
-or [Recon with docsh enabled out of the box][gh:recon-docsh].
-Otherwise, here's an example session:
+`$DOCSH_ROOT` is just a placeholder - use whatever location/variable
+makes the most sense to you.
 
-```sh
-git clone https://github.com/erszcz/docsh.git
+```
+cd $DOCSH_ROOT
+git clone https://github.com/erszcz/docsh
 cd docsh
-./rebar3 escriptize
-erlc +debug_info -pa _build/default/lib/docsh/ebin/ test/recon.erl
-_build/default/bin/docsh transform recon.beam to recon.beam
-erl # now try out the examples from the previous listing: recon:h() ...
+./rebar3 compile
 ```
 
-
-## Use
-
-
-### As a [Rebar3 global plugin][rebar3:plugins]
-
-[`docsh-example`][gh:docsh-example] shows how to use this approach.
-
-Rebar3 global plugins are downloaded and installed automatically.
-Make sure `rebar3_docsh` plugin is in your `~/.config/rebar3/rebar.config`
-as shown below:
+Now make sure to place these lines in your
+[`user_default`](http://erlang.org/doc/man/shell_default.html) file:
 
 ```erlang
-{plugins,
- [
-  {rebar3_docsh, {git, "https://github.com/erszcz/docsh", {tag, "0.2.0"}}}
- ]}.
+h(M) -> docsh_shell:h(M).
+h(M, F, A) -> docsh_shell:h(M, F, A).
 ```
 
-With the plugin in place, the configuration of your project is minimal:
+Don't forget to compile it!
+With the shell extensions in place:
+
+```
+git clone https://github.com/ferd/recon
+cd recon
+ERL_LIBS=$DOCSH_ROOT/docsh/_build/default/lib erl -pa ebin
+```
+
+Once in the Erlang shell:
 
 ```erlang
-{erl_opts, [debug_info, {core_transform, ct_docsh}]}.
+> h(recon_trace).
+## Description
 
-{provider_hooks,
- [
-  {post, [{compile, {docsh, compile}}]}
- ]}.
+recon_trace is a module that handles tracing in a safe manner for single
+Erlang nodes, currently for function calls only. Functionality includes:
+
+  - Nicer to use interface (arguably) than dbg or trace BIFs.
+
+...
+> h(fun recon_trace:calls/3).
+-spec calls(tspec() | [tspec(), ...], max(), options()) -> num_matches().
+
+Allows to set trace patterns and pid specifications to trace
+function calls.
+
+...
 ```
 
-The `{core_transform, ct_docsh}` option enables documentation for all
-modules in the project.
-If you want to be more specific about which modules should provide
-embedded docs and which should not don't use the option.
-Instead, include the header file in your module:
-
-```erlang
--include_lib("docsh/include/docsh.hrl").
-```
-
-Each approach of enabling the core transformation will embed helper code
-needed for accessing the documentation into your modules.
-The documentation itself is embedded straight into the `.beam` file by the
-post-compile `{docsh, compile}` hook.
-The support code makes your documentation accessible wherever you ship your code.
-No separate doc package - when you deploy your code,
-you automagically deploy your docs.
-
-
-### As a Rebar3 project plugin
-
-The setup is a bit quirky, because I don't know how to use
-the same app as a plugin and a project dependency at the same time:
-
-```erlang
-{erl_opts, [debug_info, {core_transform, ct_docsh}]}.
-
-{deps,
- [
-  {docsh, {git, "https://github.com/erszcz/docsh", {tag, "0.2.0"}}}
- ]}.
-
-{plugins,
- [
-  {rebar3_docsh, {git, "https://github.com/erszcz/docsh", {tag, "0.2.0"}}}
- ]}.
-
-{provider_hooks,
- [
-  {post, [{compile, {docsh, compile}}]}
- ]}.
-```
-
-`docsh` - the dependency - is needed so that Rebar can find `ct_docsh` transformation.
-`rebar3_docsh` - the plugin - provides the post-compile pass which bakes
-the docs into the modules.
+Try it with your project and let me know what the results are!
+Better yet, send a PR if you find any issues ;)
 
 
 ## ToDo
@@ -158,17 +119,17 @@ the docs into the modules.
 - [x] Include specs in function descriptions.
       Extract specs from the AST or input docs if possible.
 
-- [x] Provide [an example repo showing how to use `docsh`][gh:docsh-example].
+- [x] Provide an example repo showing
+      [how to embed documentation in your .beam files][gh:docsh-example]
+      by using `docsh` as a Rebar plugin.
 
 - [ ] `user_default` extensions:
 
     * [x] To allow for functional `h(Mod)`, `h(Mod, Fun, Arity)`
           style calls.
-
-          Done.
-          See `notes.md` for usage and `src/docsh_shell.erl` for
-          implementation.
-          See notes on UX in the todos.
+          If debug info/source code is available the shell extension
+          will just extract any documentation and type information it can find
+          and present it.
 
     * [ ] Provide documentation for modules which don't have it embedded.
           See _`.beam` file cache for modules_ in `notes.md` for details.
