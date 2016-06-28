@@ -11,14 +11,14 @@ all() ->
     [syntax_to_internal].
 
 syntax_to_internal(_) ->
-    File = source_file(edoc_example),
-    ct:pal("~p", [File]),
+    {ok, DBeam} = docsh_beam:from_loadable_module(edoc_example),
+    ct:pal("~p", [DBeam]),
     ?eq([{module, [{name, edoc_example}]},
          {{spec, {f,0}}, {description, <<"-spec f() -> r().\n">>}},
          {{type, {l,0}}, {description, <<"-type l() :: list().\n">>}},
          {{type, {l,1}}, {description, <<"-type l(A) :: [A].\n">>}},
          {{type, {r,0}}, {description, <<"-type r() :: ok.\n">>}}],
-        unwrap(?TESTED:to_internal(File))).
+        unwrap(?TESTED:to_internal(DBeam))).
 
 source_file(Mod) ->
     proplists:get_value(source, Mod:module_info(compile)).
