@@ -26,7 +26,8 @@ core_transform(Mod, _Opts) ->
 
 addons(Mod, Templates) ->
     [h0(Mod, Templates),
-     h2(Mod, Templates)].
+     h2(Mod, Templates),
+     format(Templates)].
 
 h0(Mod, Templates) ->
     partially_apply_c_fun(h, get_proto(cerl:c_fname(h, 1), Templates),
@@ -36,6 +37,10 @@ h2(Mod, Templates) ->
     partially_apply_c_fun(h, get_proto(cerl:c_fname(h, 3), Templates),
                           [cerl:module_name(Mod)],
                           [cerl:c_var(docsh0), cerl:c_var(docsh1)]).
+
+format(Templates) ->
+    FName = cerl:c_fname(format, 3),
+    {FName, get_proto(cerl:c_fname(format, 3), Templates)}.
 
 partially_apply_c_fun(Name, F, Args, Params) ->
     cerl:fun_arity(F) == length(Args) + length(Params) orelse error(arity_mismatch),
