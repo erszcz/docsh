@@ -1,5 +1,7 @@
 # Docs in the Shell
 
+[![TravisCI Build Status](https://travis-ci.org/erszcz/docsh.svg?branch=master)](https://travis-ci.org/erszcz/docsh)
+
 Still can't write match specs from the top of your head?
 Forgetting again and again `dbg` flags or the syntax of `recon` trace patterns?
 Ever wished for access to documentation straight from `erl`
