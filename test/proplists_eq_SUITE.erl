@@ -14,5 +14,7 @@ proplists_eq_test(_) ->
         ?proplists_eq([1,2,3], [a,1,2]),
         ct:fail("assertion passed, but shouldn't")
     catch
-        error:{assertEqual, _} -> ok
+        error:{assertEqual, _} -> ok;
+        %% Erlang/OTP 17.5
+        error:{assertEqual_failed, _} -> ok
     end.
