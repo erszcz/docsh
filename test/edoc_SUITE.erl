@@ -19,8 +19,8 @@ all() ->
      edoc_format_ul].
 
 edoc_to_internal(_) ->
-    File = source_file(edoc_example),
-    ct:pal("~p", [File]),
+    {ok, DBeam} = docsh_beam:from_loadable_module(edoc_example),
+    ct:pal("~p", [DBeam]),
     ?eq([{module, [{name, edoc_example},
                    {description, <<"Top-level module doc.\n">>}]},
          {{function, {f,0}}, {{name, f},
@@ -28,11 +28,11 @@ edoc_to_internal(_) ->
                               {exported, true},
                               {label, <<"f-0">>},
                               {description, <<"Doc for f/0.\n">>}}}],
-        unwrap(?TESTED:to_internal(File))).
+        unwrap(?TESTED:to_internal(DBeam))).
 
 edoc_format(_) ->
-    File = source_file(edoc_example2),
-    D = function_description({g,0}, unwrap(?TESTED:to_internal(File))),
+    {ok, DBeam} = docsh_beam:from_loadable_module(edoc_example2),
+    D = function_description({g,0}, unwrap(?TESTED:to_internal(DBeam))),
     ct:pal("~s", [D]),
     ?eq([<<"g() returns a more complex value,\n"
            "while its documentation uses more complex markup.\n"
@@ -105,8 +105,8 @@ edoc_format_ul(C) ->
                          "    a match specification\n">>).
 
 edoc_format(_, Element, Expected) ->
-    File = source_file(edoc_example2),
-    D = function_description({Element, 0}, unwrap(?TESTED:to_internal(File))),
+    {ok, DBeam} = docsh_beam:from_loadable_module(edoc_example2),
+    D = function_description({Element, 0}, unwrap(?TESTED:to_internal(DBeam))),
     ct:pal("~s", [D]),
     ?eq([Expected], [D]).
 
