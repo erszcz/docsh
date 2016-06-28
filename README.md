@@ -206,7 +206,7 @@ This will enable docsh to work even for Erlang/OTP modules.
       [how to embed documentation in your .beam files][gh:docsh-example]
       by using `docsh` as a Rebar plugin.
 
-- [ ] `user_default` extensions:
+- [x] `user_default` extensions:
 
     * [x] To allow for functional `h(Mod)`, `h(Mod, Fun, Arity)`
           style calls.
@@ -218,18 +218,13 @@ This will enable docsh to work even for Erlang/OTP modules.
           will just extract any documentation and type information it can find
           and present it.
 
-    * [ ] To enable reading Elixir embedded documentation;
-          the same doc format is used intentionally,
-          though for now `docsh` doesn't store docs in the same place as Elixir does.
+- [x] Provide a tool to embed docs into a .beam file.
 
-- [ ] Provide a tool to embed docs into a .beam file "ExDc" chunk like Elixir does:
-
-    * [ ] Try to find source code and munge it to get the docs if debug
-          info is not available.
     * [x] EScript for command-line use.
     * [x] Rebar3 plugin for a post-compile build step.
-    * [ ] Make sure "ExDc" chunk format is compatible with Elixir and
-          works with IEx.
+    * [x] Shell extension for interactive use.
+
+- [ ] Properly format/print out record definitions.
 
 - [ ] Polish the UX:
 
@@ -253,6 +248,11 @@ This will enable docsh to work even for Erlang/OTP modules.
           Extract the marker from the AST and provide a disclaimer in the shell.
           This info should also be useful to present as `def` / `defp`
           distinction for Elixir compatibility.
+
+- [ ] Elixir compatibility.
+
+    * [ ] Make sure "ExDc" chunk format is compatible with Elixir and
+          works with IEx.
 
 
 ## ?!
