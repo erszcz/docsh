@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e
+
+ERL_FILE=$1
+[ -z "$ERL_FILE" ] && ( echo "usage: $0 ERL_FILE"; exit 1 )
+
+erl -noinput -noshell -s init stop \
+    -eval 'erl_tidy:file("'"$ERL_FILE"'", [{stdout, true}]), io:format("\n").'
