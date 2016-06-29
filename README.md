@@ -174,7 +174,7 @@ and rebuild them:
 
 ```
 cd ~/.kerl/builds/18.1/otp_src_18.1
-find . -name \*.beam -exec rm '{}' \;
+find lib -name \*.beam -exec rm '{}' \;
 make
 ```
 
