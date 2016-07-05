@@ -226,7 +226,11 @@ This will enable docsh to work even for Erlang/OTP modules.
     * [x] Rebar3 plugin for a post-compile build step.
     * [x] Shell extension for interactive use.
 
-- [ ] Properly format/print out record definitions.
+- [ ] ~~Properly format/print out record definitions.~~
+
+      Since Erlang/OTP 19.0 [one of the standard pretty printers
+      is much more capable](https://github.com/erlang/otp/commit/ee80210).
+      Use `erl_prettypr` instead of `erl_pp`.
 
 - [ ] Polish the UX:
 
