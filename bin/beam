@@ -1,0 +1,22 @@
+#!/usr/bin/env escript
+%%!
+%% -*- erlang -*-
+%% vim: ft=erlang
+
+-module(beam).
+-mode(compile).
+
+main(["chunk", ChunkName, BEAMFile]) ->
+    {ok, _, Chunks} = beam_lib:all_chunks(BEAMFile),
+    case lists:keyfind(ChunkName, 1, Chunks) of
+        false ->
+            print("chunk ~ts not found in ~ts\n", [ChunkName, BEAMFile]);
+        {ChunkName, BChunk} ->
+            Chunk = erlang:binary_to_term(BChunk),
+            print("beam file:\t~s\n"
+                  "chunk name:\t~s\n"
+                  "chunk data:\n~p\n", [BEAMFile, ChunkName, Chunk])
+    end.
+
+print(Fmt, Args) ->
+    io:format(Fmt, Args).
