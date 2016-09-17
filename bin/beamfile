@@ -3,7 +3,7 @@
 %% -*- erlang -*-
 %% vim: ft=erlang
 
--module(beam).
+-module(beamfile).
 -mode(compile).
 
 main(["chunk", ChunkName, BEAMFile]) ->
