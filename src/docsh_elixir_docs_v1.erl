@@ -34,4 +34,7 @@ do({{function, NameArity}, {_, _, _, _, {description, D}}}) ->
     {docs, {NameArity,
             x, def,
             x,
-            D}}.
+            if
+                D == undefined -> <<"(description missing)\n\n">>;
+                D /= undefined -> D
+            end}}.
