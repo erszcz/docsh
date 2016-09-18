@@ -8,7 +8,10 @@
 
 -define(ERLANG_TERM_FORMAT_TAG, 131).
 
-main(["chunk", ChunkName, BEAMFile]) ->
+main(["chunk" | Args])      -> chunk(Args);
+main(["decompile" | Args])  -> decompile(Args).
+
+chunk([ChunkName, BEAMFile]) ->
     {ok, _, Chunks} = beam_lib:all_chunks(BEAMFile),
     case lists:keyfind(ChunkName, 1, Chunks) of
         false ->
@@ -19,6 +22,10 @@ main(["chunk", ChunkName, BEAMFile]) ->
                   "chunk name:\t~s\n"
                   "chunk data:\n~p\n", [BEAMFile, ChunkName, Decoded])
     end.
+
+decompile([BEAMFile]) ->
+    {ok, {_, [{abstract_code, {_, AC}}]}} = beam_lib:chunks(BEAMFile, [abstract_code]),
+    io:put_chars(erl_prettypr:format(erl_syntax:form_list(AC))).
 
 print(Fmt, Args) ->
     io:format(Fmt, Args).
