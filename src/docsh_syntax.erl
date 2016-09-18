@@ -84,4 +84,4 @@ debug(Tag, Content) ->
     Content.
 
 format(Attr) ->
-    erl_pp:form(Attr).
+    [erl_prettypr:format(Attr, [{ribbon, 80}]), $\n].
