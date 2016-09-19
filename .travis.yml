@@ -4,6 +4,7 @@ notifications:
   email: erlang.docsh@gmail.com
 
 otp_release:
+  - 19.0
   - 18.3
   - 17.5
 
