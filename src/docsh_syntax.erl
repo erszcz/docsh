@@ -83,5 +83,14 @@ debug(Tag, Content) ->
     docsh_lib:debug(Tag, "~s: ~p~n", [Tag, Content]),
     Content.
 
+-ifdef(erl_prettypr_no_specs).
+
+format(Attr) ->
+    erl_pp:form(Attr).
+
+-else.
+
 format(Attr) ->
     [erl_prettypr:format(Attr, [{ribbon, 80}]), $\n].
+
+-endif.
