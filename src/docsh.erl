@@ -22,7 +22,8 @@
 %%
 
 -spec main([string()]) -> ok.
-main(Args) -> process_args(Args, commands()).
+main(Args) ->
+    process_args(Args, commands()).
 
 %%
 %% Helpers

@@ -53,6 +53,7 @@ reload(Beam) ->
     stick_module(docsh_beam:name(Beam)),
     ok.
 
+-spec rebuild(docsh_beam:t(), string()) -> any().
 rebuild(B, CacheDir) ->
     BEAMFile = docsh_beam:beam_file(B),
     {ok, NewBEAM} = docsh_lib:process_beam(BEAMFile),
