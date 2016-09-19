@@ -1,8 +1,8 @@
 -module(docsh_embeddable).
 -compile([debug_info,
           {inline, [get_elixir_docs_v1/1,
-                    guard_no_docs/2,
-                    guard_not_supported/2,
+                    do_with_docs/2,
+                    do_with_supported/2,
                     types/1]}]).
 
 -export([h/1,
@@ -26,7 +26,7 @@ h(Mod) ->
                               "## Types~n~s~n",
                               [ModDoc, types(Docs)])
         end,
-    guard_no_docs(Mod, F).
+    do_with_docs(Mod, F).
 
 -spec h(module(), fname(), arity()) -> ok.
 h(Mod, Fun, Arity) ->
@@ -39,11 +39,11 @@ h(Mod, Fun, Arity) ->
                     {{_, FDocs}, {_, Specs}} -> format({Fun, Arity}, FDocs, Specs)
                 end
         end,
-    guard_no_docs(Mod, F).
+    do_with_docs(Mod, F).
 
-guard_no_docs(Mod, Fun) ->
+do_with_docs(Mod, Fun) ->
     T = try
-            guard_not_supported(Fun, get_elixir_docs_v1(Mod))
+            do_with_supported(Fun, get_elixir_docs_v1(Mod))
         catch
             error:{no_docs, R} ->
                 <<"Module documentation not found:", R/bytes>>;
@@ -53,9 +53,9 @@ guard_no_docs(Mod, Fun) ->
         end,
     io:format("~s~n", [T]).
 
-guard_not_supported(Fun, {elixir_docs_v1, Docs}) ->
+do_with_supported(Fun, {elixir_docs_v1, Docs}) ->
     Fun(Docs);
-guard_not_supported(_, _) ->
+do_with_supported(_, _) ->
     <<"Documentation format not supported">>.
 
 format(FunArity, no_docs, Specs) ->
