@@ -144,3 +144,23 @@ ExpTypes = sets:new(), Site = {type, {m, t, 0}}, RecDict = dict:new().
 {attribute, _, type, {proc_attrs, Inner, []}} = CA.
 erl_types:t_from_form(Inner, ExpTypes, Site, RecDict).
 io:format(docsh_prettypr:pretty_type(Inner)).
+
+dbg:tracer().
+dbg:p(all, [call, arity]).
+DMods = [ct_docsh,
+         docsh,
+         docsh_beam,
+         docsh_edoc,
+         docsh_edoc_xmerl,
+         docsh_edoc_xmerl_flat,
+         docsh_elixir_docs_v1,
+         docsh_embeddable,
+         docsh_internal,
+         docsh_lib,
+         docsh_reader,
+         docsh_shell,
+         docsh_syntax,
+         docsh_writer,
+         rebar3_docsh,
+         rebar3_docsh_prv].
+[ dbg:tpl(M, []) || M <- DMods ].
