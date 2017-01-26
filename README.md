@@ -72,6 +72,7 @@ Now make sure to [place these lines in your `user_default` file](#the-user_defau
 ```erlang
 h(M) -> docsh_shell:h(M).
 h(M, F, A) -> docsh_shell:h(M, F, A).
+s(M, F, A) -> docsh_shell:s(M, F, A).
 ```
 
 Don't forget to compile it!
