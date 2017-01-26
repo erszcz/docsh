@@ -1,41 +1,51 @@
 -module(docsh_shell).
 
--export([h/1, h/3]).
+-export([h/1, h/3,
+         s/3]).
 
 -spec h(fun() | module()) -> ok.
 h(Fun) when is_function(Fun) ->
     {M, F, A} = erlang:fun_info_mfa(Fun),
-    h(M, [F, A]);
+    h(M, F, A);
 
 h(M) when is_atom(M) ->
-    h(M, []).
+    case get_beam(M) of
+        {error, R} -> error(R, [M]);
+        {ok, B} -> erlang:apply(docsh_embeddable, h, [M])
+    end.
 
-h(M, F, A) ->
-    h(M, [F, A]).
+h(M, F, Arity) when is_atom(M), is_atom(F), is_integer(Arity) ->
+    case get_beam(M) of
+        {error, R} -> error(R, [M, F, Arity]);
+        {ok, B} -> erlang:apply(docsh_embeddable, h, [M, F, Arity, [doc, spec]])
+    end.
 
-h(M, FunArity) when is_list(FunArity) ->
+s(M, F, Arity) when is_atom(M), is_atom(F), is_integer(Arity) ->
+    case get_beam(M) of
+        {error, R} -> error(R, [M, F, Arity]);
+        {ok, B} -> erlang:apply(docsh_embeddable, h, [M, F, Arity, [spec]])
+    end.
+
+get_beam(M) -> get_beam(M, init).
+
+get_beam(M, Attempt) when Attempt =:= init;
+                          Attempt =:= retry ->
     case docsh_beam:from_loadable_module(M) of
-        {error, R} ->
-            error(R, [M, FunArity]);
+        {error, _} = E -> E;
         {ok, B} ->
-            case docsh_lib:has_exdc(docsh_beam:beam_file(B)) of
-                true ->
-                    %% TODO: We assume that having ExDc chunk implies also having the docsh support code.
-                    %%       This definitely won't be true for Elixir .beam files...
-                    %%       Check with erlang:function_exported/1,2 accordingly.
-                    %erlang:apply(M, h, FunArity);
-                    erlang:apply(docsh_embeddable, h, [M] ++ FunArity);
-                false ->
+            case {Attempt, docsh_lib:has_exdc(docsh_beam:beam_file(B))} of
+                {_, true} -> {ok, B};
+                {init, false} ->
                     {ok, NewB} = cached_or_rebuilt(B, cache_dir()),
                     reload(NewB),
-                    h(M, FunArity)
+                    get_beam(M, retry)
             end
     end.
 
 -spec cached_or_rebuilt(docsh_beam:t(), file:name()) -> {ok, docsh_beam:t()}.
 cached_or_rebuilt(Beam, CacheDir) ->
     %% TODO: find the module in cache, don't rebuild every time
-    {ok, _RebuiltB} = rebuild(Beam, CacheDir).
+    {ok, _RebuiltBeam} = rebuild(Beam, CacheDir).
 
 cache_dir() ->
     case {os:getenv("XDG_CACHE_HOME"), os:getenv("HOME")} of
@@ -44,6 +54,7 @@ cache_dir() ->
         {XDGCache, _} -> filename:join([XDGCache, "docsh"])
     end.
 
+-spec reload(docsh_beam:t()) -> ok.
 reload(Beam) ->
     BEAMFile = docsh_beam:beam_file(Beam),
     Path = filename:join([filename:dirname(BEAMFile),
