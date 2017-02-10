@@ -138,7 +138,7 @@ get_source(CompileInfo) ->
 
 -spec exdc(docsh_beam:t()) -> {string(), binary()}.
 exdc(Beam) ->
-    FromMods = available_readers(),
+    FromMods = available_readers(Beam),
     FromMods == []
         andalso error(no_readers_available),
     ToMod = docsh_elixir_docs_v1,
@@ -161,8 +161,10 @@ format_error(Reason) ->
     Stacktrace = erlang:get_stacktrace(),
     io_lib:format("docsh error: ~p~n~p~n", [Reason, Stacktrace]).
 
-available_readers() ->
-    [ M || M <- [docsh_edoc, docsh_syntax], is_module_available(M) ].
+-spec available_readers(docsh_beam:t()) -> [module()].
+available_readers(Beam) ->
+    [ docsh_edoc || docsh_beam:source_file(Beam) /= false ] ++
+    [ docsh_syntax || docsh_beam:abst(Beam) /= false ].
 
 is_module_available(Mod) ->
     try
