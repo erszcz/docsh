@@ -104,9 +104,6 @@ do_with_supported(Fun, {elixir_docs_v1, Docs}, Opts) ->
 do_with_supported(_, _, _) ->
     <<"Documentation format not supported">>.
 
-format(_) ->
-    not_implemented_yet.
-
 types(Docs) ->
     Types = proplists:get_value(types, Docs, []),
     [ ["\n", Desc] || {{_Name, _Arity}, Desc} <- Types ].
