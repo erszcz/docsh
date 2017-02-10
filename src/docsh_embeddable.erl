@@ -1,9 +1,4 @@
 -module(docsh_embeddable).
--compile([debug_info,
-          {inline, [get_elixir_docs_v1/1,
-                    do_with_docs/3,
-                    do_with_supported/3,
-                    types/1]}]).
 
 -export([h/1,
          h/4]).
@@ -28,52 +23,86 @@ h(Mod) ->
         end,
     do_with_docs(Mod, F, []).
 
--spec h(module(), fname(), arity(), [term()]) -> ok.
+-spec h(module(), fname(), any | arity(), [term()]) -> ok.
 h(Mod, Fun, Arity, Opts) ->
+    Features = fetch_features(Mod, Fun, Arity, Opts),
+    io:format("~ts", [format_features(Features, Arity, Opts)]).
+
+fetch_features(Mod, Fun, Arity, Opts0) ->
     F = fun (Docs, Opts) ->
-                case fetch_function({Fun, Arity}, Docs) of
-                    {no_docs, no_specs} ->
-                        error({no_docs, <<"neither doc comments nor specs found">>});
-                    {{doc, not_found}, {spec, not_found}} ->
-                        error({no_docs, <<(mfa(Mod, Fun, Arity))/bytes, " not found">>});
-                    {{doc, Doc}, {spec, Spec}} ->
-                        format([ {doc, Doc}   || proplists:is_defined(doc, Opts) ] ++
-                               [ {spec, Spec} || proplists:is_defined(spec, Opts) ])
-                end
+                FlatDocs = flatten_docs(Docs),
+                Features = filter_features(FlatDocs, Fun, Arity, Opts),
+                Arities = find_arities(Features),
+                generate_headers(Mod, Fun, Arities) ++ Features
         end,
-    do_with_docs(Mod, F, Opts).
+    do_with_docs(Mod, F, Opts0).
+
+flatten_docs(Docs) ->
+    F = fun ({moduledoc, _} = ModDoc) -> [ModDoc];
+            ({docs, Functions}) ->
+                [ {doc, Fun, Arity, Doc}
+                  %% TODO: ultimately, we should use all these fields
+                  || {{Fun, Arity}, _, _, _, Doc} <- Functions ];
+            ({Kind, Functions}) ->
+                [ {map_kind(Kind), Fun, Arity, Doc}
+                  || {{Fun, Arity}, Doc} <- Functions ]
+        end,
+    lists:flatmap(F, Docs).
+
+map_kind(docs) -> doc;
+map_kind(specs) -> spec;
+map_kind(types) -> type.
+
+filter_features(FlatDocs, Fun, Arity, FeatureKinds) ->
+    [ Feature || {Kind, ActualFun, ActualArity, _} = Feature <- FlatDocs,
+                 Fun =:= ActualFun,
+                 lists:member(Kind, FeatureKinds),
+                 does_arity_match(Arity, ActualArity) ].
+
+does_arity_match(any, _) -> true;
+does_arity_match(A, A) -> true;
+does_arity_match(_, _) -> false.
+
+find_arities(Features) ->
+    lists:usort([ A || {Kind, _, A, _} <- Features,
+                       Kind == doc orelse Kind == spec ]).
+
+generate_headers(Mod, Fun, Arities) ->
+    [ header(Mod, Fun, Arity) || Arity <- Arities ].
+
+header(M, F, A) -> {header, M, F, A}.
+
+format_features(Features, any, Opts) ->
+    [ format_features(FeatureGroup, Arity, Opts)
+      || {Arity, FeatureGroup} <- sort_by_arity(group_by_arity(Features)) ];
+format_features(Features, Arity, _Opts) when is_integer(Arity) ->
+    [ format_feature(F) || F <- sort_features(Features) ].
+
+sort_features(Features) ->
+    Order = [header, spec, doc],
+    [ F || Key <- Order, F <- [lists:keyfind(Key, 1, Features)], F /= false ].
+
+format_feature({moduledoc, Doc}) -> Doc;
+format_feature({header, M, F, A}) ->
+    [$\n, ?a2b(M), $:, ?a2b(F), $/, integer_to_binary(A), "\n\n"];
+format_feature({Kind, _, _, Doc}) when Kind =:= doc;
+                                       Kind =:= spec -> [Doc, $\n].
 
 do_with_docs(Mod, Fun, Opts) ->
-    T = try
-            do_with_supported(Fun, get_elixir_docs_v1(Mod), Opts)
-        catch
-            error:{no_docs, R} ->
-                <<"Docs missing:", R/bytes>>;
-            _:R ->
-                ?il2b([<<"docsh error: ">>,
-                       io_lib:format("~p\n~p\n", [R, erlang:get_stacktrace()])])
-        end,
-    io:format("~s~n", [T]).
+    try
+        do_with_supported(Fun, get_elixir_docs_v1(Mod), Opts)
+    catch
+        error:{no_docs, R} ->
+            <<"docs missing: ", R/bytes>>;
+        _:R ->
+            ?il2b([<<"docsh error: ">>,
+                   io_lib:format("~p\n~p\n", [R, erlang:get_stacktrace()])])
+    end.
 
 do_with_supported(Fun, {elixir_docs_v1, Docs}, Opts) ->
     Fun(Docs, Opts);
 do_with_supported(_, _, _) ->
     <<"Documentation format not supported">>.
-
-fetch_function(_, _) ->
-    not_implemented_yet.
-
-fetch_doc(FunArity, Docs) ->
-    {doc, case lists:keyfind(FunArity, 1, Docs) of
-              false -> not_found;
-              {FunArity, _, _, Doc} -> Doc
-          end}.
-
-fetch_spec(FunArity, Specs) ->
-    {spec, case lists:keyfind(FunArity, 1, Specs) of
-               false -> not_found;
-               {FunArity, Spec} -> Spec
-           end}.
 
 format(_) ->
     not_implemented_yet.
@@ -91,6 +120,17 @@ get_elixir_docs_v1(Mod) ->
             error({no_docs, <<"no ExDc chunk">>})
     end.
 
-mfa(M, F, A) ->
-    <<>>.
-    %<<?a2b(M)/bytes, ":", ?a2b(F)/bytes, "/", ?i2b(A)/bytes>>.
+group_by_arity(Features) ->
+    dict:to_list(group_by(fun feature_arity/1, Features)).
+
+feature_arity({moduledoc, _}) -> 0;
+feature_arity({header, _, _, A}) -> A;
+feature_arity({doc, _, A, _}) -> A;
+feature_arity({spec, _, A, _}) -> A.
+
+group_by(F, L) ->
+    lists:foldr(fun({K,V}, D) -> dict:append(K, V, D) end,
+                dict:new(), [ {F(X), X} || X <- L ]).
+
+sort_by_arity(FeatureGroups) ->
+    lists:sort(FeatureGroups).
