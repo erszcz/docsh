@@ -51,7 +51,7 @@ partially_apply_c_fun(Name, F, Args, Params) ->
 
 get_proto(FName, Templates) ->
     case lists:keyfind(FName, 1, Templates) of
-        false -> error(not_found);
+        false -> error({not_found, FName});
         {FName, CoreFun} -> CoreFun
     end.
 
