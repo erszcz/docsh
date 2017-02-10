@@ -14,13 +14,15 @@ h(M) when is_atom(M) ->
         {ok, B} -> erlang:apply(docsh_embeddable, h, [M])
     end.
 
-h(M, F, Arity) when is_atom(M), is_atom(F), is_integer(Arity) ->
+h(M, F, Arity) when is_atom(M), is_atom(F),
+                    is_integer(Arity) orelse Arity =:= any ->
     case get_beam(M) of
         {error, R} -> error(R, [M, F, Arity]);
         {ok, B} -> erlang:apply(docsh_embeddable, h, [M, F, Arity, [doc, spec]])
     end.
 
-s(M, F, Arity) when is_atom(M), is_atom(F), is_integer(Arity) ->
+s(M, F, Arity) when is_atom(M), is_atom(F),
+                    is_integer(Arity) orelse Arity =:= any ->
     case get_beam(M) of
         {error, R} -> error(R, [M, F, Arity]);
         {ok, B} -> erlang:apply(docsh_embeddable, h, [M, F, Arity, [spec]])
