@@ -196,9 +196,17 @@ This will enable docsh to work even for Erlang/OTP modules.
 - [x] Make [Recon](https://github.com/ferd/recon) compile with `docsh`
       and provide useful docs for all commented modules.
 
-- [x] Use a `core_transform` instead of a `parse_transform` to generate code.
+- [x] ~~Use a `core_transform` instead of a `parse_transform` to generate code.
       [Notes on using Core Erlang](notes.md#using-core-erlang)
-      describe why it makes sense.
+      describe why it makes sense.~~
+
+      Not a goal anymore.
+      Helper code generation is a burden which slows down
+      useful feature development.
+      Given it's easy to bundle docsh as a library in a release,
+      the goal of embedding helper code into .beam files is dropped.
+      Don't confuse it with storing the doc/spec information in the .beam files
+      as a separate chunk - this is the core functionality and works just fine.
 
 - [x] Include defined types in module description.
 
@@ -227,11 +235,13 @@ This will enable docsh to work even for Erlang/OTP modules.
     * [x] Rebar3 plugin for a post-compile build step.
     * [x] Shell extension for interactive use.
 
-- [ ] ~~Properly format/print out record definitions.~~
+- [x] ~~Properly format/print out record definitions.~~
 
       Since Erlang/OTP 19.0 [one of the standard pretty printers
       is much more capable](https://github.com/erlang/otp/commit/ee80210).
-      Use `erl_prettypr` instead of `erl_pp`.
+      ~~Use `erl_prettypr` instead of `erl_pp`.~~
+      `erl_prettypr` is now used when available,
+      while `erl_pp` with older versions.
 
 - [ ] Polish the UX:
 
