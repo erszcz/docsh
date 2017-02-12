@@ -2,14 +2,15 @@
 
 -export([beam_diff/2,
          convert/3,
-         get/2, get/3,
          debug/3,
-         print/2, print/3,
-         process_beam/1,
-         has_exdc/1,
+         format_error/1,
+         get/2, get/3,
          get_debug_info/1,
          get_source_file/1,
-         format_error/1]).
+         has_exdc/1,
+         is_module_available/1,
+         print/2, print/3,
+         process_beam/1]).
 
 -type k() :: any().
 -type v() :: any().
@@ -155,7 +156,16 @@ format_error(Reason) ->
     Stacktrace = erlang:get_stacktrace(),
     io_lib:format("docsh error: ~p~n~p~n", [Reason, Stacktrace]).
 
--spec available_readers(docsh_beam:t()) -> [module()].
+-spec available_readers(docsh_beam:t()) -> [docsh_reader:t()].
 available_readers(Beam) ->
-    [ docsh_edoc || docsh_beam:source_file(Beam) /= false ] ++
-    [ docsh_syntax || docsh_beam:abst(Beam) /= false ].
+    docsh_edoc:available(Beam) ++
+    docsh_syntax:available(Beam).
+
+-spec is_module_available(module()) -> boolean().
+is_module_available(Mod) ->
+    try
+        Mod:module_info(),
+        true
+    catch
+        _:undef -> false
+    end.

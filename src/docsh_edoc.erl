@@ -3,13 +3,20 @@
 -compile(export_all).
 
 -behaviour(docsh_reader).
--export([to_internal/1]).
+-export([available/1,
+         to_internal/1]).
 
 -export([flat/1]).
 
 -import(docsh_lib, [debug/3]).
 
 -define(l(Args), fun () -> Args end).
+
+-spec available(docsh_beam:t()) -> [docsh_reader:t()].
+available(Beam) ->
+    [ ?MODULE || docsh_lib:is_module_available(edoc),
+                 docsh_lib:is_module_available(xmerl),
+                 docsh_beam:source_file(Beam) /= false ].
 
 -spec to_internal(docsh_beam:t()) -> R when
       R :: {ok, docsh:internal()}
