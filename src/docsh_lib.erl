@@ -73,12 +73,6 @@ debug_matching(Tags, Tag, Fmt, Args) ->
                            end)
     end.
 
-%% @doc Find file name in an Erlang module abstract syntax tree.
--spec file([erl_parse:abstract_form()]) -> string().
-file(AST) ->
-    {_,_,file,{File,_}} = lists:keyfind(file, 3, AST),
-    File.
-
 %% @doc Show the difference between chunk sets of two modules.
 -spec beam_diff(BEAM, BEAM) -> [{BEAM, module(), list()}] when
       BEAM :: beam_lib:beam().
@@ -165,11 +159,3 @@ format_error(Reason) ->
 available_readers(Beam) ->
     [ docsh_edoc || docsh_beam:source_file(Beam) /= false ] ++
     [ docsh_syntax || docsh_beam:abst(Beam) /= false ].
-
-is_module_available(Mod) ->
-    try
-        Mod:module_info(),
-        true
-    catch
-        _:undef -> false
-    end.
