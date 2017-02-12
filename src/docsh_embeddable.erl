@@ -1,5 +1,9 @@
 -module(docsh_embeddable).
 
+%% TODO: As of now the name of this module is a misnomer.
+%%       Helper embedding is not currently supported
+%%       and the code here wouldn't be embeddable either way.
+
 -export([h/1,
          h/4]).
 
