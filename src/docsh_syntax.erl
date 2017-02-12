@@ -1,7 +1,9 @@
 -module(docsh_syntax).
 
 -behaviour(docsh_reader).
--export([to_internal/1]).
+-export([available/1,
+         to_internal/1]).
+
 -export([specs/1,
          types/1]).
 
@@ -19,6 +21,10 @@
 
 -define(il2b(IOList), iolist_to_binary(IOList)).
 -define(l(Args), fun () -> Args end).
+
+-spec available(docsh_beam:t()) -> [docsh_reader:t()].
+available(Beam) ->
+    [ ?MODULE || docsh_beam:abst(Beam) /= false ].
 
 -spec to_internal(docsh_beam:t()) -> R when
       R :: {ok, docsh:internal()}
