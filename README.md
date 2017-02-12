@@ -55,74 +55,114 @@ You're in the right place.
 not _in the internets_) access to documentation possible in Erlang.
 
 
-## Use it
-
-`$DOCSH_ROOT` is just a placeholder - use whatever location/variable
-makes the most sense to you.
+## Installation
 
 ```
-cd $DOCSH_ROOT
 git clone https://github.com/erszcz/docsh
 cd docsh
 ./rebar3 compile
+make activate
 ```
 
-Now make sure to [place these lines in your `user_default` file](#the-user_default-file):
+Now, activate docsh for your current shell session
+(`$DOCSH` is where you cloned the project).
+All it does is exporting `ERL_LIBS` with the proper path set up:
+
+```sh
+. $DOCSH/activate
+```
+
+Otherwise, you can source the `activate` script from your `.bashrc`
+(or similar for ZSH etc).
+
+Make sure to [include docsh header in your `user_default` file](#the-user_default-file)
+just below the exports:
 
 ```erlang
-h(M) -> docsh_shell:h(M).
-h(M, F, A) -> docsh_shell:h(M, F, A).
-s(M, F, A) -> docsh_shell:s(M, F, A).
+-export([...]).
+
+-include_lib("docsh/include/docsh_user_default.hrl").
 ```
 
 Don't forget to compile it!
-With the shell extensions in place:
+
+
+## Usage
+
+Activate docsh for the session or in your shell's config file:
+
+```sh
+. $DOCSH/activate
+```
+
+Let's see what docsh can give us for some OTP modules.
+We call `h/2` to get the doc for `lists:keyfind` now matter the arity:
+
+```
+$ erl
+Erlang/OTP 19 [erts-8.2] [source] [64-bit] [smp:8:8] [async-threads:10] [hipe] [kernel-poll:false]
+
+Eshell V8.2  (abort with ^G)
+1> h(lists, keyfind).
+
+lists:keyfind/3
+
+-spec keyfind(Key, N, TupleList) -> Tuple | false
+                 when
+                     Key :: term(),
+                     N :: pos_integer(),
+                     TupleList :: [Tuple],
+                     Tuple :: tuple().
+
+ok
+2>
+```
+
+Let's try with Recon:
 
 ```
 git clone https://github.com/ferd/recon
 cd recon
 ./rebar compile
-ERL_LIBS=$DOCSH_ROOT/docsh/_build/default/lib erl -pa ebin
+erl -pa ebin/
 ```
 
 Once in the Erlang shell:
 
 ```erlang
-> h(recon_trace).
-## Description
+Erlang/OTP 19 [erts-8.2] [source] [64-bit] [smp:8:8] [async-threads:10] [hipe] [kernel-poll:false]
 
-recon_trace is a module that handles tracing in a safe manner for single
-Erlang nodes, currently for function calls only. Functionality includes:
+Eshell V8.2  (abort with ^G)
+> s(recon_trace, calls).
 
-  - Nicer to use interface (arguably) than dbg or trace BIFs.
+recon_trace:calls/2
 
-...
-> h(fun recon_trace:calls/3).
+-spec calls(tspec() | [tspec(), ...], max()) -> num_matches().
+
+
+recon_trace:calls/3
+
 -spec calls(tspec() | [tspec(), ...], max(), options()) -> num_matches().
 
-Allows to set trace patterns and pid specifications to trace
-function calls.
+ok
+> h(recon_trace, calls, 2).
 
-...
-```
+recon_trace:calls/2
 
-[`docsh` also supports OTP libraries and applications](#use-it-with-otp),
-but requires a small hack for it to work.
-Moreover, this is not well tested yet, so _expect bugs_.
+-spec calls(tspec() | [tspec(), ...], max()) -> num_matches().
 
-```erlang
-> h(fun proplists:get_value/3).
--spec get_value(Key, List, Default) -> term()
-                   when
-                       is_subtype(Key, term()),
-                       is_subtype(List, [term()]),
-                       is_subtype(Default, term()).
+Equivalent to calls({Mod, Fun, Args}, Max, [])
+See calls/3
 
 ok
+>
 ```
 
-Try it with your project and let me know what the results are!
-Better yet, send a PR if you find any issues ;)
+As you can see above, `s/2` gives us just the function specs.
+Having read them, we want a more detailed description of `recon_trace:calls/2`,
+so we ask for the doc and specify the arity with `h/3`.
+
+Try it with your project!
 
 
 ### The `user_default` file
@@ -146,49 +186,20 @@ cd $HOME/.erlang.d
 cat <<EOF > user_default.erl
 -module(user_default).
 -compile(export_all).
-h(M) -> docsh_shell:h(M).
-h(M, F, A) -> docsh_shell:h(M, F, A).
+-include_lib("docsh/include/docsh_user_default.hrl").
 EOF
+```
+
+Activate docsh (otherwise the header will not be found) and compile the file:
+
+```
+. $DOCSH/activate
 erlc user_default.erl
 ```
 
 That's it!
 If you're curious about what else might go into this file then have a look at
 [Serge Aleynikov's example `user_default`](https://github.com/saleyn/util/blob/master/src/user_default.erl).
-
-
-### Use it with OTP
-
-Erlang "source" tarballs aren't really source tarballs - just the
-C code is compiled on your machine if you "install from source".
-What does it mean for docsh?
-
-If `debug_info` isn't available in a .beam file
-(and it's not the case for the OTP modules)
-docsh looks for a source file the module is compiled from.
-If the location of this file is not a valid path on the local machine,
-docsh won't find the .erl and fail.
-
-Here's how to fix it for an Erlang built by kerl.
-Go to the Erlang/OTP build directory, remove all .beam files below it
-and rebuild them:
-
-```
-cd ~/.kerl/builds/18.1/otp_src_18.1
-find lib -name \*.beam -exec rm '{}' \;
-make
-```
-
-Now reinstall the build (possibly under a new name) as you would usually
-do with kerl:
-
-```
-kerl install 18.1 ~/apps/erlang/18.1-rebuilt
-```
-
-Once you activate this installation,
-all the source paths in OTP modules will target local files on your machine.
-This will enable docsh to work even for Erlang/OTP modules.
 
 
 ## ToDo
@@ -265,6 +276,8 @@ This will enable docsh to work even for Erlang/OTP modules.
           which exports up to date docsh shell interface.
     * [ ] Provide an installation script for generating `user_default.erl`
           or including the docsh header in it if the file already exists.
+
+- [ ] Provide builtin documentation for `docsh` and `docsh_shell` modules
 
 - [ ] Fix EDdoc extraction and formatting ~~by calculating element
       indentation based on its path in the document tree and its formatting
