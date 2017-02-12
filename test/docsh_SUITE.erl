@@ -9,10 +9,8 @@
 -define(eq(Expected, Actual), ?assertEqual(Expected, Actual)).
 
 all() ->
-    [edoc_example_has_helpers,
-     edoc_example_has_docs_from_debug_info,
+    [edoc_example_has_docs_from_debug_info,
      edoc_example_has_docs_from_source,
-     recon_has_helpers,
      recon_has_docs_from_debug_info,
      recon_has_docs_from_source].
 
@@ -20,19 +18,11 @@ all() ->
 %% Tests
 %%
 
-edoc_example_has_helpers(C) ->
-    h0(C, edoc_example),
-    h2(C, edoc_example).
-
 edoc_example_has_docs_from_debug_info(C) ->
     module_has_docs_from_debug_info(C, edoc_example).
 
 edoc_example_has_docs_from_source(C) ->
     module_has_docs_from_source(C, edoc_example).
-
-recon_has_helpers(C) ->
-    h0(C, recon),
-    h2(C, recon).
 
 recon_has_docs_from_debug_info(C) ->
     module_has_docs_from_debug_info(C, recon).

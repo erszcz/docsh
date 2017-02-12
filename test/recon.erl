@@ -147,8 +147,6 @@
               port_info_meta_key/0, port_info_signals_key/0, port_info_io_key/0,
               port_info_memory_key/0, port_info_specific_key/0]).
 
--include_lib("docsh/include/docsh.hrl").
-
 %%%%%%%%%%%%%%%%%%
 %%% PUBLIC API %%%
 %%%%%%%%%%%%%%%%%%
