@@ -245,15 +245,26 @@ This will enable docsh to work even for Erlang/OTP modules.
 
 - [ ] Polish the UX:
 
-    * [ ] Don't error out when asked about local / undefined functions
-          (`Mod:h(some_local_fun, 0)`).
-    * [ ] Make `M:h/2` display type info apart from the already
-          supported info for functions.
-    * [ ] Provide arity agnostic `M:h/1` to display information about all
+    * [ ] ~~Don't error out when asked about local / undefined functions
+          (`Mod:h(some_local_fun, 0)`).~~
+          Display `not found` or similar message.
+    * [ ] Make `t/2` display type info apart from the already
+          supported info for function docs and specs.
+          Possibly make the types display along with function docs
+          when `h/2,3` is called and a function/type name clash occurs.
+    * [x] Provide arity agnostic `M:h/1` to display information about all
           functions / types of the given name.
-    * [ ] Provide `M:t/2` to display just the `-spec` / `-type` attribute.
+    * [x] Provide `s/2,3` to display just the `-spec` attribute.
           In some cases we're only interested in the order
           of parameters and in general already know what a function does.
+
+- [ ] Make installation easy:
+
+    * [x] Provide `activate` script to source in a Bash session/config file.
+    * [x] Provide a header file to include in `user_default.erl`
+          which exports up to date docsh shell interface.
+    * [ ] Provide an installation script for generating `user_default.erl`
+          or including the docsh header in it if the file already exists.
 
 - [ ] Fix EDdoc extraction and formatting ~~by calculating element
       indentation based on its path in the document tree and its formatting
