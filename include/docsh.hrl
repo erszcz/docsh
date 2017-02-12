@@ -1,1 +1,0 @@
--compile([{core_transform, ct_docsh}]).
