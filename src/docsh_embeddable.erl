@@ -21,11 +21,12 @@ h(Mod) ->
                 {_, ModDoc} = proplists:get_value(moduledoc, Docs),
                 %% TODO: work on the printout format in cases
                 %%       of unavailable docs
-                io_lib:format("## Description~n~n~s~n"
+                io_lib:format("\n# Module ~s~n~n"
+                              "## Description~n~n~s~n"
                               "## Types~n~s~n",
-                              [ModDoc, types(Docs)])
+                              [Mod, ModDoc, types(Docs)])
         end,
-    do_with_docs(Mod, F, []).
+    io:format("~ts", [do_with_docs(Mod, F, [])]).
 
 -spec h(module(), fname(), any | arity(), [term()]) -> ok.
 h(Mod, Fun, Arity, Opts) ->
