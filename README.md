@@ -96,7 +96,7 @@ Activate docsh for the session or in your shell's config file:
 ```
 
 Let's see what docsh can give us for some OTP modules.
-We call `h/2` to get the doc for `lists:keyfind` now matter the arity:
+We call `h/2` to get the doc for `lists:keyfind` no matter the arity:
 
 ```
 $ erl
