@@ -88,14 +88,18 @@ format_features(Features, Arity, _Opts) when is_integer(Arity) ->
     [ format_feature(F) || F <- sort_features(Features) ].
 
 sort_features(Features) ->
-    Order = [header, spec, doc],
+    Order = [moduledoc, type, header, spec, doc],
     [ F || Key <- Order, F <- [lists:keyfind(Key, 1, Features)], F /= false ].
 
 format_feature({moduledoc, Doc}) -> Doc;
 format_feature({header, M, F, A}) ->
     [$\n, format_mfa(M, F, A), "\n\n"];
-format_feature({Kind, _, _, Doc}) when Kind =:= doc;
-                                       Kind =:= spec -> [Doc, $\n].
+format_feature({Kind, _, _, Doc})
+  when Kind =:= doc;
+       Kind =:= spec ->
+    [Doc, $\n];
+format_feature({type, _, _, Doc})  ->
+    [$\n, Doc, $\n].
 
 no_features(Mod, Fun, Arity, Opts) ->
     print("\ndocsh: no ~ts for ~ts\n\n",
@@ -142,7 +146,8 @@ group_by_arity(Features) ->
 feature_arity({moduledoc, _}) -> 0;
 feature_arity({header, _, _, A}) -> A;
 feature_arity({doc, _, A, _}) -> A;
-feature_arity({spec, _, A, _}) -> A.
+feature_arity({spec, _, A, _}) -> A;
+feature_arity({type, _, A, _}) -> A.
 
 group_by(F, L) ->
     lists:foldr(fun({K,V}, D) -> dict:append(K, V, D) end,
