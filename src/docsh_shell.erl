@@ -1,7 +1,7 @@
 -module(docsh_shell).
 
 -export([h/1, h/3,
-         s/3]).
+         s/1, s/3]).
 
 -spec h(fun() | module()) -> ok.
 h(Fun) when is_function(Fun) ->
@@ -20,6 +20,10 @@ h(M, F, Arity) when is_atom(M), is_atom(F),
         {error, R} -> error(R, [M, F, Arity]);
         {ok, _} -> erlang:apply(docsh_embeddable, h, [M, F, Arity, [doc, spec]])
     end.
+
+s(Fun) when is_function(Fun) ->
+    {M, F, A} = erlang:fun_info_mfa(Fun),
+    s(M, F, A).
 
 s(M, F, Arity) when is_atom(M), is_atom(F),
                     is_integer(Arity) orelse Arity =:= any ->
