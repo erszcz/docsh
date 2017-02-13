@@ -12,6 +12,7 @@
 -import(docsh_lib, [print/2]).
 
 -define(a2b(A), atom_to_binary(A, utf8)).
+-define(a2l(A), atom_to_list(A)).
 -define(i2b(I), integer_to_binary(I)).
 -define(il2b(IOList), iolist_to_binary(IOList)).
 
@@ -26,12 +27,15 @@ h(Mod) ->
                               "## Types~n~s~n",
                               [Mod, ModDoc, types(Docs)])
         end,
-    io:format("~ts", [do_with_docs(Mod, F, [])]).
+    print("~ts", [do_with_docs(Mod, F, [])]).
 
 -spec h(module(), fname(), any | arity(), [term()]) -> ok.
 h(Mod, Fun, Arity, Opts) ->
-    Features = fetch_features(Mod, Fun, Arity, Opts),
-    io:format("~ts", [format_features(Features, Arity, Opts)]).
+    case fetch_features(Mod, Fun, Arity, Opts) of
+        [] -> no_features(Mod, Fun, Arity, Opts);
+        Features ->
+            print("~ts", [format_features(Features, Arity, Opts)])
+    end.
 
 fetch_features(Mod, Fun, Arity, Opts0) ->
     F = fun (Docs, Opts) ->
@@ -89,9 +93,19 @@ sort_features(Features) ->
 
 format_feature({moduledoc, Doc}) -> Doc;
 format_feature({header, M, F, A}) ->
-    [$\n, ?a2b(M), $:, ?a2b(F), $/, integer_to_binary(A), "\n\n"];
+    [$\n, format_mfa(M, F, A), "\n\n"];
 format_feature({Kind, _, _, Doc}) when Kind =:= doc;
                                        Kind =:= spec -> [Doc, $\n].
+
+no_features(Mod, Fun, Arity, Opts) ->
+    print("\ndocsh: no ~ts for ~ts\n\n",
+          [format_kinds(Opts), format_mfa(Mod, Fun, Arity)]).
+
+format_kinds(Kinds) ->
+    string:join([ ?a2l(K) || K <- Kinds ], "/").
+
+format_mfa(M, F, A) ->
+    [?a2b(M), $:, ?a2b(F), $/, case A of any -> $*; _ -> ?i2b(A) end].
 
 do_with_docs(Mod, Fun, Opts) ->
     try
