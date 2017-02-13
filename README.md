@@ -259,10 +259,10 @@ If you're curious about what else might go into this file then have a look at
     * [x] ~~Don't error out when asked about local / undefined functions
           (`Mod:h(some_local_fun, 0)`).~~
           Display `not found` or similar message.
-    * [ ] Make `t/2` display type info apart from the already
+    * [x] Make `t/2` display type info apart from the already
           supported info for function docs and specs.
-          Possibly make the types display along with function docs
-          when `h/2,3` is called and a function/type name clash occurs.
+          ~~Possibly make the types display along with function docs
+          when `h/2,3` is called and a function/type name clash occurs.~~
     * [x] Provide arity agnostic `M:h/1` to display information about all
           functions / types of the given name.
     * [x] Provide `s/2,3` to display just the `-spec` attribute.
