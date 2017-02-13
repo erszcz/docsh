@@ -256,7 +256,7 @@ If you're curious about what else might go into this file then have a look at
 
 - [ ] Polish the UX:
 
-    * [ ] ~~Don't error out when asked about local / undefined functions
+    * [x] ~~Don't error out when asked about local / undefined functions
           (`Mod:h(some_local_fun, 0)`).~~
           Display `not found` or similar message.
     * [ ] Make `t/2` display type info apart from the already
