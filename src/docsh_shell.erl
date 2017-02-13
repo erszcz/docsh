@@ -1,7 +1,8 @@
 -module(docsh_shell).
 
 -export([h/1, h/3,
-         s/1, s/3]).
+         s/1, s/3,
+         t/3]).
 
 -spec h(fun() | module()) -> ok.
 h(Fun) when is_function(Fun) ->
@@ -9,17 +10,11 @@ h(Fun) when is_function(Fun) ->
     h(M, F, A);
 
 h(M) when is_atom(M) ->
-    case get_beam(M) of
-        {error, R} -> error(R, [M]);
-        {ok, _} -> erlang:apply(docsh_embeddable, h, [M])
-    end.
+    unchecked_lookup([M], [M]).
 
 h(M, F, Arity) when is_atom(M), is_atom(F),
                     is_integer(Arity) orelse Arity =:= any ->
-    case get_beam(M) of
-        {error, R} -> error(R, [M, F, Arity]);
-        {ok, _} -> erlang:apply(docsh_embeddable, h, [M, F, Arity, [doc, spec]])
-    end.
+    unchecked_lookup([M, F, Arity], [M, F, Arity, [doc, spec]]).
 
 s(Fun) when is_function(Fun) ->
     {M, F, A} = erlang:fun_info_mfa(Fun),
@@ -27,9 +22,17 @@ s(Fun) when is_function(Fun) ->
 
 s(M, F, Arity) when is_atom(M), is_atom(F),
                     is_integer(Arity) orelse Arity =:= any ->
+    unchecked_lookup([M, F, Arity], [M, F, Arity, [spec]]).
+
+t(M, T, Arity) when is_atom(M), is_atom(T),
+                    is_integer(Arity) orelse Arity =:= any ->
+    unchecked_lookup([M, T, Arity], [M, T, Arity, [type]]).
+
+%% MFA might actually be just [M].
+unchecked_lookup([M | _] = MFA, Args) ->
     case get_beam(M) of
-        {error, R} -> error(R, [M, F, Arity]);
-        {ok, _} -> erlang:apply(docsh_embeddable, h, [M, F, Arity, [spec]])
+        {error, R} -> error(R, MFA);
+        {ok, _} -> erlang:apply(docsh_embeddable, h, Args)
     end.
 
 get_beam(M) -> get_beam(M, init).
