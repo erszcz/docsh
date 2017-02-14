@@ -45,7 +45,7 @@ get_beam(M, Attempt) when Attempt =:= init;
             case {Attempt, docsh_lib:has_exdc(docsh_beam:beam_file(B))} of
                 {_, true} -> {ok, B};
                 {init, false} ->
-                    {ok, NewB} = cached_or_rebuilt(B, cache_dir()),
+                    {ok, NewB} = cached_or_rebuilt(B, ensure_cache_dir()),
                     reload(NewB),
                     get_beam(M, retry)
             end
@@ -55,6 +55,20 @@ get_beam(M, Attempt) when Attempt =:= init;
 cached_or_rebuilt(Beam, CacheDir) ->
     %% TODO: find the module in cache, don't rebuild every time
     {ok, _RebuiltBeam} = rebuild(Beam, CacheDir).
+
+ensure_cache_dir() ->
+    CacheDir = cache_dir(),
+    IsFile = filelib:is_file(CacheDir),
+    IsDir = filelib:is_dir(CacheDir),
+    case {IsFile, IsDir} of
+        {true, true} ->
+            CacheDir;
+        {true, false} ->
+            error(cache_location_is_not_a_dir);
+        _ ->
+            ok = file:make_dir(CacheDir),
+            CacheDir
+    end.
 
 cache_dir() ->
     case {os:getenv("XDG_CACHE_HOME"), os:getenv("HOME")} of
