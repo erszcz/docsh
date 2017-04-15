@@ -26,6 +26,13 @@ end_per_suite(_Config) ->
     ok.
 
 %%
+%% Config
+%%
+
+docsh_repo() ->
+    "https://github.com/erszcz/docsh".
+
+%%
 %% Tests
 %%
 
@@ -33,9 +40,11 @@ docker_linux(_) ->
     Name = container_name("docsh-linux-"),
     Args = [which("docker"), "run", "-t", "--rm", "--name", Name, "erlang:19-slim", "bash"],
     start_container(Name, Args),
+    GitRef = current_git_commit(),
     try
-        sh(["docker exec ", Name, " echo a"]),
-        ct:pal("git commit: ~p", [current_git_commit()]),
+        sh(within_container(Name, fetch(archive_url(GitRef), archive_file(GitRef)))),
+        sh(within_container(Name, extract(archive_file(GitRef)))),
+        ct:pal("last result: ~p", [sh(within_container(Name, ["ls ", repo_dir(GitRef)]))]),
         ct:fail("not implemented yet")
     after
         sh("docker stop " ++ Name)
@@ -92,4 +101,32 @@ is_container_running(Name) ->
     catch _:_ -> false end.
 
 current_git_commit() ->
-    {_, _, R} = sh("git rev-parse HEAD").
+    {_, _, R} = sh("git rev-parse HEAD"),
+    R.
+
+% Url = https://github.com/erszcz/docsh/archive/456d80379fcf81a823a63db13aa2f66f28abd79e.tar.gz
+% TargetFile = /tmp/z.tar.gz
+fetch(Url, Target) ->
+    QUrl = quote(Url),
+    QTarget = quote(Target),
+    ["erl -noinput -noshell -s ssl -s inets "
+     "-eval '{ok, {_, _, D}} = httpc:request(", QUrl, "), file:write_file(", QTarget, ", D).' "
+     "-s erlang halt"].
+
+quote(Text) ->
+    ["\"", Text, "\""].
+
+within_container(Name, Command) ->
+    ["docker exec ", Name, " ", Command].
+
+archive_url(GitReference) ->
+    [docsh_repo(), "/archive/", GitReference, ".tar.gz"].
+
+archive_file(GitReference) ->
+    [GitReference, ".tar.gz"].
+
+extract(Archive) ->
+    ["tar xf ", Archive].
+
+repo_dir(GitReference) ->
+    ["docsh-", GitReference].
