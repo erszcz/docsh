@@ -32,11 +32,11 @@ end_per_suite(_Config) ->
 %%
 
 docker_linux(_) ->
-    Name = container_name("docker-linux-"),
-    Fdlink = erlsh:fdlink_executable(),
+    Name = container_name("docsh-linux-"),
     Args = [which("docker"), "run", "-t", "--rm", "--name", Name, "erlang:19-slim", "bash"],
-    ContainerPort = erlang:open_port({spawn_executable, Fdlink}, [stream, exit_status, {args, Args}]),
+    start_container(Name, Args),
     try
+        sh(["docker exec ", Name, " echo a"]),
         ct:fail("not implemented yet")
     after
         sh("docker stop " ++ Name)
@@ -55,11 +55,36 @@ check({Name, P}, Config) ->
     end.
 
 container_name(Prefix) ->
-    ?b2l(?il2b([Prefix, base64:encode(crypto:rand_bytes(9))])).
+    ?b2l(?il2b([Prefix, base64:encode(crypto:strong_rand_bytes(9))])).
 
 which(Command) ->
     {done, 0, BPath} = sh("which " ++ Command),
     ?b2l(BPath).
 
+sh(Command) when is_binary(Command) -> sh([Command]);
 sh(Command) ->
-    {done, 0, _} = erlsh:oneliner(Command).
+    {done, 0, _} = erlsh:oneliner(?b2l(?il2b(Command))).
+
+start_container(Name, Args) ->
+    Fdlink = erlsh:fdlink_executable(),
+    _ContainerPort = erlang:open_port({spawn_executable, Fdlink}, [stream, exit_status, {args, Args}]),
+    wait_for(fun () -> is_container_running(Name) end).
+
+wait_for(Predicate) ->
+    wait_for(Predicate, 5000).
+
+wait_for(_Predicate, Timeout) when Timeout < 0 ->
+    error(timeout);
+wait_for( Predicate, Timeout) ->
+    case Predicate() of
+        true -> ok;
+        false ->
+            timer:sleep(100),
+            wait_for(Predicate, Timeout - 100)
+    end.
+
+is_container_running(Name) ->
+    try
+        sh(["docker ps | grep ", Name, " | grep Up"]),
+        true
+    catch _:_ -> false end.
