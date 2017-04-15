@@ -18,10 +18,8 @@ init_per_suite(Config) ->
 
 prerequisites() ->
     [
-     { "docker in $PATH?",
-       fun (_Config) ->
-               {done, 0, <<"Docker", _/bytes>>} = erlsh:oneliner("docker -v")
-       end}
+     { "docker in $PATH", fun (_Config) -> {_, _, <<"Docker", _/bytes>>} = sh("docker -v") end },
+     { "git in $PATH", fun (_) -> {_, _, <<"usage: git", _/bytes>>} = sh("git --help") end }
     ].
 
 end_per_suite(_Config) ->
@@ -37,6 +35,7 @@ docker_linux(_) ->
     start_container(Name, Args),
     try
         sh(["docker exec ", Name, " echo a"]),
+        ct:pal("git commit: ~p", [current_git_commit()]),
         ct:fail("not implemented yet")
     after
         sh("docker stop " ++ Name)
@@ -55,7 +54,10 @@ check({Name, P}, Config) ->
     end.
 
 container_name(Prefix) ->
-    ?b2l(?il2b([Prefix, base64:encode(crypto:strong_rand_bytes(9))])).
+    RawRandomBytes = crypto:strong_rand_bytes(9),
+    Base64 = base64:encode(RawRandomBytes),
+    DockerCompliant = re:replace(Base64, <<"[^a-zA-Z0-9_.-]">>, <<"x">>, [global]),
+    ?b2l(?il2b([Prefix, DockerCompliant])).
 
 which(Command) ->
     {done, 0, BPath} = sh("which " ++ Command),
@@ -88,3 +90,6 @@ is_container_running(Name) ->
         sh(["docker ps | grep ", Name, " | grep Up"]),
         true
     catch _:_ -> false end.
+
+current_git_commit() ->
+    {_, _, R} = sh("git rev-parse HEAD").
