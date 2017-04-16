@@ -107,7 +107,7 @@ setup_container_system(Name) ->
     sh(within_container(Name, "apt-get update")),
     Packages = ["ca-certificates", "git"],
     sh(within_container(Name, ["apt-get install --no-install-recommends --yes ",
-                               lists:join(" ", Packages)])).
+                               string:join(Packages, " ")])).
 
 wait_for(Predicate) ->
     wait_for(Predicate, 10 * 1000).
