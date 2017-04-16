@@ -37,6 +37,8 @@ docsh_repo() ->
 %%
 
 docker_linux(_) ->
+    %% debug shell commands?
+    %put(sh_log, true),
     Name = container_name("docsh-linux-"),
     Args = [which("docker"), "run", "-t", "--rm", "--name", Name, "erlang:19-slim", "bash"],
     start_container(Name, Args),
@@ -44,8 +46,11 @@ docker_linux(_) ->
     try
         sh(within_container(Name, fetch(archive_url(GitRef), archive_file(GitRef)))),
         sh(within_container(Name, extract(archive_file(GitRef)))),
-        ct:pal("last result: ~p", [sh(within_container(Name, ["ls ", repo_dir(GitRef)]))]),
-        ct:fail("not implemented yet")
+        sh(within_container(Name, install(repo_dir(GitRef)))),
+        sh(within_container(Name, file_exists("$HOME/.erlang"))),
+        sh(within_container(Name, file_exists("$HOME/.erlang.d/user_default.erl"))),
+        sh(within_container(Name, file_exists("$HOME/.erlang.d/user_default.beam"))),
+        sh(within_container(Name, docsh_works()))
     after
         sh("docker stop " ++ Name)
     end.
@@ -74,7 +79,20 @@ which(Command) ->
 
 sh(Command) when is_binary(Command) -> sh([Command]);
 sh(Command) ->
-    {done, 0, _} = erlsh:oneliner(?b2l(?il2b(Command))).
+    case erlsh:oneliner(?b2l(?il2b(Command))) of
+        {done, 0 = Code, Result} = R ->
+            get(sh_log) == true andalso sh_log(Command, Code, Result),
+            R;
+        {done, Code, Result} = R ->
+            sh_log(Command, Code, Result),
+            ct:fail(R)
+    end.
+
+sh_log(Command, Code, Result) ->
+    ct:pal("command : ~ts\n"
+           "code    : ~p\n"
+           "result  : ~ts",
+           [Command, Code, Result]).
 
 start_container(Name, Args) ->
     Fdlink = erlsh:fdlink_executable(),
@@ -130,3 +148,12 @@ extract(Archive) ->
 
 repo_dir(GitReference) ->
     ["docsh-", GitReference].
+
+install(RepoDir) ->
+    ["cd ", RepoDir, "; ./install.sh"].
+
+file_exists(File) ->
+    ["file -E ", File].
+
+docsh_works() ->
+    ["erl -noinput -noshell -eval 'erlang:display(docsh:module_info(module)).' -s erlang halt"].
