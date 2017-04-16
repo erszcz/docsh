@@ -3,8 +3,13 @@ language: erlang
 notifications:
   email: erlang.docsh@gmail.com
 
+sudo: required
+
+services:
+  - docker
+
 otp_release:
-  - 19.0
+  - 19.3
   - 18.3
   - 17.5
 
