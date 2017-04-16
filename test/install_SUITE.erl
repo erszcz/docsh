@@ -41,6 +41,7 @@ docker_linux(_) ->
     put(sh_log, true),
     Name = container_name("docsh-linux-"),
     Args = [which("docker"), "run", "-t", "--rm", "--name", Name, "erlang:19-slim", "bash"],
+    sh("docker pull erlang:19-slim"),
     start_container(Name, Args),
     GitRef = current_git_commit(),
     try
@@ -109,7 +110,7 @@ setup_container_system(Name) ->
                                lists:join(" ", Packages)])).
 
 wait_for(Predicate) ->
-    wait_for(Predicate, 5000).
+    wait_for(Predicate, 10 * 1000).
 
 wait_for(_Predicate, Timeout) when Timeout < 0 ->
     error(timeout);
