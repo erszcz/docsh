@@ -150,7 +150,7 @@ repo_dir(GitReference) ->
     ["docsh-", GitReference].
 
 install(RepoDir) ->
-    ["cd ", RepoDir, "; ./install.sh"].
+    ["cd ", RepoDir, "; yes | ./install.sh"].
 
 file_exists(File) ->
     ["file -E ", File].
