@@ -49,11 +49,13 @@ popd > /dev/null
 
 cd $DOCSH_BASE
 ./rebar3 compile
-cd -
+cd - > /dev/null
 
 cat <<EOF > "$HOME_ERLANG"
-code:add_path("$DOCSH_BASE/_build/default/lib/docsh/ebin").
-io:format("Enabled docsh from: $DOCSH_BASE\n", []).
+{ok, [["erl"]]} == init:get_argument(progname) andalso begin
+    code:add_path("$DOCSH_BASE/_build/default/lib/docsh/ebin"),
+    io:format(stderr, "Enabled docsh from: $DOCSH_BASE\n", [])
+end.
 code:load_abs(os:getenv("HOME") ++ "/.erlang.d/user_default").
 EOF
 
@@ -64,8 +66,8 @@ cat <<EOF > $HOME_USER_DEFAULT
 -module(user_default).
 -include("docsh_user_default.hrl").
 EOF
-erlc $HOME_USER_DEFAULT
-cd -
+erlc $HOME_USER_DEFAULT > /dev/null
+cd - > /dev/null
 
 echo "Ok, it's done!"
 

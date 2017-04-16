@@ -38,19 +38,21 @@ docsh_repo() ->
 
 docker_linux(_) ->
     %% debug shell commands?
-    %put(sh_log, true),
+    put(sh_log, true),
     Name = container_name("docsh-linux-"),
     Args = [which("docker"), "run", "-t", "--rm", "--name", Name, "erlang:19-slim", "bash"],
     start_container(Name, Args),
     GitRef = current_git_commit(),
     try
-        sh(within_container(Name, fetch(archive_url(GitRef), archive_file(GitRef)))),
-        sh(within_container(Name, extract(archive_file(GitRef)))),
-        sh(within_container(Name, install(repo_dir(GitRef)))),
-        sh(within_container(Name, file_exists("$HOME/.erlang"))),
-        sh(within_container(Name, file_exists("$HOME/.erlang.d/user_default.erl"))),
-        sh(within_container(Name, file_exists("$HOME/.erlang.d/user_default.beam"))),
-        sh(within_container(Name, docsh_works()))
+        sh(within_container(Name, clone(docsh_repo()))),
+        sh(within_container(Name, checkout(docsh_repo(), GitRef))),
+        sh(within_container(Name, install(docsh_repo()))),
+        sh(within_container(Name, file_exists("/root/.erlang"))),
+        sh(within_container(Name, "cat /root/.erlang")),
+        sh(within_container(Name, file_exists("/root/.erlang.d/user_default.erl"))),
+        sh(within_container(Name, "cat /root/.erlang.d/user_default.erl")),
+        sh(within_container(Name, file_exists("/root/.erlang.d/user_default.beam"))),
+        {_, _, <<"docsh">>} = sh(within_container(Name, docsh_works()))
     after
         sh("docker stop " ++ Name)
     end.
@@ -97,7 +99,14 @@ sh_log(Command, Code, Result) ->
 start_container(Name, Args) ->
     Fdlink = erlsh:fdlink_executable(),
     _ContainerPort = erlang:open_port({spawn_executable, Fdlink}, [stream, exit_status, {args, Args}]),
-    wait_for(fun () -> is_container_running(Name) end).
+    wait_for(fun () -> is_container_running(Name) end),
+    setup_container_system(Name).
+
+setup_container_system(Name) ->
+    sh(within_container(Name, "apt-get update")),
+    Packages = ["ca-certificates", "git"],
+    sh(within_container(Name, ["apt-get install --no-install-recommends --yes ",
+                               lists:join(" ", Packages)])).
 
 wait_for(Predicate) ->
     wait_for(Predicate, 5000).
@@ -122,14 +131,12 @@ current_git_commit() ->
     {_, _, R} = sh("git rev-parse HEAD"),
     R.
 
-% Url = https://github.com/erszcz/docsh/archive/456d80379fcf81a823a63db13aa2f66f28abd79e.tar.gz
-% TargetFile = /tmp/z.tar.gz
-fetch(Url, Target) ->
-    QUrl = quote(Url),
-    QTarget = quote(Target),
-    ["erl -noinput -noshell -s ssl -s inets "
-     "-eval '{ok, {_, _, D}} = httpc:request(", QUrl, "), file:write_file(", QTarget, ", D).' "
-     "-s erlang halt"].
+clone(Repo) ->
+    ["git clone ", Repo].
+
+checkout(Repo, GitRef) ->
+    RepoDir = filename:basename(Repo),
+    ["bash -c ", quote(["cd ", RepoDir, "; git checkout ", GitRef])].
 
 quote(Text) ->
     ["\"", Text, "\""].
@@ -137,23 +144,12 @@ quote(Text) ->
 within_container(Name, Command) ->
     ["docker exec ", Name, " ", Command].
 
-archive_url(GitReference) ->
-    [docsh_repo(), "/archive/", GitReference, ".tar.gz"].
-
-archive_file(GitReference) ->
-    [GitReference, ".tar.gz"].
-
-extract(Archive) ->
-    ["tar xf ", Archive].
-
-repo_dir(GitReference) ->
-    ["docsh-", GitReference].
-
-install(RepoDir) ->
-    ["cd ", RepoDir, "; yes | ./install.sh"].
+install(Repo) ->
+    RepoDir = filename:basename(Repo),
+    ["bash -c ", quote(["yes | ", RepoDir, "/install.sh"])].
 
 file_exists(File) ->
-    ["file -E ", File].
+    ["test -f ", File].
 
 docsh_works() ->
     ["erl -noinput -noshell -eval 'erlang:display(docsh:module_info(module)).' -s erlang halt"].
