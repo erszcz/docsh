@@ -62,13 +62,13 @@ EOF
 
 mkdir -p "$HOME_ERLANG_D"
 cd $HOME_ERLANG_D
-ln -s $DOCSH_BASE/include/docsh_user_default.hrl
 cat <<EOF > $HOME_USER_DEFAULT
 -module(user_default).
 -include("docsh_user_default.hrl").
 EOF
-erlc $HOME_USER_DEFAULT > /dev/null
+erlc -I $DOCSH_BASE/include $HOME_USER_DEFAULT > /dev/null
 cd - > /dev/null
 
+echo
 echo "Ok, it's done!"
 
