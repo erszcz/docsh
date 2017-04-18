@@ -20,7 +20,7 @@ echo "To know more about these files please refer to:"
 echo
 echo "  man erl - sections about 'The .erlang startup file'"
 echo "            and 'user_default and shell_default'"
-echo "  man shell_default - parts about shell_default"
+echo "  man shell_default - parts about user_default"
 echo
 
 read -p "Do you want to proceed? [y/N] " -n 1 -r
