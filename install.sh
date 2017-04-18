@@ -52,10 +52,10 @@ cd $DOCSH_BASE
 cd - > /dev/null
 
 cat <<EOF > "$HOME_ERLANG"
-{ok, [["erl"]]} == init:get_argument(progname) andalso begin
+proplists:is_defined(noshell, init:get_arguments()) == false andalso begin
     DocshBase = "$DOCSH_BASE",
     code:add_path(DocshBase ++ "/_build/default/lib/docsh/ebin"),
-    io:format(standard_error, "Enabled docsh from: ~s\n", [DocshBase])
+    io:format("Enabled docsh from: ~s\n", [DocshBase])
 end.
 code:load_abs(os:getenv("HOME") ++ "/.erlang.d/user_default").
 EOF
