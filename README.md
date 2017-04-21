@@ -139,12 +139,6 @@ and let me know of the experience!
 
 ## Usage
 
-Activate docsh for the session or in your shell's config file:
-
-```sh
-. $DOCSH/activate
-```
-
 Let's see what docsh can give us for some OTP modules.
 We call `h/2` to get the doc for `lists:keyfind` no matter the arity:
 
@@ -213,43 +207,6 @@ Having read them, we want a more detailed description of `recon_trace:calls/2`,
 so we ask for the doc and specify the arity with `h/3`.
 
 Try it with your project!
-
-
-### The `user_default` file
-
-The Erlang shell can be customized by using
-the [`user_default`](http://erlang.org/doc/man/shell_default.html) file.
-To do so you first need to create `$HOME/.erlang` which will load
-your customizations into the shell:
-
-```erlang
-% file: $HOME/.erlang
-code:load_abs(os:getenv("HOME") ++ "/.erlang.d/user_default").
-```
-
-Then create `$HOME/.erlang.d` directory, `user_default.erl` inside it,
-and compile the module:
-
-```
-mkdir $HOME/.erlang.d
-cd $HOME/.erlang.d
-cat <<EOF > user_default.erl
--module(user_default).
--compile(export_all).
--include_lib("docsh/include/docsh_user_default.hrl").
-EOF
-```
-
-Activate docsh (otherwise the header will not be found) and compile the file:
-
-```
-. $DOCSH/activate
-erlc user_default.erl
-```
-
-That's it!
-If you're curious about what else might go into this file then have a look at
-[Serge Aleynikov's example `user_default`](https://github.com/saleyn/util/blob/master/src/user_default.erl).
 
 
 ## ToDo
