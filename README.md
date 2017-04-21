@@ -261,7 +261,7 @@ Try it with your project!
       `erl_prettypr` is now used when available,
       while `erl_pp` with older versions.
 
-- [ ] Polish the UX:
+- [x] Polish the UX:
 
     * [x] ~~Don't error out when asked about local / undefined functions
           (`Mod:h(some_local_fun, 0)`).~~
@@ -276,17 +276,17 @@ Try it with your project!
           In some cases we're only interested in the order
           of parameters and in general already know what a function does.
 
-- [ ] Make installation easy:
+- [x] Make installation easy:
 
     * [x] Provide `activate` script to source in a Bash session/config file.
     * [x] Provide a header file to include in `user_default.erl`
           which exports up to date docsh shell interface.
-    * [ ] Provide an installation script for generating `user_default.erl`
-          or including the docsh header in it if the file already exists.
+    * [x] Provide an installation script for generating `user_default.erl`
+          ~~or including the docsh header in it if the file already exists.~~
 
 - [ ] Provide builtin documentation for `docsh` and `docsh_shell` modules
 
-- [ ] Fix EDdoc extraction and formatting ~~by calculating element
+- [ ] Improve EDdoc extraction and formatting ~~by calculating element
       indentation based on its path in the document tree and its formatting
       based on its type.~~ Almost done!
 
