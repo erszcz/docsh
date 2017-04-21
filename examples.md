@@ -1,9 +1,9 @@
 ## It works!
 
-### bbmustache
+### base16
 
 ```erlang
-7> h(base16).
+1> h(base16).
 
 # Module base16
 
@@ -14,6 +14,35 @@ Encoding and decoding of Base16-encoded binaries
 ## Types
 
 ok
+2> h(base16, encode).
+
+base16:encode/1
+
+-spec encode(binary()) -> <<_:_*16>>.
+
+(description missing)
+
+
+ok
+3> s(base16, encode).
+
+base16:encode/1
+
+-spec encode(binary()) -> <<_:_*16>>.
+
+ok
+4> s(base16, decode).
+
+base16:decode/1
+
+-spec decode(<<_:_*16>>) -> binary().
+
+ok
+```
+
+### bbmustache
+
+```erlang
 8> h(bbmustache).
 
 # Module bbmustache
