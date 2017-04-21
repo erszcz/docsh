@@ -60,31 +60,81 @@ not _in the internets_) access to documentation possible in Erlang.
 ```
 git clone https://github.com/erszcz/docsh
 cd docsh
-./rebar3 compile
-make activate
+./install.sh
 ```
 
-Now, activate docsh for your current shell session
-(`$DOCSH` is where you cloned the project).
-All it does is exporting `ERL_LIBS` with the proper path set up:
+The script will ask if you're sure you want to create some
+Erlang configuration files:
 
-```sh
-. $DOCSH/activate
+```
+$ ./install.sh
+
+Installing docsh
+
+This install script will make docsh globally available in your
+user environment.
+It will install the following files:
+
+  /Users/erszcz/.erlang
+  /Users/erszcz/.erlang.d/user_default.erl
+
+To know more about these files please refer to:
+
+  man erl - sections about 'The .erlang startup file'
+            and 'user_default and shell_default'
+  man shell_default - parts about user_default
+
+Do you want to proceed? [y/N]
 ```
 
-Otherwise, you can source the `activate` script from your `.bashrc`
-(or similar for ZSH etc).
+Even if you agree to install, but the target files exist,
+it won't proceed - don't worry if you have customized your
+Erlang environment already.
 
-Make sure to [include docsh header in your `user_default` file](#the-user_default-file)
-just below the exports:
+Once the installation is complete,
+`erl` will greet you in a bit different way than you might be used to:
 
 ```erlang
--export([...]).
+$ erl
+Erlang/OTP 19 [erts-8.2] [source] [64-bit] [smp:4:4] [async-threads:10] [kernel-poll:false]
 
--include_lib("docsh/include/docsh_user_default.hrl").
+Enabled docsh from: /Users/erszcz/work/erszcz/docsh
+Eshell V8.2  (abort with ^G)
+1>
 ```
 
-Don't forget to compile it!
+Now you can rely on your chosen package's documentation as the guide
+to its use:
+
+```erlang
+1> h(lists, keyfind).
+
+lists:keyfind/3
+
+-spec keyfind(Key, N, TupleList) -> Tuple | false when Key :: term(),
+                                                       N :: pos_integer(),
+                                                       TupleList :: [Tuple],
+                                                       Tuple :: tuple().
+
+ok
+2> h(lists).
+
+# Module lists
+
+## Description
+
+(description missing)
+
+## Types
+
+ok
+```
+
+Well, your mileage may vary ;p
+Check out [examples.md](examples.md) for how the docs are formatted
+when they actually are provided for a project.
+Better yet, just play with docsh with a project of your choice
+and let me know of the experience!
 
 
 ## Usage
