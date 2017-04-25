@@ -1,3 +1,54 @@
+%% @doc
+%% Welcome to docsh, the missing documentation viewer for the Erlang shell.
+%% This project provides a number of helpers for accessing module and function
+%% doc comments, function specs and exported types.
+%%
+%% To access this documentation you've quite likely typed:
+%%
+%% ```
+%% h(docsh).
+%% '''
+%%
+%% `h/1,2,3' is the most generic invocation of docsh.
+%% `h/1' prints documentation for a given module (as shown above) or function:
+%%
+%% ```
+%% h(fun lists:keyfind/3).
+%% '''
+%%
+%% `h/2,3' are limited to functions.
+%% `h/2' displays information about all functions of the given name from
+%% a particular module, while `h/3' also takes the expected function arity:
+%%
+%% ```
+%% h(proplists, get_value).
+%% h(proplists, get_value, 3).
+%% '''
+%%
+%% `s/1,2,3' is the helper to use if you're only interested in function specs:
+%%
+%% ```
+%% s(fun proplists:get_value/3).
+%% s(proplists, get_value).
+%% s(proplists, get_value, 3).
+%% '''
+%%
+%% `t/2,3' is the helper for printing types exported from modules:
+%%
+%% ```
+%% t(gen_tcp, connect_option).
+%% t(gen_udp, socket).
+%% '''
+%%
+%% All the helpers described above are only available if you installed
+%% the `user_default' extensions that ship with docsh.
+%% See https://github.com/erszcz/docsh/README.md if unsure about
+%% the installation steps or what `user_default' is.
+%%
+%% If you want to call docsh as a library, please refer to `docsh_shell'.
+%% (TODO) As of now it's the only way to use docsh from Elixir's iex.
+%% @end
+
 -module(docsh).
 
 -export([main/1]).
