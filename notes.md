@@ -168,21 +168,29 @@ false
 
 # Generating documentation at runtime
 
+## Finding the source files
+
 The assumption I had for generating documentation for OTP modules was that
-if Erlang was installed via kerl, I could rely on `M:module_info/0`
+if Erlang was installed from source or via kerl, I could rely on `M:module_info/0`
 returning valid paths to source files in the local file system.
 This assumption is invalid, as the `otp_src_VERSION.tar.gz` bundles come
 with precompiled `.beam` files - not just for the `bootstrap/` subtree,
 but also for the modules under `lib/`.
-This means returned paths to source files point at some arbitrary
-locations in the package builder's file system not in mine.
+This means that the source file paths contained in the modules are valid on the build host,
+but are not valid on my or your machine,
+even though the source files are present in the distributed tarball.
+
+## Fixing the source paths
 
 For the time being, I've manually deleted all the `.beam` files in the
 build directory and rebuilt the whole tree.
 This allows me to proceed with development of the mechanism for runtime
 documentation generation.
-Erlang installation with docsh support on a developer's workstation
-requires further consideration.
+
+In the future, docsh should take this into consideration and try to
+heuristically rewrite the known build-host-valid paths to local paths.
+
+## Accessing loaded modules' chunks directly
 
 It seems that `beam_lib` and `code`/`code_server` can't fetch chunks which
 are actually loaded by the emulator - they always read them from the `.beam`

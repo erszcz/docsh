@@ -33,6 +33,14 @@
 %% s(proplists, get_value, 3).
 %% '''
 %%
+%% As of now, due to the way Erlang/OTP is distributed and installed,
+%% `h/1,2,3' and `s/1,2,3' will give you just the specs for functions
+%% defined in standard Erlang/OTP modules.
+%% `h/1,2,3' will give you full documentation (with doc comments) for your code
+%% or for 3rd party projects!
+%% This is a known issue and will be resolved in the future.
+%% (TODO) See https://github.com/erszcz/docsh/issues/7
+%%
 %% `t/2,3' is the helper for printing types exported from modules:
 %%
 %% ```
