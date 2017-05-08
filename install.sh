@@ -54,6 +54,7 @@ fi
 cd $DOCSH_BASE
 ./rebar3 compile
 cd - > /dev/null
+echo
 
 PROCEED=yes
 

@@ -4,6 +4,11 @@
          s/1, s/3,
          t/3]).
 
+-import(docsh_lib, [print/2]).
+
+-type lookup_params() :: [lookup_param()].
+-type lookup_param() :: doc | spec | type.
+
 -spec h(fun() | module()) -> ok.
 h(Fun) when is_function(Fun) ->
     {M, F, A} = erlang:fun_info_mfa(Fun),
@@ -32,7 +37,23 @@ t(M, T, Arity) when is_atom(M), is_atom(T),
 unchecked_lookup([M | _] = MFA, Args) ->
     case get_beam(M) of
         {error, R} -> error(R, MFA);
-        {ok, _} -> erlang:apply(docsh_embeddable, h, Args)
+        {ok, Beam} ->
+            check_edoc_availability(Beam, Args),
+            erlang:apply(docsh_embeddable, h, Args)
+    end.
+
+-spec check_edoc_availability(docsh_beam:t(), [lookup_params() | term()]) -> ok.
+check_edoc_availability(_Beam, [_]) -> ok;
+check_edoc_availability(Beam, [_, _, _, LParams]) ->
+    case {proplists:get_value(doc, LParams, false), docsh_beam:source_file(Beam)} of
+        {true, false} ->
+            print("\nSource file for ~s is not available. "
+                  "If it's a standard module distributed with Erlang/OTP, "
+                  "the issue is known (https://github.com/erszcz/docsh/issues/7) "
+                  "and will be addressed in the future. "
+                  "Otherwise, you might've found a bug - please report it!\n",
+                  [docsh_beam:name(Beam)]);
+        _ -> ok
     end.
 
 get_beam(M) -> get_beam(M, init).
