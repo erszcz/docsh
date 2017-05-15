@@ -259,3 +259,106 @@ ok
 This still requires one manual step when building Erlang,
 because the tarballs from erlang.org carry compiled `.beam` files,
 not just the source code.
+
+# 2017-05-15 No EDoc for modules distributed with Erlang/OTP #7
+
+Locally compiled Erlang (reaching this printout with unmodified
+Kerl/Erlang installation is the desired result):
+
+```
+3> h(wx, new, 1).
+
+wx:new/1
+
+-spec new([Option]) -> wx_object()
+             when
+                 Option ::
+                     {debug, list() | atom()} |
+                     {silent_start, boolean()}.
+
+Starts a wx server.
+Option may be {debug, Level}, see debug/1.
+Or {silent_start, Bool}, which causes error messages at startup to
+be suppressed. The latter can be used as a silent test of whether
+wx is properly installed or not.
+
+ok
+```
+
+Because:
+
+```
+$ ./bin/beamfile chunk CInf /Users/erszcz/apps/erlang/18.2-local/lib/wx-1.6/ebin/wx.beam
+beam file:    /Users/erszcz/apps/erlang/18.2-local/lib/wx-1.6/ebin/wx.beam
+chunk name:    CInf
+chunk data:
+[{options,[{outdir,"/Users/erszcz/.kerl/builds/18.2/otp_src_18.2/lib/wx/src/../ebin"},
+           {i,"/Users/erszcz/.kerl/builds/18.2/otp_src_18.2/lib/wx/src/../include"},
+           warn_unused_vars,debug_info]},
+ {version,"6.0.2"},
+ {time,{2016,5,9,14,58,27}},
+ {source,"/Users/erszcz/.kerl/builds/18.2/otp_src_18.2/lib/wx/src/wx.erl"}]
+```
+
+Source-installed (actualy kerl-installed) Erlang:
+
+```
+7> h(wx, new, 0).
+
+Source file for wx is not available. If it's a standard module distributed with Erlang/OTP, the issue is known (https://github.com/erszcz/docsh/issues/7) and will be addressed in the future. Otherwise, you might've found a bug - please report it!
+
+wx:new/0
+
+-spec new() -> wx_object().
+
+ok
+```
+
+Because:
+
+```
+$ ./bin/beamfile chunk CInf /Users/erszcz/apps/erlang/18.2/lib/wx-1.6/ebin/wx.beam
+ beam file:    /Users/erszcz/apps/erlang/18.2/lib/wx-1.6/ebin/wx.beam
+chunk name:    CInf
+chunk data:
+[{options,[{outdir,"/net/isildur/ldisk/daily_build/18_prebuild_opu_o.2015-12-15_21/otp_src_18/lib/wx/src/../ebin"},
+           {i,"/net/isildur/ldisk/daily_build/18_prebuild_opu_o.2015-12-15_21/otp_src_18/lib/wx/src/../include"},
+           warn_unused_vars,debug_info]},
+ {version,"6.0.1"},
+ {time,{2015,12,15,20,59,33}},
+ {source,"/net/isildur/ldisk/daily_build/18_prebuild_opu_o.2015-12-15_21/otp_src_18/lib/wx/src/wx.erl"}]
+```
+
+The clue is difference between `source` parameters.
+
+How to get the desired path suffix?
+
+```
+lists:dropwhile( fun ("lib") -> false;
+                     (_) -> false end,
+                 string:tokens("/Users/erszcz/.kerl/builds/18.2/otp_src_18.2/lib/wx/src/wx.erl", "/") ).
+```
+
+Returns:
+
+```
+["lib","wx","src","wx.erl"]
+```
+
+How to tell if Kerl is enabled (i.e. is this Erlang activated by Kerl)?
+
+```
+%% Returns string (truthy) or false.
+os:getenv("_KERL_PATH_REMOVABLE").
+```
+
+Algo steps:
+
+-   when loading a new module
+
+-   if it's an Erlang/OTP module with a nonexistent source file
+    and if Kerl is enabled:
+
+    * guess the source destination (just assume/hardcode a valid value for Kerl)
+    * rewrite the source path
+    * write to module to docsh cache
