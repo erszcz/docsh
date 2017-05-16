@@ -369,3 +369,11 @@ Algo steps:
     * guess the source destination (just assume/hardcode a valid value for Kerl)
     * rewrite the source path
     * write the module to docsh cache
+
+# 2017-05-16 False warning on EDoc / source availability
+
+A module for which we inferred the source file, once written do docsh cache,
+when processed again with h(Mod, Fun) still warns about source code
+unavailability.
+The docs extracted from source code are available, though, as they're
+already written to the cached .beam file's ExDc chunk.
