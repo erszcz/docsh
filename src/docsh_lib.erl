@@ -12,8 +12,15 @@
          print/2, print/3,
          process_beam/1]).
 
+-export_type([compiled_module/0]).
+
 -type k() :: any().
 -type v() :: any().
+
+%% A `compiled_module()' is a subtype of `beam_lib:beam()' representing the in-memory
+%% assembled chunks of a module.
+%% You can get one e.g. by reading a .beam file directly or by calling `beam_lib:build_module/1'.
+-type compiled_module() :: binary().
 
 -spec convert(Readers, Writer, Beam) -> docsh:external() when
       Readers :: [module()],
@@ -117,8 +124,8 @@ get_debug_info(BEAMFile) ->
 get_source_file(BEAMFile) ->
     lists:foldl(fun check_source_file/2,
                 false,
-                [compile_info_source_file(BEAMFile),
-                 guessed_source_file(BEAMFile)]).
+                lists:flatten([compile_info_source_file(BEAMFile),
+                               guessed_source_file(BEAMFile)])).
 
 check_source_file(_SourceFile, {ok, File}) ->
     {ok, File};
@@ -131,12 +138,17 @@ check_source_file(SourceFile, false) ->
 compile_info_source_file(BEAMFile) ->
     {ok, {_, [{_, CInf}]}} = beam_lib:chunks(BEAMFile, ["CInf"]),
     {source, File} = lists:keyfind(source, 1, erlang:binary_to_term(CInf)),
-    File.
+    [File].
 
+-spec guessed_source_file(file:filename() | compiled_module()) -> [file:filename()].
+guessed_source_file(CompiledModule) when is_binary(CompiledModule) ->
+    %% Can't guess source file for an in-memory compiled module,
+    %% as it might've not been read from any on-disk .beam file.
+    [];
 guessed_source_file(BEAMFile) ->
     File1 = filename:join(filename:dirname(BEAMFile), "../src"),
     File2 = filename:basename(BEAMFile, ".beam") ++ ".erl",
-    filename:join(File1, File2).
+    [filename:join(File1, File2)].
 
 -spec exdc(docsh_beam:t()) -> {string(), binary()}.
 exdc(Beam) ->
