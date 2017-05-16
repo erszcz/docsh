@@ -115,30 +115,28 @@ get_debug_info(BEAMFile) ->
 
 -spec get_source_file(file:filename()) -> file:filename().
 get_source_file(BEAMFile) ->
-    try
-        {ok, {_, [{_, CInf}]}} = beam_lib:chunks(BEAMFile, ["CInf"]),
-        case get_source(erlang:binary_to_term(CInf)) of
-            File when is_list(File) ->
-                case filelib:is_regular(File) of
-                    true -> {ok, File};
-                    _ -> get_source_file2(BEAMFile)
-                end;
-            _ -> false
-        end
-    catch _:_ -> false end.
+    lists:foldl(fun check_source_file/2,
+                false,
+                [compile_info_source_file(BEAMFile),
+                 guessed_source_file(BEAMFile)]).
 
-get_source_file2(BEAMFile) ->
-    File1 = filename:join(filename:dirname(BEAMFile), "../src"),
-    File2 = filename:basename(BEAMFile, ".beam") ++ ".erl",
-    File3 = filename:join(File1, File2),
-    case filelib:is_regular(File3) of
-        true -> {ok, File3};
+check_source_file(_SourceFile, {ok, File}) ->
+    {ok, File};
+check_source_file(SourceFile, false) ->
+    case filelib:is_regular(SourceFile) of
+        true -> {ok, SourceFile};
         false -> false
     end.
 
-get_source(CompileInfo) ->
-    {source, File} = lists:keyfind(source, 1, CompileInfo),
+compile_info_source_file(BEAMFile) ->
+    {ok, {_, [{_, CInf}]}} = beam_lib:chunks(BEAMFile, ["CInf"]),
+    {source, File} = lists:keyfind(source, 1, erlang:binary_to_term(CInf)),
     File.
+
+guessed_source_file(BEAMFile) ->
+    File1 = filename:join(filename:dirname(BEAMFile), "../src"),
+    File2 = filename:basename(BEAMFile, ".beam") ++ ".erl",
+    filename:join(File1, File2).
 
 -spec exdc(docsh_beam:t()) -> {string(), binary()}.
 exdc(Beam) ->
