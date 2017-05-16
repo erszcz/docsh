@@ -334,15 +334,15 @@ The clue is difference between `source` parameters.
 How to get the desired path suffix?
 
 ```
-lists:dropwhile( fun ("lib") -> false;
-                     (_) -> false end,
-                 string:tokens("/Users/erszcz/.kerl/builds/18.2/otp_src_18.2/lib/wx/src/wx.erl", "/") ).
+lists:reverse(lists:takewhile(fun ("lib") -> false; (_) -> true end,
+                              lists:reverse(string:tokens("/Users/erszcz/.kerl/builds/18.2/otp_src_18.2/lib/wx/src/wx.erl",
+                                                          "/")))).
 ```
 
 Returns:
 
 ```
-["lib","wx","src","wx.erl"]
+["wx","src","wx.erl"]
 ```
 
 How to tell if Kerl is enabled (i.e. is this Erlang activated by Kerl)?
@@ -350,6 +350,13 @@ How to tell if Kerl is enabled (i.e. is this Erlang activated by Kerl)?
 ```
 %% Returns string (truthy) or false.
 os:getenv("_KERL_PATH_REMOVABLE").
+```
+
+How to programatically get the current OTP version?
+
+```
+{ok, Version} = file:read_file([proplists:get_value(root, init:get_arguments()),
+                                "/releases/", erlang:system_info(otp_release), "/OTP_VERSION"]).
 ```
 
 Algo steps:
@@ -361,4 +368,4 @@ Algo steps:
 
     * guess the source destination (just assume/hardcode a valid value for Kerl)
     * rewrite the source path
-    * write to module to docsh cache
+    * write the module to docsh cache
