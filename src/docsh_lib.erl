@@ -121,11 +121,20 @@ get_source_file(BEAMFile) ->
             File when is_list(File) ->
                 case filelib:is_regular(File) of
                     true -> {ok, File};
-                    _ -> false
+                    _ -> get_source_file2(BEAMFile)
                 end;
             _ -> false
         end
     catch _:_ -> false end.
+
+get_source_file2(BEAMFile) ->
+    File1 = filename:join(filename:dirname(BEAMFile), "../src"),
+    File2 = filename:basename(BEAMFile, ".beam") ++ ".erl",
+    File3 = filename:join(File1, File2),
+    case filelib:is_regular(File3) of
+        true -> {ok, File3};
+        false -> false
+    end.
 
 get_source(CompileInfo) ->
     {source, File} = lists:keyfind(source, 1, CompileInfo),
