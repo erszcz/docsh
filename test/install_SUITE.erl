@@ -53,11 +53,11 @@ docker_linux(_) ->
         sh(within_container(Name, file_exists("/root/.erlang.d/user_default.erl"))),
         sh(within_container(Name, "cat /root/.erlang.d/user_default.erl")),
         sh(within_container(Name, file_exists("/root/.erlang.d/user_default.beam"))),
-        %% "Enabled docsh from: /docsh" is the slogan printed by ~/.erlang
-        %% "docsh" is the string we print in this particular test
+        %% "Enabled docsh from: /docsh" is the slogan printed by "~/.erlang".
+        %% "docsh" is the string we print in this particular test.
         %% The two get concatenated by erlsh command runner,
         %% hence the strange expected string.
-        Expected = <<"Enabled docsh from: /docshdocsh">>,
+        Expected = <<"Enabled docsh from: /docshCall h(docsh) for interactive help.docsh">>,
         {_, _, Expected} = sh(within_container(Name, docsh_works()))
     after
         sh("docker stop " ++ Name)
