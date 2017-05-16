@@ -124,8 +124,8 @@ get_debug_info(BEAMFile) ->
 get_source_file(BEAMFile) ->
     lists:foldl(fun check_source_file/2,
                 false,
-                lists:flatten([compile_info_source_file(BEAMFile),
-                               guessed_source_file(BEAMFile)])).
+                lists:concat([compile_info_source_file(BEAMFile),
+                              guessed_source_file(BEAMFile)])).
 
 check_source_file(_SourceFile, {ok, File}) ->
     {ok, File};
