@@ -6,7 +6,7 @@
          name/1,
          abst/1,
          beam_file/1,
-         source_file/1,
+         source_file/1, source_file/2,
          attribute/2]).
 
 -export_type([t/0]).
@@ -51,6 +51,8 @@ abst(B) ->
 beam_file(B) -> B#docsh_beam.beam_file.
 
 source_file(B) -> B#docsh_beam.source_file.
+
+source_file(B, NewFile) -> B#docsh_beam{source_file = NewFile}.
 
 attribute(B, Name) ->
     docsh_lib:get(Name, (B#docsh_beam.name):module_info(attributes)).

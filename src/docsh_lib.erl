@@ -12,8 +12,15 @@
          print/2, print/3,
          process_beam/1]).
 
+-export_type([compiled_module/0]).
+
 -type k() :: any().
 -type v() :: any().
+
+%% A `compiled_module()' is a subtype of `beam_lib:beam()' representing the in-memory
+%% assembled chunks of a module.
+%% You can get one e.g. by reading a .beam file directly or by calling `beam_lib:build_module/1'.
+-type compiled_module() :: binary().
 
 -spec convert(Readers, Writer, Beam) -> docsh:external() when
       Readers :: [module()],
@@ -115,21 +122,33 @@ get_debug_info(BEAMFile) ->
 
 -spec get_source_file(file:filename()) -> file:filename().
 get_source_file(BEAMFile) ->
-    try
-        {ok, {_, [{_, CInf}]}} = beam_lib:chunks(BEAMFile, ["CInf"]),
-        case get_source(erlang:binary_to_term(CInf)) of
-            File when is_list(File) ->
-                case filelib:is_regular(File) of
-                    true -> {ok, File};
-                    _ -> false
-                end;
-            _ -> false
-        end
-    catch _:_ -> false end.
+    lists:foldl(fun check_source_file/2,
+                false,
+                lists:concat([compile_info_source_file(BEAMFile),
+                              guessed_source_file(BEAMFile)])).
 
-get_source(CompileInfo) ->
-    {source, File} = lists:keyfind(source, 1, CompileInfo),
-    File.
+check_source_file(_SourceFile, {ok, File}) ->
+    {ok, File};
+check_source_file(SourceFile, false) ->
+    case filelib:is_regular(SourceFile) of
+        true -> {ok, SourceFile};
+        false -> false
+    end.
+
+compile_info_source_file(BEAMFile) ->
+    {ok, {_, [{_, CInf}]}} = beam_lib:chunks(BEAMFile, ["CInf"]),
+    {source, File} = lists:keyfind(source, 1, erlang:binary_to_term(CInf)),
+    [File].
+
+-spec guessed_source_file(file:filename() | compiled_module()) -> [file:filename()].
+guessed_source_file(CompiledModule) when is_binary(CompiledModule) ->
+    %% Can't guess source file for an in-memory compiled module,
+    %% as it might've not been read from any on-disk .beam file.
+    [];
+guessed_source_file(BEAMFile) ->
+    File1 = filename:join(filename:dirname(BEAMFile), "../src"),
+    File2 = filename:basename(BEAMFile, ".beam") ++ ".erl",
+    [filename:join(File1, File2)].
 
 -spec exdc(docsh_beam:t()) -> {string(), binary()}.
 exdc(Beam) ->

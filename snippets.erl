@@ -164,3 +164,9 @@ DMods = [ct_docsh,
          rebar3_docsh,
          rebar3_docsh_prv].
 [ dbg:tpl(M, []) || M <- DMods ].
+
+code:add_path("/Users/erszcz/work/erszcz/tracer").
+my_tracer:start().
+dbg:p(all, [call, timestamp]).
+dbg:tpl(docsh_shell, unchecked_lookup, x).
+dbg:tpl(docsh_shell, get_beam, 1, x).

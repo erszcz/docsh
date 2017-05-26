@@ -134,8 +134,11 @@ is_container_running(Name) ->
     catch _:_ -> false end.
 
 current_git_commit() ->
-    {_, _, R} = sh("git rev-parse HEAD"),
-    R.
+    case os:getenv("TRAVIS_PULL_REQUEST_SHA") of
+        false -> {_, _, R} = sh("git rev-parse HEAD"),
+                 R;
+        Commit -> Commit
+    end.
 
 clone(Repo) ->
     ["git clone ", Repo].
