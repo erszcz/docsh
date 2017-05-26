@@ -56,21 +56,26 @@ check_edoc_availability(Beam, [_, _, _, LParams]) ->
         _ -> ok
     end.
 
-get_beam(M) -> get_beam(M, init).
-
-get_beam(M, Attempt) when Attempt =:= init;
-                          Attempt =:= retry ->
+get_beam(M) ->
     case docsh_beam:from_loadable_module(M) of
         {error, _} = E -> E;
         {ok, B} ->
-            case {Attempt, docsh_lib:has_exdc(docsh_beam:beam_file(B))} of
-                {_, true} -> {ok, B};
-                {init, false} ->
+            case docsh_lib:has_exdc(docsh_beam:beam_file(B)) of
+                true -> {ok, B};
+                false ->
                     {ok, NewB} = cached_or_rebuilt(B, ensure_cache_dir()),
                     reload(NewB),
-                    get_beam(M, retry)
+                    %% M reloaded from cache will have its .beam_file pointing at the cache.
+                    %% This will cause the source resolution mechanism to fail.
+                    %% We have to fix that for EDoc availability check to work properly.
+                    get_beam(M, docsh_beam:source_file(B))
             end
     end.
+
+get_beam(M, OriginalSourceFile) ->
+    %% M is now rebuilt and/or reloaded from cache.
+    {ok, Beam} = get_beam(M),
+    {ok, docsh_beam:source_file(Beam, OriginalSourceFile)}.
 
 -spec cached_or_rebuilt(docsh_beam:t(), file:name()) -> {ok, docsh_beam:t()}.
 cached_or_rebuilt(Beam, CacheDir) ->
