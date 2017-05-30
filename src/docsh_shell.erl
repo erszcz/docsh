@@ -4,6 +4,8 @@
          s/1, s/3,
          t/3]).
 
+-export([unchecked_lookup2/2]).
+
 -import(docsh_lib, [print/2]).
 
 -type lookup_params() :: [lookup_param()].
@@ -35,11 +37,15 @@ t(M, T, Arity) when is_atom(M), is_atom(T),
 
 %% MFA might actually be just [M].
 unchecked_lookup([M | _] = MFA, Args) ->
+    io:format("~ts", [unchecked_lookup2(MFA, Args)]).
+
+%% MFA might actually be just [M].
+unchecked_lookup2([M | _] = MFA, Args) ->
     case get_beam(M) of
         {error, R} -> error(R, MFA);
         {ok, Beam} ->
             check_edoc_availability(Beam, Args),
-            erlang:apply(docsh_embeddable, h, Args)
+            erlang:apply(docsh_embeddable, get_docs, Args)
     end.
 
 -spec check_edoc_availability(docsh_beam:t(), [lookup_params() | term()]) -> ok.

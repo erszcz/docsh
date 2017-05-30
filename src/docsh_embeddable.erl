@@ -4,8 +4,9 @@
 %%       Helper embedding is not currently supported
 %%       and the code here wouldn't be embeddable either way.
 
--export([h/1,
-         h/4]).
+-export([h/1, h/4]).
+
+-export([get_docs/1, get_docs/4]).
 
 -type fname() :: atom().
 
@@ -29,6 +30,18 @@ h(Mod) ->
         end,
     print("~ts", [do_with_docs(Mod, F, [])]).
 
+get_docs(Mod) ->
+    F = fun (Docs, _) ->
+                {_, ModDoc} = proplists:get_value(moduledoc, Docs),
+                %% TODO: work on the printout format in cases
+                %%       of unavailable docs
+                io_lib:format("\n# Module ~s~n~n"
+                              "## Description~n~n~s~n"
+                              "## Types~n~s~n",
+                              [Mod, ModDoc, types(Docs)])
+        end,
+    ?il2b([do_with_docs(Mod, F, [])]).
+
 -spec h(module(), fname(), any | arity(), [term()]) -> ok.
 h(Mod, Fun, Arity, Opts) ->
     case fetch_features(Mod, Fun, Arity, Opts) of
@@ -36,6 +49,13 @@ h(Mod, Fun, Arity, Opts) ->
         Features ->
             print("~ts", [format_features(Features, Arity, Opts)])
     end.
+
+get_docs(Mod, Fun, Arity, Opts) ->
+  case fetch_features(Mod, Fun, Arity, Opts) of
+    [] -> no_features(Mod, Fun, Arity, Opts);
+    Features ->
+      ?il2b(format_features(Features, Arity, Opts))
+  end.
 
 fetch_features(Mod, Fun, Arity, Opts0) ->
     F = fun (Docs, Opts) ->
@@ -112,15 +132,7 @@ format_mfa(M, F, A) ->
     [?a2b(M), $:, ?a2b(F), $/, case A of any -> $*; _ -> ?i2b(A) end].
 
 do_with_docs(Mod, Fun, Opts) ->
-    try
-        do_with_supported(Fun, get_elixir_docs_v1(Mod), Opts)
-    catch
-        error:{no_docs, R} ->
-            <<"docs missing: ", R/bytes>>;
-        _:R ->
-            ?il2b([<<"docsh error: ">>,
-                   io_lib:format("~p\n~p\n", [R, erlang:get_stacktrace()])])
-    end.
+  do_with_supported(Fun, get_elixir_docs_v1(Mod), Opts).
 
 do_with_supported(Fun, {elixir_docs_v1, Docs}, Opts) ->
     Fun(Docs, Opts);
