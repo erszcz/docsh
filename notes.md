@@ -377,3 +377,73 @@ when processed again with h(Mod, Fun) still warns about source code
 unavailability.
 The docs extracted from source code are available, though, as they're
 already written to the cached .beam file's ExDc chunk.
+
+# 2017-05-30 Hooking into IEx
+
+Use Elixir from https://github.com/erszcz/elixir/tree/beam-doc-provider:
+
+```
+22:43:36 erszcz @ x2 : ~
+$ cat ~/.iex.exs 
+IEx.configure colors: [ eval_result: [ :cyan, :bright ] ]
+#IEx.configure beam_doc_provider: :docsh_iex
+Application.put_env(:iex, :beam_doc_provider, :docsh_iex)
+22:43:39 erszcz @ x2 : ~
+$ iex 
+Erlang/OTP 19 [erts-8.2] [source] [64-bit] [smp:8:8] [async-threads:10] [hipe] [kernel-poll:false]
+
+Enabled docsh from: /home/erszcz/work/erszcz/docsh
+Interactive Elixir (1.4.4) - press Ctrl+C to exit (type h() ENTER for help)
+iex(1)> h :docsh
+
+                                     :docsh                                     
+
+# Module docsh
+
+## Description
+
+Welcome to docsh, the missing documentation viewer for the Erlang shell. This
+project provides a number of helpers for accessing module and function doc
+comments, function specs and exported types.
+
+To access this documentation you've quite likely typed:
+
+h(docsh).
+
+h/1,2,3 is the most generic invocation of docsh. h/1 prints documentation for a
+given module (as shown above) or function:
+
+h(fun lists:keyfind/3).
+
+h/2,3 are limited to functions. h/2 displays information about all functions of
+the given name from a particular module, while h/3 also takes the expected
+function arity:
+
+h(proplists, get_value). h(proplists, get_value, 3).
+
+s/1,2,3 is the helper to use if you're only interested in function specs, not
+their full documentation:
+
+s(fun proplists:get_value/3). s(proplists, get_value). s(proplists, get_value,
+3).
+
+t/2,3 is the helper for printing types exported from modules:
+
+t(gen_tcp, connect_option). t(gen_udp, socket).
+
+All the helpers described above are only available if you installed the
+user_default extensions that ship with docsh. See
+https://github.com/erszcz/docsh/README.md if unsure about the installation
+steps or what user_default is.
+
+If you want to call docsh as a library, please refer to docsh_shell. (TODO) As
+of now it's the only way to use docsh from Elixir's iex.
+
+## Types
+
+-type external() :: any().
+
+-type internal() :: [{atom(), any()}].
+
+iex(2)> 
+```
