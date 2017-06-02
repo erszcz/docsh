@@ -12,6 +12,6 @@
 
 -spec get_docs(module(), kind()) -> {any(), any()} | error().
 get_docs(Mod, moduledoc) ->
-    {ok, docsh_erl:unchecked_lookup2([Mod], [Mod])};
+    {ok, docsh_erl:get_docs([Mod])};
 get_docs(_Mod, _) ->
     {error, not_implemented}.

@@ -3,8 +3,7 @@
 -export([h/1, h/3,
          s/1, s/3,
          t/3]).
-
--export([unchecked_lookup2/2]).
+-export([get_docs/1]).
 
 -import(docsh_lib, [print/2]).
 
@@ -17,11 +16,11 @@ h(Fun) when is_function(Fun) ->
     h(M, F, A);
 
 h(M) when is_atom(M) ->
-    unchecked_lookup([M], [M]).
+    print_docs(get_docs([M])).
 
 h(M, F, Arity) when is_atom(M), is_atom(F),
                     is_integer(Arity) orelse Arity =:= any ->
-    unchecked_lookup([M, F, Arity], [M, F, Arity, [doc, spec]]).
+    print_docs(get_docs([M, F, Arity, [doc, spec]])).
 
 s(Fun) when is_function(Fun) ->
     {M, F, A} = erlang:fun_info_mfa(Fun),
@@ -29,23 +28,21 @@ s(Fun) when is_function(Fun) ->
 
 s(M, F, Arity) when is_atom(M), is_atom(F),
                     is_integer(Arity) orelse Arity =:= any ->
-    unchecked_lookup([M, F, Arity], [M, F, Arity, [spec]]).
+    print_docs(get_docs([M, F, Arity, [spec]])).
 
 t(M, T, Arity) when is_atom(M), is_atom(T),
                     is_integer(Arity) orelse Arity =:= any ->
-    unchecked_lookup([M, T, Arity], [M, T, Arity, [type]]).
+    print_docs(get_docs([M, T, Arity, [type]])).
 
-%% MFA might actually be just [M].
-unchecked_lookup([M | _] = MFA, Args) ->
-    io:format("~ts", [unchecked_lookup2(MFA, Args)]).
+print_docs(Docs) ->
+    io:format("~ts", [Docs]).
 
-%% MFA might actually be just [M].
-unchecked_lookup2([M | _] = MFA, Args) ->
+get_docs([M | _] = LookupArgs) when is_atom(M) ->
     case get_beam(M) of
-        {error, R} -> error(R, MFA);
+        {error, R} -> error(R, [LookupArgs]);
         {ok, Beam} ->
-            check_edoc_availability(Beam, Args),
-            erlang:apply(docsh_embeddable, get_docs, Args)
+            check_edoc_availability(Beam, LookupArgs),
+            erlang:apply(docsh_embeddable, get_docs, LookupArgs)
     end.
 
 -spec check_edoc_availability(docsh_beam:t(), [lookup_params() | term()]) -> ok.
