@@ -6,7 +6,11 @@
 
 -export([get_docs/1, get_docs/4]).
 
--type fname() :: atom().
+-export_type([function_name/0,
+              type_name/0]).
+
+-type function_name() :: atom().
+-type type_name() :: atom().
 
 -define(a2b(A), atom_to_binary(A, utf8)).
 -define(a2l(A), atom_to_list(A)).
@@ -26,7 +30,7 @@ get_docs(Mod) ->
         end,
     ?il2b([do_with_docs(Mod, F, [])]).
 
--spec get_docs(module(), fname(), any | arity(), [term()]) -> binary().
+-spec get_docs(module(), function_name(), any | arity(), [term()]) -> binary().
 get_docs(Mod, Fun, Arity, Opts) ->
     case fetch_features(Mod, Fun, Arity, Opts) of
         [] -> no_features(Mod, Fun, Arity, Opts);

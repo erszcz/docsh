@@ -8,7 +8,10 @@
 -import(docsh_lib, [print/2]).
 
 -type lookup_params() :: [lookup_param()].
--type lookup_param() :: doc | spec | type.
+-type lookup_param() :: module()
+                      | docsh_embeddable:function_name()
+                      | docsh_embeddable:type_name()
+                      | doc | spec | type.
 
 -spec h(fun() | module()) -> ok.
 h(Fun) when is_function(Fun) ->
@@ -18,18 +21,22 @@ h(Fun) when is_function(Fun) ->
 h(M) when is_atom(M) ->
     print_docs(get_docs([M])).
 
+-spec h(module(), docsh_embeddable:fname(), arity()) -> ok.
 h(M, F, Arity) when is_atom(M), is_atom(F),
                     is_integer(Arity) orelse Arity =:= any ->
     print_docs(get_docs([M, F, Arity, [doc, spec]])).
 
+-spec s(function()) -> ok.
 s(Fun) when is_function(Fun) ->
     {M, F, A} = erlang:fun_info_mfa(Fun),
     s(M, F, A).
 
+-spec s(module(), docsh_embeddable:function_name(), arity()) -> ok.
 s(M, F, Arity) when is_atom(M), is_atom(F),
                     is_integer(Arity) orelse Arity =:= any ->
     print_docs(get_docs([M, F, Arity, [spec]])).
 
+-spec t(module(), docsh_embeddable:type_name(), arity()) -> ok.
 t(M, T, Arity) when is_atom(M), is_atom(T),
                     is_integer(Arity) orelse Arity =:= any ->
     print_docs(get_docs([M, T, Arity, [type]])).
@@ -37,6 +44,7 @@ t(M, T, Arity) when is_atom(M), is_atom(T),
 print_docs(Docs) ->
     io:format("~ts", [Docs]).
 
+-spec get_docs(lookup_params()) -> binary().
 get_docs([M | _] = LookupArgs) when is_atom(M) ->
     case get_beam(M) of
         {error, R} -> error(R, [LookupArgs]);
