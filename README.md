@@ -284,7 +284,7 @@ Try it with your project!
     * [x] Provide an installation script for generating `user_default.erl`
           ~~or including the docsh header in it if the file already exists.~~
 
-- [x] Provide builtin documentation for `docsh` ~~and `docsh_shell` modules~~.
+- [x] Provide builtin documentation for `docsh` ~~and `docsh_erl` modules~~.
 
 - [ ] Improve EDdoc extraction and formatting ~~by calculating element
       indentation based on its path in the document tree and its formatting

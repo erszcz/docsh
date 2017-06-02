@@ -1,4 +1,4 @@
--module(docsh_shell).
+-module(docsh_erl).
 
 -export([h/1, h/3,
          s/1, s/3,

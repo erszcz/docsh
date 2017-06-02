@@ -196,7 +196,7 @@ It seems that `beam_lib` and `code`/`code_server` can't fetch chunks which
 are actually loaded by the emulator - they always read them from the `.beam`
 file or the passed in binary.
 This means that simply reloading the module (see `reload_with_exdc/2`
-at `docsh_shell.erl:28`) won't be sufficient for `docsh_embeddable:h/1,3`
+at `docsh_erl.erl:28`) won't be sufficient for `docsh_embeddable:h/1,3`
 to pick up the newly generated ExDc chunk.
 
 # `user_default` extensions
@@ -216,12 +216,12 @@ are in the Erlang code path (e.g. install it as a Rebar3 global plugin and use
 
 ```erlang
 %% file: user_default.erl
-h(M) -> docsh_shell:h(M).
-h(M, F, A) -> docsh_shell:h(M, F, A).
+h(M) -> docsh_erl:h(M).
+h(M, F, A) -> docsh_erl:h(M, F, A).
 ```
 
-`docsh_shell` is also the entry point into providing docs for modules
-which don't carry them embedded inside - i.e. when `docsh_shell` is called
+`docsh_erl` is also the entry point into providing docs for modules
+which don't carry them embedded inside - i.e. when `docsh_erl` is called
 we might try fetching the docs from different places (initially the source
 code if it's available).
 
@@ -436,7 +436,7 @@ user_default extensions that ship with docsh. See
 https://github.com/erszcz/docsh/README.md if unsure about the installation
 steps or what user_default is.
 
-If you want to call docsh as a library, please refer to docsh_shell. (TODO) As
+If you want to call docsh as a library, please refer to docsh_erl. (TODO) As
 of now it's the only way to use docsh from Elixir's iex.
 
 ## Types
