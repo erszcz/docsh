@@ -4,32 +4,16 @@
 %%       Helper embedding is not currently supported
 %%       and the code here wouldn't be embeddable either way.
 
--export([h/1, h/4]).
-
 -export([get_docs/1, get_docs/4]).
 
 -type fname() :: atom().
-
--import(docsh_lib, [print/2]).
 
 -define(a2b(A), atom_to_binary(A, utf8)).
 -define(a2l(A), atom_to_list(A)).
 -define(i2b(I), integer_to_binary(I)).
 -define(il2b(IOList), iolist_to_binary(IOList)).
 
--spec h(module()) -> ok.
-h(Mod) ->
-    F = fun (Docs, _) ->
-                {_, ModDoc} = proplists:get_value(moduledoc, Docs),
-                %% TODO: work on the printout format in cases
-                %%       of unavailable docs
-                io_lib:format("\n# Module ~s~n~n"
-                              "## Description~n~n~s~n"
-                              "## Types~n~s~n",
-                              [Mod, ModDoc, types(Docs)])
-        end,
-    print("~ts", [do_with_docs(Mod, F, [])]).
-
+-spec get_docs(module()) -> binary().
 get_docs(Mod) ->
     F = fun (Docs, _) ->
                 {_, ModDoc} = proplists:get_value(moduledoc, Docs),
@@ -42,20 +26,13 @@ get_docs(Mod) ->
         end,
     ?il2b([do_with_docs(Mod, F, [])]).
 
--spec h(module(), fname(), any | arity(), [term()]) -> ok.
-h(Mod, Fun, Arity, Opts) ->
+-spec get_docs(module(), fname(), any | arity(), [term()]) -> binary().
+get_docs(Mod, Fun, Arity, Opts) ->
     case fetch_features(Mod, Fun, Arity, Opts) of
         [] -> no_features(Mod, Fun, Arity, Opts);
         Features ->
-            print("~ts", [format_features(Features, Arity, Opts)])
+            ?il2b(format_features(Features, Arity, Opts))
     end.
-
-get_docs(Mod, Fun, Arity, Opts) ->
-  case fetch_features(Mod, Fun, Arity, Opts) of
-    [] -> no_features(Mod, Fun, Arity, Opts);
-    Features ->
-      ?il2b(format_features(Features, Arity, Opts))
-  end.
 
 fetch_features(Mod, Fun, Arity, Opts0) ->
     F = fun (Docs, Opts) ->
@@ -122,8 +99,8 @@ format_feature({type, _, _, Doc})  ->
     [$\n, Doc, $\n].
 
 no_features(Mod, Fun, Arity, Opts) ->
-    print("\ndocsh: no ~ts for ~ts\n\n",
-          [format_kinds(Opts), format_mfa(Mod, Fun, Arity)]).
+    docsh_lib:print("\ndocsh: no ~ts for ~ts\n\n",
+                    [format_kinds(Opts), format_mfa(Mod, Fun, Arity)]).
 
 format_kinds(Kinds) ->
     string:join([ ?a2l(K) || K <- Kinds ], "/").
