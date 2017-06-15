@@ -55,6 +55,10 @@ fi
 
 cd $DOCSH_BASE
 ./rebar3 compile
+if [ $? -ne 0 ]; then
+    echo "Couldn't compile docsh"
+    exit 1
+fi
 cd - > /dev/null
 echo
 
