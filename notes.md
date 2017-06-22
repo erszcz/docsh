@@ -377,3 +377,123 @@ when processed again with h(Mod, Fun) still warns about source code
 unavailability.
 The docs extracted from source code are available, though, as they're
 already written to the cached .beam file's ExDc chunk.
+
+# 2017-06-19 New `Docs` chunk
+
+EDoc @-tags in use by OTP:
+
+```sh
+15:20:20 erszcz @ x4 : ~/.asdf/installs/erlang/19.2/lib/erlang ((v0.2.1))
+$ ag --nonumbers --nocolor --nofilename '%+( )*@[a-zA-Z_-]+' lib | grep ^% | awk '{ print $2 }' | sort | uniq
+
+"%%
+%
+%%
+%@type
+@TODO
+@author
+@avp_vendor_id
+@clear
+@copyright
+@custom_types
+@deprecated
+@doc
+@end
+@equiv
+@headerfile
+@hidden
+@private
+@see
+@spec
+@throws
+@type
+@version
+```
+
+Some info on tags supported by EDoc (see `edoc/src/edoc_tags.erl`):
+
+```erlang
+%% Tags are described by {Name, Parser, Flags}.
+%%   Name = atom()
+%%   Parser = text | xml | (Text,Line,Where) -> term()
+%%   Flags = [Flag]
+%%   Flag = module | function | overview | single
+%%
+%% Note that the pseudo-tag '@clear' is not listed here.
+%% (Cf. the function 'filter_tags'.)
+%%
+%% Rejected tag suggestions:
+%% - @keywords (never up to date; free text search is better)
+%% - @uses [modules] (never up to date; false dependencies)
+%% - @maintainer (never up to date; duplicates author info)
+%% - @contributor (unnecessary; mention in normal documentation)
+%% - @creator (unnecessary; already have copyright/author)
+%% - @history (never properly updated; use version control etc.)
+%% - @category (useless; superseded by keywords or free text search)
+
+tags() ->
+    All = [module,footer,function,overview],
+    [{author, fun parse_contact/4, [module,overview]},
+     {copyright, text, [module,overview,single]},
+     {deprecated, xml, [module,function,single]},
+     {doc, xml,    [module,function,overview,single]},
+     {docfile, fun parse_file/4, All},
+     {'end', text, All},
+     {equiv, fun parse_expr/4, [function,single]},
+     {headerfile, fun parse_header/4, All},
+     {hidden, text, [module,function,single]},
+     {param, fun parse_param/4, [function]},
+     {private, text, [module,function,single]},
+     {reference, xml, [module,footer,overview]},
+     {returns, xml, [function,single]},
+     {see, fun parse_see/4, [module,function,overview]},
+     {since, text, [module,function,overview,single]},
+     {spec, fun parse_spec/4, [function,single]},
+     {throws, fun parse_throws/4, [function,single]},
+     {title, text, [overview,single]},
+     {'TODO', xml, All},
+     {todo, xml, All},
+     {type, fun parse_typedef/4, [module,footer,function]},
+     {version, text, [module,overview,single]}].
+```
+
+Tags in use, but not defined in `edoc/src/edoc_tags.erl` (difference of
+the two previous lists): `avp_vendor_id`, `clear`, `custom_types`.
+
+## EDoc tag analysis
+
+Should be stored in `Docs` chunk? If yes, the item begins with [Docs]:
+
+-   `author`, `copyright`, `equiv`, `title` - can be easily expressed
+    in documentation free text,
+    in case of `equiv` with regular Markdown links
+
+-   [Docs] `deprecated`, `since` - might be useful for tools or just informal purposes
+
+-   `docfile`, `headerfile` - processing directives, irrelevant for `Docs` chunk content
+
+-   [Docs] `hidden` vs `private` - `hidden` completely removes an item from the
+    documentation (like `@doc false` in Elixir), but the item can still be exported,
+    `private` items are only listed in the documentation when a specifc flag is passed
+    at doc build time
+
+-   [Docs] `param`, `returns`, `spec`, `type` - redundant with `-spec` and `-type` attributes,
+    textual `param` or `returns` description can be easily put into documentation free text;
+    EDoc `-type` support should be extended to allow it to have a standalone type description
+    (EDIT: it does allow it! see [Type specifications][edoc-type-specs]);
+    still, if no `-spec` or `-type` attributes are present,
+    EDoc tags can be used as an alternative source of information
+
+-   `reference`, `see` - regular Markdown links (possibly with Elixir-like extensions) are
+    good enough
+
+-   `throws` - hard to reason about, probably will never be up to date with code;
+    though not captured by `-spec` probably best left for Dialyzer or automated analysis
+
+-   `todo`, `TODO` - redundant with source control / issue tracking;
+    if need be, can be expressed in doc free text
+
+-   `version` - redundant with .app / .app.src, probably never up to date,
+    can be put into doc free text
+
+[edoc-type-specs]: http://erlang.org/doc/apps/edoc/chapter.html#id64247
