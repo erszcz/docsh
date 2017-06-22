@@ -468,14 +468,19 @@ Should be stored in `Docs` chunk? If yes, the item begins with [Docs]:
     in documentation free text,
     in case of `equiv` with regular Markdown links
 
--   [Docs] `deprecated`, `since` - might be useful for tools or just informal purposes
+-   `deprecated`, `since` - might be useful for tools or just
+    informal purposes;
+    `deprecated` is redundant with xref attributes;
+    `since` can easily be placed in doc free text
 
 -   `docfile`, `headerfile` - processing directives, irrelevant for `Docs` chunk content
 
 -   [Docs] `hidden` vs `private` - `hidden` completely removes an item from the
     documentation (like `@doc false` in Elixir), but the item can still be exported,
     `private` items are only listed in the documentation when a specifc flag is passed
-    at doc build time
+    at doc build time;
+    this should just drive whether a documentation entry is generated/present at all,
+    not get stored into the entry itself
 
 -   [Docs] `param`, `returns`, `spec`, `type` - redundant with `-spec` and `-type` attributes,
     textual `param` or `returns` description can be easily put into documentation free text;
@@ -497,3 +502,175 @@ Should be stored in `Docs` chunk? If yes, the item begins with [Docs]:
     can be put into doc free text
 
 [edoc-type-specs]: http://erlang.org/doc/apps/edoc/chapter.html#id64247
+
+## `Docs` chunk format proposition
+
+Let's first look at some `elixir_docs_v1` examples (Erlang syntax).
+The general chunk structure (from `GenServer`) is:
+
+```erlang
+{elixir_docs_v1,
+    [{docs,
+         [{{'__using__',1},539,defmacro,[{'',[],'Elixir'}],false},
+          {{abcast,3},
+           787,def,
+           [{'\\\\',[],
+                [{nodes,[],nil},
+                 [{'|',
+                      [{line,796}],
+                      [{node,[{line,796}],[]},
+                       {{'.',
+                            [{line,796}],
+                            [{'__aliases__',[{counter,0},{line,796}],['Node']},
+                             list]},
+                        [{line,796}],
+                        []}]}]]},
+            {name,[],nil},
+            {request,[],nil}],
+           <<"Casts all servers locally registered as `name` at the specified nodes.\n\nThis function returns immediately and ignores nodes that do not exist, or where the\nserver name does not exist.\n\nSee `multi_call/4` for more information.\n">>},
+          {{call,3},
+           703,def,
+           [{server,[],nil},
+            {request,[],nil},
+            {'\\\\',[],[{timeout,[],nil},5000]}],
+           <<"Makes a synchronous call to the `server`...">>}
+          %% omitted some entries
+         ]},
+     {moduledoc,
+         {2,
+          <<"A behaviour module for implementing the server of a client-server relation...">>}},
+     {callback_docs,
+         [{{code_change,3},
+           465,callback,
+           <<"Invoked to change the state of the `GenServer` when a different version of a\nmodule is loaded (hot code swapping) and the state's term structure should be\nchanged.\n\n`old_vsn` is the previous version of the module (defined by the `@vsn`\nattribute) when upgrading. When downgrading the previous version is wrapped in\na 2-tuple with first element `:down`. `state` is the current state of the\n`GenServer` and `extra` is any extra data required to change the state.\n\nReturning `{:ok, new_state}` changes the state to `new_state` and the code\nchange is successful.\n\nReturning `{:error, reason}` fails the code change with reason `reason` and\nthe state remains as the previous state.\n\nIf `c:code_change/3` raises the code change fails and the loop will continue\nwith its previous state. Therefore this callback does not usually contain side effects.\n">>}
+          %% omitted some entries
+         ]},    
+     {type_docs,
+         [{{debug,0},
+           525,type,<<"Debug options supported by the `start*` functions">>},
+          {{name,0},513,type,<<"The GenServer name">>}
+          %% some entries omitted
+         ]}
+    ]}
+```
+
+### Proposition #1: make the proposed format flatter for easy filtering
+
+```erlang
+{docs_v1,
+    [{{'__using__',1},539,defmacro,[{'',[],'Elixir'}],false},
+     {{abcast,3},
+         787,def,
+         [{'\\\\',[],
+             [{nodes,[],nil},
+              [{'|',
+                  [{line,796}],
+                  [{node,[{line,796}],[]},
+                  {{'.',
+                       [{line,796}],
+                       [{'__aliases__',[{counter,0},{line,796}],['Node']},
+                       list]},
+                  [{line,796}],
+                  []}]}]]},
+         {name,[],nil},
+         {request,[],nil}],
+         <<"Casts all servers locally registered as `name` at the specified nodes.\n\nThis function returns immediately and ignores nodes that do not exist, or where the\nserver name does not exist.\n\nSee `multi_call/4` for more information.\n">>},
+     {{call,3},
+         703,def,
+         [{server,[],nil},
+         {request,[],nil},
+         {'\\\\',[],[{timeout,[],nil},5000]}],
+         <<"Makes a synchronous call to the `server`...">>},
+     {moduledoc, {2, <<"A behaviour module for implementing the server of a client-server relation...">>}},
+     {{code_change,3},
+         465,callback,
+         <<"Invoked to change the state of the `GenServer` when a different version of a\nmodule is loaded (hot code swapping) and the state's term structure should be\nchanged.\n\n`old_vsn` is the previous version of the module (defined by the `@vsn`\nattribute) when upgrading. When downgrading the previous version is wrapped in\na 2-tuple with first element `:down`. `state` is the current state of the\n`GenServer` and `extra` is any extra data required to change the state.\n\nReturning `{:ok, new_state}` changes the state to `new_state` and the code\nchange is successful.\n\nReturning `{:error, reason}` fails the code change with reason `reason` and\nthe state remains as the previous state.\n\nIf `c:code_change/3` raises the code change fails and the loop will continue\nwith its previous state. Therefore this callback does not usually contain side effects.\n">>},    
+     {{debug,0},
+         525,type,<<"Debug options supported by the `start*` functions">>},
+     {{name,0},513,type,<<"The GenServer name">>}
+    ]}
+```
+
+Each kind of entry, apart from `moduledoc`, is unambiguously identified by the 3rd field anyway.
+This point is definitely not critical.
+The rationale is that docsh stores the function signature/spec as a
+separate entry (which might be a reasonable solution for the problem in proposition #3),
+not in `def`/`defmacro` entries,
+so it's easier to filter for multiple entry types than to do multiple lookups.
+
+### Proposition #2: extend `type` kind with type definition
+
+Introduce type definition to the `type` entry, i.e. instead of:
+
+```erlang
+{{options,0}, 516, type, <<"Options used by the `start*` functions">>},
+```
+
+Store (please note the AST snippet is written from the top of my head,
+not generated by the parser - it might not be valid):
+
+```erlang
+{{options,0}, 516, type, TypeDef = [{option,[],nil}], <<"Options used by the `start*` functions">>},
+```
+
+`TypeDef` is new.
+This allows for printing out type definitions in the shell even if abstract code is not available,
+which is the approach currently taken by docsh.
+Elixir, on the other hand, only stores the type signature (i.e. name and arity),
+therefore requires the abstract code to be present to print type definitions.
+
+This touches onto the next subject: abstract spec and type format in the docs chunk.
+
+### Proposition #3: common format for function specs and type definitions
+
+Currently, we have:
+
+```erlang
+{{abcast,3},
+ 787,def,
+ FunSig = [{'\\\\',[],
+            [{nodes,[],nil},
+             [{'|',
+               [{line,796}],
+               [{node,[{line,796}],[]},
+                {{'.',
+                  [{line,796}],
+                  [{'__aliases__',[{counter,0},{line,796}],['Node']},
+                   list]},
+                 [{line,796}],
+                 []}]}]]},
+           {name,[],nil},
+           {request,[],nil}],
+ <<"Casts all servers locally registered as `name` at the specified nodes.\n\nThis function returns immediately and ignores nodes that do not exist, or where the\nserver name does not exist.\n\nSee `multi_call/4` for more information.\n">>}
+```
+
+And from proposition #2:
+
+```erlang
+{{options,0},516,type,TypeDef = [{option,[],nil}],<<"Options used by the `start*` functions">>},
+```
+
+As far as I understand, both `FunSig` and `TypeDef` are Elixir AST nodes.
+For compatibility with Erlang or, in general, interoperability between
+BEAM languages we need to agree on a common description model for these
+elements, i.e. specs and types.
+
+Docsh currently uses `erl_syntax` AST snippets taken from `abstract_code` chunk,
+pretty prints them with `erl_prettypr` and stores formatted,
+ready to display binary snippets in the docs chunk.
+This is also the approach taken by Dialyzer in its analysis result representation.
+To be honest, it's not a good approach,
+since it requires extra parsing back if further processing is required.
+
+Since Elixir compiles to Erlang AST it might be feasible to translate
+these Elixir AST nodes to Erlang `erl_syntax` nodes and back without losing any
+information.
+Moreover, Dialyzer can typecheck Elixir, so I'm assuming it's using
+the Elixir-as-Erlang-AST representation and maybe it's just a matter
+of choosing which representation gets stored into the `Docs` chunk?
+Is it an acceptable solution for Elixir?
+
+However, this might not be sufficient for LFE or Alpaca.
+It might be necessary to introduce an abstract format independent of any
+existing AST formats and translate from it for the purpose of formatting
+using existing tools.
