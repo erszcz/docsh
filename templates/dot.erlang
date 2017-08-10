@@ -1,6 +1,14 @@
 proplists:is_defined(noshell, init:get_arguments()) == false andalso begin
-    DocshBase = "$DOCSH_BASE",
+    DocshBase0 = "$DOCSH_BASE",
+    DocshBase = case DocshBase0 of
+        "$" ++ _ -> os:getenv("DOCSH_BASE");
+        _ -> DocshBase0
+    end,
     code:add_path(DocshBase ++ "/_build/default/lib/docsh/ebin"),
     docsh:activated()
 end.
-code:load_abs(os:getenv("HOME") ++ "/.erlang.d/user_default").
+UserDefault = case os:getenv("DOCSH_USER_DEFAULT") of
+    false -> os:getenv("HOME") ++ "/.erlang.d/user_default";
+    [_|_] = Dir -> Dir
+end.
+code:load_abs(UserDefault).
