@@ -52,7 +52,11 @@
 
 -module(docsh).
 
+%% Escript API
 -export([main/1]).
+
+%% Scripting API
+-export([activated/0]).
 
 -export_type([external/0,
               internal/0]).
@@ -76,6 +80,18 @@
 -spec main([string()]) -> ok.
 main(Args) ->
     process_args(Args, commands()).
+
+%%
+%% Scripting API
+%%
+
+-spec activated() -> ok.
+activated() ->
+    activated(code:lib_dir(?MODULE)).
+
+activated(Path) ->
+    print("Enabled docsh from: ~s\n"
+          "Call h(docsh) for interactive help.\n\n", [Path]).
 
 %%
 %% Helpers

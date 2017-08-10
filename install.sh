@@ -29,9 +29,7 @@ read -r -d '' HOME_ERLANG_CONTENT <<EOF
 proplists:is_defined(noshell, init:get_arguments()) == false andalso begin
     DocshBase = "$DOCSH_BASE",
     code:add_path(DocshBase ++ "/_build/default/lib/docsh/ebin"),
-    io:format("Enabled docsh from: ~s\n"
-              "Call h(docsh) for interactive help.\n\n",
-              [DocshBase])
+    docsh:activated()
 end.
 code:load_abs(os:getenv("HOME") ++ "/.erlang.d/user_default").
 EOF
