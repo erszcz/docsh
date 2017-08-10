@@ -58,7 +58,9 @@ docker_linux(_) ->
         %% The two get concatenated by erlsh command runner,
         %% hence the strange expected string.
         Expected = <<"Enabled docsh from: /docsh/_build/default/lib/docsh"
-                     "Call h(docsh) for interactive help.docsh">>,
+                     "Call h(docsh) for interactive help."
+                     ""
+                     "docsh">>,
         {_, _, Expected} = sh(within_container(Name, docsh_works()))
     after
         sh("docker stop " ++ Name)
