@@ -1,0 +1,6 @@
+proplists:is_defined(noshell, init:get_arguments()) == false andalso begin
+    DocshBase = "$DOCSH_BASE",
+    code:add_path(DocshBase ++ "/_build/default/lib/docsh/ebin"),
+    docsh:activated()
+end.
+code:load_abs(os:getenv("HOME") ++ "/.erlang.d/user_default").

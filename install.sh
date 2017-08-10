@@ -25,19 +25,8 @@ To know more about these files please refer to:
   man shell_default - parts about user_default
 EOF
 
-read -r -d '' HOME_ERLANG_CONTENT <<EOF
-proplists:is_defined(noshell, init:get_arguments()) == false andalso begin
-    DocshBase = "$DOCSH_BASE",
-    code:add_path(DocshBase ++ "/_build/default/lib/docsh/ebin"),
-    docsh:activated()
-end.
-code:load_abs(os:getenv("HOME") ++ "/.erlang.d/user_default").
-EOF
-
-read -r -d '' HOME_USER_DEFAULT_CONTENT <<EOF
--module(user_default).
--include("docsh_user_default.hrl").
-EOF
+read -r -d "\0" HOME_ERLANG_CONTENT < <(cat templates/dot.erlang | sed "s#\$DOCSH_BASE#$DOCSH_BASE#")
+read -r -d "\0" HOME_USER_DEFAULT_CONTENT < templates/user_default.erl
 
 echo
 echo "$INTRO"
