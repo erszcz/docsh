@@ -25,8 +25,8 @@ To know more about these files please refer to:
   man shell_default - parts about user_default
 EOF
 
-read -r -d "\0" HOME_ERLANG_CONTENT < <(cat templates/dot.erlang | sed "s#\$DOCSH_BASE#$DOCSH_BASE#")
-read -r -d "\0" HOME_USER_DEFAULT_CONTENT < templates/user_default.erl
+read -r -d "\0" HOME_ERLANG_CONTENT < <(cat $DOCSH_BASE/templates/dot.erlang | sed "s#\$DOCSH_BASE#$DOCSH_BASE#")
+read -r -d "\0" HOME_USER_DEFAULT_CONTENT < $DOCSH_BASE/templates/user_default.erl
 
 echo
 echo "$INTRO"
