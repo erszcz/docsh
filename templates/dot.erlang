@@ -1,11 +1,22 @@
 proplists:is_defined(noshell, init:get_arguments()) == false andalso begin
+    %% Depending on the install method DocshBase0 definition is rewritten
+    %% with sed or kept intact.
     DocshBase0 = "$DOCSH_BASE",
-    DocshBase = case DocshBase0 of
-        "$" ++ _ -> os:getenv("DOCSH_BASE");
-        _ -> DocshBase0
+    DocshBase = case {DocshBase0, os:getenv("DOCSH_BASE")} of
+        {"$" ++ _, false} ->
+            io:format("docsh error: DOCSH_BASE not set, docsh not enabled~n~n"),
+            false;
+        {"$" ++ _, Dir} ->
+            Dir;
+        _ ->
+            DocshBase0
     end,
-    code:add_path(DocshBase ++ "/_build/default/lib/docsh/ebin"),
-    docsh:activated()
+    if
+        DocshBase == false -> ok;
+        DocshBase /= false ->
+            code:add_path(DocshBase ++ "/_build/default/lib/docsh/ebin"),
+            docsh:activated()
+    end
 end.
 UserDefault = case os:getenv("DOCSH_USER_DEFAULT") of
     false -> os:getenv("HOME") ++ "/.erlang.d/user_default";
