@@ -56,7 +56,7 @@
 -export([main/1]).
 
 %% Scripting API
--export([activated/0]).
+-export([activated/1]).
 
 -export_type([external/0,
               internal/0]).
@@ -85,13 +85,11 @@ main(Args) ->
 %% Scripting API
 %%
 
--spec activated() -> ok.
-activated() ->
-    activated(code:lib_dir(?MODULE)).
-
-activated(Path) ->
-    print("Enabled docsh from: ~s\n"
-          "Call h(docsh) for interactive help.\n\n", [Path]).
+-spec activated(path | user_default) -> ok.
+activated(path) ->
+    print("Enabled docsh from: ~s\n", [code:lib_dir(?MODULE)]);
+activated(user_default) ->
+    print("Call h(docsh) for interactive help.\n\n", []).
 
 %%
 %% Helpers
