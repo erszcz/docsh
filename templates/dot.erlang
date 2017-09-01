@@ -3,22 +3,28 @@ proplists:is_defined(noshell, init:get_arguments()) == false andalso begin
     %% Depending on the install method DocshBase0 definition is rewritten
     %% with sed or kept intact.
     DocshBase0 = "$DOCSH_BASE",
-    DocshBase = case {DocshBase0, os:getenv("DOCSH_BASE")} of
-        {"$" ++ _, false} ->
+    NextStep = case {code:ensure_loaded(docsh), DocshBase0, os:getenv("DOCSH_BASE")} of
+        {{module, docsh}, _, _} ->
+            %% The code path already contains docsh.
+            ok;
+        {_, "$" ++ _, false} ->
             %% If DocshBase0 starts with a $, the env variable of the same name
             %% ought to be set. If it's not - we have a configuration error.
-            false;
-        {"$" ++ _, Base} ->
-            Base;
+            {error, env_not_set};
+        {_, "$" ++ _, Base} ->
+            {add_path, Base};
         _ ->
-            DocshBase0
+            %% We assume that if the env variable is not set and docsh is not loadable yet,
+            %% then DocshBase0 should've been expanded during installation to an absolute path.
+            {add_path, DocshBase0}
     end,
-    if
-        DocshBase == false ->
-            io:format("docsh error: DOCSH_BASE not set, docsh not enabled~n~n"),
-            ok;
-        DocshBase /= false ->
-            code:add_path(DocshBase ++ "/_build/default/lib/docsh/ebin"),
+    case NextStep of
+        {error, env_not_set} ->
+            io:format("docsh error: DOCSH_BASE not set, docsh not enabled~n~n");
+        ok ->
+            docsh:activated(path);
+        {add_path, BasePath} ->
+            code:add_path(BasePath ++ "/_build/default/lib/docsh/ebin"),
             docsh:activated(path)
     end,
     case code:ensure_loaded(docsh) of
