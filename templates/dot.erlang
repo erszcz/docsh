@@ -22,15 +22,18 @@ proplists:is_defined(noshell, init:get_arguments()) == false andalso begin
             docsh:activated(path)
     end,
     case code:ensure_loaded(docsh) of
-        {error, Reason} ->
-            io:format("docsh error: code can't be loaded~n~n"),
-            ok;
+        {error, _} ->
+            io:format("docsh error: docsh can't be loaded~n~n");
         {module, docsh} ->
             UserDefault = case os:getenv("DOCSH_USER_DEFAULT") of
                 false -> os:getenv("HOME") ++ "/.erlang.d/user_default";
                 [_|_] = Dir -> Dir
             end,
-            code:load_abs(UserDefault),
-            docsh:activated(user_default)
+            case code:load_abs(UserDefault) of
+                {error, _} ->
+                    io:format("docsh error: shell extensions not available~n~n");
+                {module, user_default} ->
+                    docsh:activated(user_default)
+            end
     end
 end.
