@@ -4,7 +4,8 @@
 %%       Helper embedding is not currently supported
 %%       and the code here wouldn't be embeddable either way.
 
--export([lookup/2]).
+-export([key_to_module/1,
+         lookup/2]).
 
 -type fname() :: atom().
 
@@ -15,38 +16,27 @@
 -define(i2b(I), integer_to_binary(I)).
 -define(il2b(IOList), iolist_to_binary(IOList)).
 
-lookup(M, [moduledoc]) -> h(M);
-lookup({M, F, A}, Args) -> h(M, F, A, Args).
-
--spec h(module()) -> ok.
-h(Mod) ->
-    F = fun (Docs, _) ->
-                {_, ModDoc} = proplists:get_value(moduledoc, Docs),
-                %% TODO: work on the printout format in cases
-                %%       of unavailable docs
-                io_lib:format("\n# Module ~s~n~n"
-                              "## Description~n~n~s~n"
-                              "## Types~n~s~n",
-                              [Mod, ModDoc, types(Docs)])
-        end,
-    print("~ts", [do_with_docs(Mod, F, [])]).
-
--spec h(module(), fname(), any | arity(), [term()]) -> ok.
-h(Mod, Fun, Arity, Opts) ->
-    case fetch_features(Mod, Fun, Arity, Opts) of
-        [] -> no_features(Mod, Fun, Arity, Opts);
+lookup(Key, Opts) ->
+    case fetch_features(Key, Opts) of
+        [] -> no_features(Key, Opts);
         Features ->
-            print("~ts", [format_features(Features, Arity, Opts)])
+            print("~ts", [format_features(Features, key_to_arity(Key), Opts)])
     end.
 
-fetch_features(Mod, Fun, Arity, Opts0) ->
+key_to_arity(M) -> any;
+key_to_arity({M,F,A}) -> A.
+
+fetch_features(Key, Opts0) ->
     F = fun (Docs, Opts) ->
                 FlatDocs = flatten_docs(Docs),
-                Features = filter_features(FlatDocs, Fun, Arity, Opts),
+                Features = filter_features(FlatDocs, Key, Opts),
                 Arities = find_arities(Features),
-                generate_headers(Mod, Fun, Arities) ++ Features
+                generate_headers(Key, Arities) ++ Features
         end,
-    do_with_docs(Mod, F, Opts0).
+    do_with_docs(key_to_module(Key), F, Opts0).
+
+key_to_module(M) when is_atom(M) -> M;
+key_to_module({M,_,_}) -> M.
 
 flatten_docs(Docs) ->
     F = fun ({moduledoc, _} = ModDoc) -> [ModDoc];
@@ -64,11 +54,22 @@ map_kind(docs) -> doc;
 map_kind(specs) -> spec;
 map_kind(types) -> type.
 
-filter_features(FlatDocs, Fun, Arity, FeatureKinds) ->
-    [ Feature || {Kind, ActualFun, ActualArity, _} = Feature <- FlatDocs,
-                 Fun =:= ActualFun,
+filter_features(FlatDocs, Mod, [moduledoc]) when is_atom(Mod) ->
+    {moduledoc, {_, Doc}} = lists:keyfind(moduledoc, 1, FlatDocs),
+    [{moduledoc, Mod, Doc}];
+filter_features(FlatDocs, Key, FeatureKinds) ->
+    {Mod, Name, Arity} = case Key of
+                             M when is_atom(M) -> {M, any, any};
+                             {M, N, A} -> {M, N, A}
+                         end,
+    [ Feature || {Kind, ActualName, ActualArity, _} = Feature <- FlatDocs,
                  lists:member(Kind, FeatureKinds),
+                 does_name_match(Name, ActualName),
                  does_arity_match(Arity, ActualArity) ].
+
+does_name_match(any, _) -> true;
+does_name_match(N, N) -> true;
+does_name_match(_, _) -> false.
 
 does_arity_match(any, _) -> true;
 does_arity_match(A, A) -> true;
@@ -78,11 +79,15 @@ find_arities(Features) ->
     lists:usort([ A || {Kind, _, A, _} <- Features,
                        Kind == doc orelse Kind == spec ]).
 
-generate_headers(Mod, Fun, Arities) ->
-    [ header(Mod, Fun, Arity) || Arity <- Arities ].
+generate_headers(Mod, Arities) when is_atom(Mod) ->
+    [];
+generate_headers({Mod, Name, _}, Arities) ->
+    [ header(Mod, Name, Arity) || Arity <- Arities ].
 
 header(M, F, A) -> {header, M, F, A}.
 
+format_features(Features, any, [type]) ->
+    [ format_feature(F) || F <- Features ];
 format_features(Features, any, Opts) ->
     [ format_features(FeatureGroup, Arity, Opts)
       || {Arity, FeatureGroup} <- sort_by_arity(group_by_arity(Features)) ];
@@ -93,22 +98,25 @@ sort_features(Features) ->
     Order = [moduledoc, type, header, spec, doc],
     [ F || Key <- Order, F <- [lists:keyfind(Key, 1, Features)], F /= false ].
 
-format_feature({moduledoc, Doc}) -> Doc;
+format_feature({moduledoc, Mod, Doc}) ->
+    io_lib:format("\n"
+                  "# Module ~s~n~n"
+                  "## Description~n~n~s~n",
+                  [Mod, Doc]);
 format_feature({header, M, F, A}) ->
     [$\n, format_mfa(M, F, A), "\n\n"];
-format_feature({Kind, _, _, Doc})
-  when Kind =:= doc;
-       Kind =:= spec ->
-    [Doc, $\n];
-format_feature({type, _, _, Doc})  ->
-    [$\n, Doc, $\n].
+format_feature({_Kind, _, _, Doc}) ->
+    [Doc, $\n].
 
-no_features(Mod, Fun, Arity, Opts) ->
+no_features(Key, Opts) ->
     print("\ndocsh: no ~ts for ~ts\n\n",
-          [format_kinds(Opts), format_mfa(Mod, Fun, Arity)]).
+          [format_kinds(Opts), format_key(Key)]).
 
 format_kinds(Kinds) ->
     string:join([ ?a2l(K) || K <- Kinds ], "/").
+
+format_key(M) when is_atom(M) -> ?a2b(M);
+format_key({M, F, A}) -> format_mfa(M, F, A).
 
 format_mfa(M, F, A) ->
     [?a2b(M), $:, ?a2b(F), $/, case A of any -> $*; _ -> ?i2b(A) end].
@@ -129,10 +137,6 @@ do_with_supported(Fun, {elixir_docs_v1, Docs}, Opts) ->
 do_with_supported(_, _, _) ->
     <<"Documentation format not supported">>.
 
-types(Docs) ->
-    Types = proplists:get_value(types, Docs, []),
-    [ ["\n", Desc] || {{_Name, _Arity}, Desc} <- Types ].
-
 get_elixir_docs_v1(Mod) ->
     BEAMFile = code:which(Mod),
     case beam_lib:chunks(BEAMFile, ["ExDc"]) of
@@ -145,7 +149,7 @@ get_elixir_docs_v1(Mod) ->
 group_by_arity(Features) ->
     dict:to_list(group_by(fun feature_arity/1, Features)).
 
-feature_arity({moduledoc, _}) -> 0;
+feature_arity({moduledoc, _, _}) -> 0;
 feature_arity({header, _, _, A}) -> A;
 feature_arity({doc, _, A, _}) -> A;
 feature_arity({spec, _, A, _}) -> A;

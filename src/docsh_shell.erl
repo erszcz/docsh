@@ -4,6 +4,7 @@
          s/1, s/3,
          t/3]).
 
+-import(docsh_embeddable, [key_to_module/1]).
 -import(docsh_lib, [print/2]).
 
 -type lookup_params() :: [lookup_param()].
@@ -43,9 +44,6 @@ lookup(Key, Args) ->
             check_edoc_availability(Beam, Args),
             docsh_embeddable:lookup(Key, Args)
     end.
-
-key_to_module(M) when is_atom(M) -> M;
-key_to_module({M,_,_}) -> M.
 
 -spec check_edoc_availability(docsh_beam:t(), lookup_params()) -> ok.
 check_edoc_availability(Beam, LParams) ->
