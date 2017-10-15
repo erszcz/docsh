@@ -2,7 +2,7 @@
 
 -export([h/1, h/3,
          s/1, s/3,
-         t/3]).
+         t/1, t/3]).
 
 -import(docsh_embeddable, [key_to_module/1]).
 -import(docsh_lib, [print/2]).
