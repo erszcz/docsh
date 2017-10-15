@@ -7,7 +7,7 @@
 -import(docsh_lib, [print/2]).
 
 -type lookup_params() :: [lookup_param()].
--type lookup_param() :: doc | spec | type.
+-type lookup_param() :: moduledoc | doc | spec | type.
 
 -spec h(fun() | module()) -> ok.
 h(Fun) when is_function(Fun) ->
@@ -15,11 +15,11 @@ h(Fun) when is_function(Fun) ->
     h(M, F, A);
 
 h(M) when is_atom(M) ->
-    unchecked_lookup([M], [M]).
+    lookup(M, [moduledoc]).
 
 h(M, F, Arity) when is_atom(M), is_atom(F),
                     is_integer(Arity) orelse Arity =:= any ->
-    unchecked_lookup([M, F, Arity], [M, F, Arity, [doc, spec]]).
+    lookup({M, F, Arity}, [doc, spec]).
 
 s(Fun) when is_function(Fun) ->
     {M, F, A} = erlang:fun_info_mfa(Fun),
@@ -27,24 +27,28 @@ s(Fun) when is_function(Fun) ->
 
 s(M, F, Arity) when is_atom(M), is_atom(F),
                     is_integer(Arity) orelse Arity =:= any ->
-    unchecked_lookup([M, F, Arity], [M, F, Arity, [spec]]).
+    lookup({M, F, Arity}, [spec]).
+
+t(M) when is_atom(M) ->
+    lookup(M, [type]).
 
 t(M, T, Arity) when is_atom(M), is_atom(T),
                     is_integer(Arity) orelse Arity =:= any ->
-    unchecked_lookup([M, T, Arity], [M, T, Arity, [type]]).
+    lookup({M, T, Arity}, [type]).
 
-%% MFA might actually be just [M].
-unchecked_lookup([M | _] = MFA, Args) ->
-    case get_beam(M) of
-        {error, R} -> error(R, MFA);
+lookup(Key, Args) ->
+    case get_beam(key_to_module(Key)) of
+        {error, R} -> error(R, Key);
         {ok, Beam} ->
             check_edoc_availability(Beam, Args),
-            erlang:apply(docsh_embeddable, h, Args)
+            docsh_embeddable:lookup(Key, Args)
     end.
 
--spec check_edoc_availability(docsh_beam:t(), [lookup_params() | term()]) -> ok.
-check_edoc_availability(_Beam, [_]) -> ok;
-check_edoc_availability(Beam, [_, _, _, LParams]) ->
+key_to_module(M) when is_atom(M) -> M;
+key_to_module({M,_,_}) -> M.
+
+-spec check_edoc_availability(docsh_beam:t(), lookup_params()) -> ok.
+check_edoc_availability(Beam, LParams) ->
     case {proplists:get_value(doc, LParams, false), docsh_beam:source_file(Beam)} of
         {true, false} ->
             print("\nSource file for ~s is not available.\n",
