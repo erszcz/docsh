@@ -24,6 +24,10 @@ proplists:is_defined(noshell, init:get_arguments()) == false andalso begin
         ok ->
             docsh:activated(path);
         {add_path, BasePath} ->
+            [ code:add_path(Dir)
+              || Suffix <- ["/ebin", "/_build/default/lib/docsh/ebin"],
+                 Dir <- [filename:join([BasePath, Suffix])],
+                 filelib:is_dir(Dir) ],
             code:add_path(BasePath ++ "/_build/default/lib/docsh/ebin"),
             docsh:activated(path)
     end,
