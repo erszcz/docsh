@@ -47,11 +47,7 @@ check_edoc_availability(_Beam, [_]) -> ok;
 check_edoc_availability(Beam, [_, _, _, LParams]) ->
     case {proplists:get_value(doc, LParams, false), docsh_beam:source_file(Beam)} of
         {true, false} ->
-            print("\nSource file for ~s is not available. "
-                  "If it's a standard module distributed with Erlang/OTP, "
-                  "the issue is known (https://github.com/erszcz/docsh/issues/7) "
-                  "and will be addressed in the future. "
-                  "Otherwise, you might've found a bug - please report it!\n",
+            print("\nSource file for ~s is not available.\n",
                   [docsh_beam:name(Beam)]);
         _ -> ok
     end.
