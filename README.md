@@ -231,10 +231,6 @@ Try it with your project!
 - [x] Include specs in function descriptions.
       Extract specs from the AST or input docs if possible.
 
-- [x] Provide an example repo showing
-      [how to embed documentation in your .beam files][gh:docsh-example]
-      by using `docsh` as a Rebar plugin.
-
 - [x] `user_default` extensions:
 
     * [x] To allow for functional `h(Mod)`, `h(Mod, Fun, Arity)`
@@ -250,7 +246,6 @@ Try it with your project!
 - [x] Provide a tool to embed docs into a .beam file.
 
     * [x] EScript for command-line use.
-    * [x] Rebar3 plugin for a post-compile build step.
     * [x] Shell extension for interactive use.
 
 - [x] ~~Properly format/print out record definitions.~~
@@ -309,6 +304,4 @@ Yes, I've seen _Ghost in the Shell_ ;)
 
 
 [edoc:module-tags]: http://erlang.org/doc/apps/edoc/chapter.html#Module_tags
-[gh:docsh-example]: https://github.com/erszcz/docsh-example
 [gh:recon-docsh]: https://github.com/erszcz/recon
-[rebar3:plugins]: http://www.rebar3.org/docs/using-available-plugins
