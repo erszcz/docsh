@@ -1,8 +1,1 @@
-[{<<"edown">>,
-  {git,"git://github.com/uwiger/edown.git",
-       {ref,"abd9f5bbf9265a0a25640a677824386e199e91a6"}},
-  1},
- {<<"parse_trans">>,
-  {git,"https://github.com/uwiger/parse_trans.git",
-       {ref,"4fadce8a5242479b4ebc0d2b5825bdfe1de0af1c"}},
-  0}].
+[].
