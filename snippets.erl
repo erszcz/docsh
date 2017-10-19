@@ -158,7 +158,7 @@ DMods = [ct_docsh,
          docsh_internal,
          docsh_lib,
          docsh_reader,
-         docsh_shell,
+         docsh_erl,
          docsh_syntax,
          docsh_writer,
          rebar3_docsh,
@@ -168,5 +168,5 @@ DMods = [ct_docsh,
 code:add_path("/Users/erszcz/work/erszcz/tracer").
 my_tracer:start().
 dbg:p(all, [call, timestamp]).
-dbg:tpl(docsh_shell, unchecked_lookup, x).
-dbg:tpl(docsh_shell, get_beam, 1, x).
+dbg:tpl(docsh_erl, unchecked_lookup, x).
+dbg:tpl(docsh_erl, get_beam, 1, x).

@@ -107,7 +107,7 @@ ok
 ...though there's no handy interface yet.
 
 ```elixir
-iex(1)> :docsh_shell.h(:lists, :keyfind, :any)
+iex(1)> :docsh_erl.h(:lists, :keyfind, :any)
 
 lists:keyfind/3
 

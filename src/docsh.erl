@@ -46,7 +46,7 @@
 %% See https://github.com/erszcz/docsh/README.md if unsure about
 %% the installation steps or what `user_default' is.
 %%
-%% If you want to call docsh as a library, please refer to `docsh_shell'.
+%% If you want to call docsh as a library, please refer to `docsh_erl'.
 %% (TODO) As of now it's the only way to use docsh from Elixir's iex.
 %% @end
 
