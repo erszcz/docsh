@@ -3,13 +3,13 @@
          t/1, t/2, t/3]).
 
 h(ModOrFun) -> docsh_shell:h(ModOrFun).
-h(M, F)     -> docsh_shell:h(M, F, any).
+h(M, F)     -> docsh_shell:h(M, F).
 h(M, F, A)  -> docsh_shell:h(M, F, A).
 
 s(Fun)      -> docsh_shell:s(Fun).
-s(M, F)     -> docsh_shell:s(M, F, any).
+s(M, F)     -> docsh_shell:s(M, F).
 s(M, F, A)  -> docsh_shell:s(M, F, A).
 
 t(M)        -> docsh_shell:t(M).
-t(M, T)     -> docsh_shell:t(M, T, any).
+t(M, T)     -> docsh_shell:t(M, T).
 t(M, T, A)  -> docsh_shell:t(M, T, A).
