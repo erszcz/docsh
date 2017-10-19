@@ -99,10 +99,7 @@ sort_features(Features) ->
     [ F || Key <- Order, F <- [lists:keyfind(Key, 1, Features)], F /= false ].
 
 format_feature({moduledoc, Mod, Doc}) ->
-    io_lib:format("\n"
-                  "# Module ~s~n~n"
-                  "## Description~n~n~s~n",
-                  [Mod, Doc]);
+    io_lib:format("\n# ~s~n~n~s~n", [Mod, Doc]);
 format_feature({header, M, F, A}) ->
     [$\n, format_mfa(M, F, A), "\n\n"];
 format_feature({_Kind, _, _, Doc}) ->
