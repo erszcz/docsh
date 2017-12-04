@@ -102,6 +102,8 @@
 unwrap_inline([]) -> [];
 unwrap_inline([{inline, Elements}]) when is_list(Elements) -> Elements;
 unwrap_inline({inline, Elements}) when is_list(Elements) -> Elements;
+unwrap_inline([{fmt, Elements}]) when is_list(Elements) -> Elements;
+unwrap_inline({fmt, Elements}) when is_list(Elements) -> Elements;
 unwrap_inline([BString]) when is_binary(BString) -> BString;
 unwrap_inline(BString) when is_binary(BString) -> BString.
 
