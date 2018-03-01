@@ -65,7 +65,7 @@ module_has_docs_from_source(_, Mod) ->
     ?assert(has_docs(BMod)).
 
 docsh_transform_in_memory(File) ->
-    {ok, NewBEAM} = docsh_lib:process_beam(File),
+    {ok, NewBEAM, _} = docsh_lib:process_beam(File),
     NewBEAM.
 
 has_docs(Mod) ->
