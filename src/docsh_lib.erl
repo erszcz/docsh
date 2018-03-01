@@ -92,7 +92,8 @@ beam_diff(BEAM1, BEAM2) ->
     [{BEAM1, Name1, Keys1 -- Keys2},
      {BEAM2, Name2, Keys2 -- Keys1}].
 
--spec process_beam(beam_lib:beam()) -> {ok, binary()}.
+-spec process_beam(beam_lib:beam()) -> {ok, binary(), [Warning]} when
+      Warning :: no_debug_info | no_src.
 process_beam(BEAMFile) ->
     has_exdc(BEAMFile)
         andalso error(exdc_present, [BEAMFile]),
@@ -100,8 +101,15 @@ process_beam(BEAMFile) ->
     case {docsh_beam:abst(Beam), docsh_beam:source_file(Beam)} of
         {false, false} ->
             error(no_debug_info_no_src, [BEAMFile]);
+        {_, false} ->
+            {ok, Bin} = add_chunks(BEAMFile, [exdc(Beam)]),
+            {ok, Bin, [no_src]};
+        {false, _} ->
+            {ok, Bin} = add_chunks(BEAMFile, [exdc(Beam)]),
+            {ok, Bin, [no_debug_info]};
         _ ->
-            add_chunks(BEAMFile, [exdc(Beam)])
+            {ok, Bin} = add_chunks(BEAMFile, [exdc(Beam)]),
+            {ok, Bin, []}
     end.
 
 -spec has_exdc(beam_lib:beam()) -> boolean().
@@ -169,6 +177,10 @@ add_chunks(BEAMFile, NewChunks) ->
     {ok, _NewBEAM} = beam_lib:build_module(OldChunks ++ NewChunks).
 
 -spec format_error(any()) -> iolist().
+format_error({no_debug_info, Mod}) ->
+    io_lib:format("Abstract code for ~s is not available.\n", [Mod]);
+format_error({no_src, Mod}) ->
+    io_lib:format("Source file for ~s is not available.\n", [Mod]);
 format_error(exdc_present) ->
     <<"ExDc chunk already present">>;
 format_error(no_debug_info_no_src) ->

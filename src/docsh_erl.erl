@@ -77,17 +77,7 @@ lookup(Key, Args) ->
     case get_beam(key_to_module(Key)) of
         {error, R} -> error(R, Key);
         {ok, Beam} ->
-            check_edoc_availability(Beam, Args),
             docsh_embeddable:lookup(Key, Args)
-    end.
-
--spec check_edoc_availability(docsh_beam:t(), lookup_params()) -> ok.
-check_edoc_availability(Beam, LParams) ->
-    case {proplists:get_value(doc, LParams, false), docsh_beam:source_file(Beam)} of
-        {true, false} ->
-            print("\nSource file for ~s is not available.\n",
-                  [docsh_beam:name(Beam)]);
-        _ -> ok
     end.
 
 get_beam(M) ->
@@ -150,7 +140,8 @@ reload(Beam) ->
 -spec rebuild(docsh_beam:t(), string()) -> any().
 rebuild(B, CacheDir) ->
     BEAMFile = docsh_beam:beam_file(B),
-    {ok, NewBEAM} = docsh_lib:process_beam(BEAMFile),
+    {ok, NewBEAM, Warnings} = docsh_lib:process_beam(BEAMFile),
+    [ print("~s", [docsh_lib:format_error({W, docsh_beam:name(B)})]) || W <- Warnings ],
     NewBEAMFile = filename:join([CacheDir, filename:basename(BEAMFile)]),
     ok = file:write_file(NewBEAMFile, NewBEAM),
     docsh_beam:from_beam_file(NewBEAMFile).
