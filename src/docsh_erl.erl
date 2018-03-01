@@ -102,9 +102,13 @@ get_beam(M, OriginalSourceFile) ->
     {ok, docsh_beam:source_file(Beam, OriginalSourceFile)}.
 
 -spec cached_or_rebuilt(docsh_beam:t(), file:name()) -> {ok, docsh_beam:t()}.
-cached_or_rebuilt(Beam, CacheDir) ->
-    %% TODO: find the module in cache, don't rebuild every time
-    {ok, _RebuiltBeam} = rebuild(Beam, CacheDir).
+cached_or_rebuilt(B, CacheDir) ->
+    case find_cached(B, CacheDir) of
+        {ok, Cached} ->
+            {ok, Cached};
+        _ ->
+            {ok, _Rebuilt} = rebuild(B, CacheDir)
+    end.
 
 ensure_cache_dir() ->
     CacheDir = cache_dir(),
@@ -125,6 +129,16 @@ cache_dir() ->
         {false, false} -> error(no_cache_dir);
         {false, Home} -> filename:join([Home, ".docsh"]);
         {XDGCache, _} -> filename:join([XDGCache, "docsh"])
+    end.
+
+-spec find_cached(docsh_beam:t(), file:name()) -> {ok, docsh_beam:t()} | not_found.
+find_cached(B, CacheDir) ->
+    %% TODO: make sure this doesn't mix up .beam versions!
+    BEAMFile = docsh_beam:beam_file(B),
+    CachedBEAMFile = filename:join([CacheDir, filename:basename(BEAMFile)]),
+    case filelib:is_file(CachedBEAMFile) of
+        true -> docsh_beam:from_beam_file(CachedBEAMFile);
+        false -> not_found
     end.
 
 -spec reload(docsh_beam:t()) -> ok.
