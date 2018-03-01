@@ -43,15 +43,19 @@ from_beam_file(BEAMFile) ->
                      beam_file = BEAMFile,
                      source_file = bind(docsh_lib:get_source_file(BEAMFile))}}.
 
+-spec name(t()) -> module().
 name(B) -> B#docsh_beam.name.
 
 abst(B) ->
     debug_info(beam_file(B)).
 
+-spec beam_file(t()) -> file:filename().
 beam_file(B) -> B#docsh_beam.beam_file.
 
+-spec source_file(t()) -> file:filename() | false.
 source_file(B) -> B#docsh_beam.source_file.
 
+-spec source_file(t(), file:filename()) -> t().
 source_file(B, NewFile) -> B#docsh_beam{source_file = NewFile}.
 
 attribute(B, Name) ->

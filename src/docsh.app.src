@@ -6,8 +6,7 @@
    [kernel,
     stdlib,
     edoc,
-    xmerl,
-    parse_trans]},
+    xmerl]},
   {env,[]},
   {modules, []},
 
