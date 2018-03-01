@@ -129,6 +129,11 @@ get_source_file(BEAMFile) ->
 
 check_source_file(_SourceFile, {ok, File}) ->
     {ok, File};
+%% This is a special case for Erlang prebuilt .beam files.
+%% Calling filelib:is_regular/1 on non-existent files under /net might
+%% take ~20 seconds on Mac - we want to avoid it.
+check_source_file("/net" ++ _, false) ->
+    false;
 check_source_file(SourceFile, false) ->
     case filelib:is_regular(SourceFile) of
         true -> {ok, SourceFile};

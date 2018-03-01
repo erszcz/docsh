@@ -170,3 +170,71 @@ my_tracer:start().
 dbg:p(all, [call, timestamp]).
 dbg:tpl(docsh_erl, unchecked_lookup, x).
 dbg:tpl(docsh_erl, get_beam, 1, x).
+
+%% erl -sname docsh -setcookie qkie
+%% erl -sname remote -setcookie qkie
+
+dbg:tracer(process, {fun dbg:dhandler/2, standard_io}).
+dbg:n(docsh@x4).
+dbg:p(all, [call, arity, timestamp]).
+{ok, [Modules]} = file:consult("/Users/erszcz/work/erszcz/docsh/modules.lst").
+[ l(M) || M <- Modules ].
+rp([ {M, dbg:tpl(M, [])} || M <- Modules ]).
+TracePublic = [
+               docsh_embeddable,
+               beam_lib,
+               erl_comment_scan,
+               epp_dodger,
+               docsh_lib,
+               docsh_elixir_docs_v1,
+               erl_prettypr,
+               %erl_syntax_lib,
+               edoc,
+               %edoc_data,
+               edoc_extract,
+               edoc_lib,
+               edoc_macros,
+               edoc_parser,
+               edoc_scanner,
+               %edoc_specs,
+               edoc_tags,
+               %edoc_types,
+               xmerl_lib,
+               docsh_edoc_xmerl,
+               xmerl
+              ].
+rp([ {PM, dbg:tp(PM, [])} || PM <- TracePublic ]).
+dbg:tpl(docsh_erl, rebuild, x).
+
+docsh_tracer:start().
+dbg:n(docsh@x4).
+dbg:p(all, [call, timestamp]).
+%dbg:tpl(docsh_erl, x).
+%dbg:tpl(docsh_erl, find_cached, x).
+%dbg:tpl(docsh_erl, cached_or_rebuilt, x).
+%dbg:tpl(docsh_erl, reload, x).
+%dbg:tpl(docsh_erl, rebuild, x).
+dbg:tpl(docsh_beam, from_loadable_module, x).
+%dbg:tpl(docsh_lib, exdc, x).
+%
+%dbg:tpl(docsh_erl, cache_dir, x).
+%dbg:tpl(docsh_erl, cached_or_rebuilt, x).
+%dbg:tpl(docsh_erl, ensure_cache_dir, x).
+%dbg:tpl(docsh_erl, find_cached, x).
+%dbg:tpl(docsh_erl, get_beam, x).
+dbg:tpl(docsh_erl, h, x).
+%dbg:tpl(docsh_erl, lookup, x).
+%dbg:tpl(docsh_erl, reload, x).
+%dbg:tpl(docsh_erl, rebuild, x).
+%
+dbg:tpl(docsh_lib, get_source_file, x).
+dbg:tpl(code, which, x).
+dbg:tpl(docsh_lib, check_source_file, x).
+dbg:tpl(beam_lib, chunks, x).
+dbg:tpl(docsh_lib, compile_info_source_file, x).
+dbg:tpl(docsh_lib, guessed_source_file, x).
+dbg:tpl(filelib, is_regular, x).  %% THIS MAY TAKE ~20 SECONDS!!!111oneone
+%(docsh@x4)7> timer:tc(filelib, is_regular, ["/net/isildur/ldisk/daily_build/19_prebuild_opu_o.2016-12-12_21/otp_src_19/lib/stdlib/src/lists.erl"]).
+%{26131796,false}
+%(docsh@x4)8> timer:tc(filelib, is_regular, ["/not-net/isildur/ldisk/daily_build/19_prebuild_opu_o.2016-12-12_21/otp_src_19/lib/stdlib/src/lists.erl"]).
+%{171,false}
