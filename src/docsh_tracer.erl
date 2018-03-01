@@ -75,25 +75,10 @@ translate_one(Val) ->
     lists:foldl(fun (F, AccV) -> F(AccV) end, Val, translations()).
 
 translations() ->
-    [fun flatten_if_state/1,
-     fun flatten_if_fsm_next_state4/1,
-     fun flatten_if_jid/1,
-     fun flatten_if_sending_iolist/1].
+    [fun flatten_if_state/1].
 
 flatten_if_state(State) when is_tuple(State), element(1, State) == state -> state;
 flatten_if_state(Arg) -> Arg.
-
-flatten_if_fsm_next_state4({next_state, StateName, State, Timeout}) ->
-    {next_state, StateName, flatten_if_state(State), Timeout};
-flatten_if_fsm_next_state4(Arg) -> Arg.
-
-flatten_if_jid({jid, _, _, _, _, _, _} = JID) ->
-    <<"jid:", (jid:to_binary(JID))/bytes>>;
-flatten_if_jid(NotAJID) -> NotAJID.
-
-flatten_if_sending_iolist({trace, Pid, call, {ejabberd_c2s, send_text, [A1, IOList]}}) ->
-    {trace, Pid, call, {ejabberd_c2s, send_text, [A1, iolist_to_binary(IOList)]}};
-flatten_if_sending_iolist(Arg) -> Arg.
 
 pass_to_dbg(Trace, Out) ->
     dbg:dhandler(Trace, Out),
