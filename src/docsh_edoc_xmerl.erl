@@ -139,7 +139,7 @@ item(Type, Out, Data) ->
 -spec dl(any(), any(), any(), any()) -> {atom(), [any()]}.
 dl(Data, _Attrs, _Parents, _E) ->
     debug('dl:in', Data),
-    {fmt, debug(dl, [ itemize(Type, undefined, undefined, Content)
+    {fmt, debug(dl, [ itemize_dl(Type, Content)
                       || E <- Data,
                          {Type, Content} <- unwrap_dl_content(E) ])}.
 
@@ -166,13 +166,15 @@ list(Type, Data) ->
                         || {N, E} <- Items,
                            {Line, Item} <- enumerate(E) ])}.
 
+-spec itemize_dl(dt | dd, iolist()) -> iolist().
+itemize_dl(dt, Content) -> ["  ", Content, "\n\n"];
+itemize_dl(dd, Content) -> ["      ", Content].
+
 -spec itemize(Type, Nth, Line, Content) -> iolist() when
-      Type :: dl | ol | ul,
+      Type :: ol | ul,
       Nth :: pos_integer(),
       Line :: pos_integer(),
       Content :: iolist().
-itemize(dt, _Nth, _, Content) -> ["  ", Content, "\n\n"];
-itemize(dd, _Nth, _, Content) -> ["      ", Content];
 itemize(ol,  Nth, 1, Content) -> [io_lib:format("  ~b. ", [Nth]), Content];
 itemize(ol, _Nth, _, Content) -> ["    ", Content];
 itemize(ul, _Nth, 1, Content) -> ["  - ", Content];

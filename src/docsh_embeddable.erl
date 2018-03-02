@@ -7,7 +7,14 @@
 -export([key_to_module/1,
          lookup/2]).
 
--type fname() :: atom().
+-export_type([key/0,
+              item_kind/0]).
+
+-type key() :: module() | mfa() | {module(), name(), any}.
+-type item_kind() :: moduledoc | doc | spec | type.
+
+%% Function or type name.
+-type name() :: atom().
 
 -import(docsh_lib, [print/2]).
 
@@ -16,6 +23,7 @@
 -define(i2b(I), integer_to_binary(I)).
 -define(il2b(IOList), iolist_to_binary(IOList)).
 
+-spec lookup(key(), [item_kind()]) -> 'ok'.
 lookup(Key, Opts) ->
     case fetch_features(Key, Opts) of
         [] -> no_features(Key, Opts);
@@ -23,8 +31,9 @@ lookup(Key, Opts) ->
             print("~ts", [format_features(Features, key_to_arity(Key), Opts)])
     end.
 
-key_to_arity(M) -> any;
-key_to_arity({M,F,A}) -> A.
+-spec key_to_arity(key()) -> any | arity().
+key_to_arity(M) when is_atom(M) -> any;
+key_to_arity({_,_,A}) -> A.
 
 fetch_features(Key, Opts0) ->
     F = fun (Docs, Opts) ->
@@ -35,6 +44,7 @@ fetch_features(Key, Opts0) ->
         end,
     do_with_docs(key_to_module(Key), F, Opts0).
 
+-spec key_to_module(key()) -> module().
 key_to_module(M) when is_atom(M) -> M;
 key_to_module({M,_,_}) -> M.
 
@@ -58,10 +68,10 @@ filter_features(FlatDocs, Mod, [moduledoc]) when is_atom(Mod) ->
     {moduledoc, {_, Doc}} = lists:keyfind(moduledoc, 1, FlatDocs),
     [{moduledoc, Mod, Doc}];
 filter_features(FlatDocs, Key, FeatureKinds) ->
-    {Mod, Name, Arity} = case Key of
-                             M when is_atom(M) -> {M, any, any};
-                             {M, N, A} -> {M, N, A}
-                         end,
+    {_Mod, Name, Arity} = case Key of
+                              M when is_atom(M) -> {M, any, any};
+                              {M, N, A} -> {M, N, A}
+                          end,
     [ Feature || {Kind, ActualName, ActualArity, _} = Feature <- FlatDocs,
                  lists:member(Kind, FeatureKinds),
                  does_name_match(Name, ActualName),
@@ -79,7 +89,7 @@ find_arities(Features) ->
     lists:usort([ A || {Kind, _, A, _} <- Features,
                        Kind == doc orelse Kind == spec ]).
 
-generate_headers(Mod, Arities) when is_atom(Mod) ->
+generate_headers(Mod, _Arities) when is_atom(Mod) ->
     [];
 generate_headers({Mod, Name, _}, Arities) ->
     [ header(Mod, Name, Arity) || Arity <- Arities ].

@@ -120,7 +120,7 @@ has_exdc(BEAMFile) ->
         _    -> false
     end.
 
--spec get_debug_info(file:filename()) -> binary().
+-spec get_debug_info(beam_lib:beam()) -> {ok, binary()} | false.
 get_debug_info(BEAMFile) ->
     case beam_lib:chunks(BEAMFile, ["Abst"]) of
         {ok, {_Module, [{"Abst", <<>>}]}} -> false;
@@ -128,7 +128,7 @@ get_debug_info(BEAMFile) ->
         _ -> false
     end.
 
--spec get_source_file(file:filename()) -> file:filename().
+-spec get_source_file(file:filename()) -> {ok, file:filename()} | false.
 get_source_file(BEAMFile) ->
     lists:foldl(fun check_source_file/2,
                 false,

@@ -20,6 +20,10 @@
                            %% `source_file` may or may not be available.
                            source_file :: file:filename() | false}.
 
+-type debug_info() :: [erl_parse:abstract_form() |
+                       %% {eof, 123} is not an abstract_form()
+                       erl_parse:form_info()].
+
 %%
 %% API
 %%
@@ -46,6 +50,7 @@ from_beam_file(BEAMFile) ->
 -spec name(t()) -> module().
 name(B) -> B#docsh_beam.name.
 
+-spec abst(t()) -> debug_info() | false.
 abst(B) ->
     debug_info(beam_file(B)).
 
@@ -58,6 +63,7 @@ source_file(B) -> B#docsh_beam.source_file.
 -spec source_file(t(), file:filename()) -> t().
 source_file(B, NewFile) -> B#docsh_beam{source_file = NewFile}.
 
+-spec attribute(t(), atom()) -> term().
 attribute(B, Name) ->
     docsh_lib:get(Name, (B#docsh_beam.name):module_info(attributes)).
 
@@ -72,6 +78,7 @@ beam_name(BEAMFile) ->
     {ok, N, _} = beam_lib:all_chunks(BEAMFile),
     N.
 
+-spec debug_info(beam_lib:beam()) -> debug_info() | false.
 debug_info(BEAMFile) ->
     case bind(docsh_lib:get_debug_info(BEAMFile)) of
         false -> false;

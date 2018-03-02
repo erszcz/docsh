@@ -9,9 +9,8 @@
 -import(docsh_embeddable, [key_to_module/1]).
 -import(docsh_lib, [print/2]).
 
--type lookup_params() :: [lookup_param()].
--type lookup_param() :: moduledoc | doc | spec | type.
--type name() :: atom().
+%% Function or type name.
+-type name() :: docsh_embeddable:name().
 
 %% @doc When invoked with a module as an argument like `h(lists)',
 %% then look up the module documentation.
@@ -73,11 +72,14 @@ t(M, T, Arity) when is_atom(M), is_atom(T),
                     is_integer(Arity) orelse Arity =:= any ->
     lookup({M, T, Arity}, [type]).
 
-lookup(Key, Args) ->
+-spec lookup(Key, Items) -> 'ok' when
+      Key :: docsh_embeddable:key(),
+      Items :: [docsh_embeddable:item_kind()].
+lookup(Key, Items) ->
     case get_beam(key_to_module(Key)) of
         {error, R} -> error(R, Key);
-        {ok, Beam} ->
-            docsh_embeddable:lookup(Key, Args)
+        {ok, _Beam} ->
+            docsh_embeddable:lookup(Key, Items)
     end.
 
 get_beam(M) ->
