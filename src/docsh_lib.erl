@@ -127,7 +127,7 @@ get_abstract_code(BEAMFile) ->
             {ok, debug_info_v1(DbgiV1)};
         _ ->
             case beam_lib:chunks(BEAMFile, [abstract_code]) of
-                {ok, {_Module, [{abstract_code, RawAbstV1}]}} ->
+                {ok, {_Module, [{abstract_code, RawAbstV1}]}} when is_tuple(RawAbstV1) ->
                     {ok, raw_abstract_v1(RawAbstV1)};
                 _ ->
                     false
