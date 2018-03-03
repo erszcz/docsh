@@ -61,7 +61,7 @@ has_docs(Mod) ->
     docsh_lib:has_exdc(Mod).
 
 has_debug_info(Mod) ->
-    case docsh_lib:get_debug_info(Mod) of
+    case docsh_lib:get_abstract_code(Mod) of
         {ok, _Abst} -> true;
         false -> false
     end.

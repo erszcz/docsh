@@ -52,7 +52,7 @@ name(B) -> B#docsh_beam.name.
 
 -spec abstract_code(t()) -> debug_info() | false.
 abstract_code(B) ->
-    get_abstract_code(beam_file(B)).
+    bind(docsh_lib:get_abstract_code(beam_file(B))).
 
 -spec beam_file(t()) -> file:filename().
 beam_file(B) -> B#docsh_beam.beam_file.
@@ -77,23 +77,3 @@ bind(false)   -> false.
 beam_name(BEAMFile) ->
     {ok, N, _} = beam_lib:all_chunks(BEAMFile),
     N.
-
--spec get_abstract_code(file:filename()) -> debug_info() | false.
-get_abstract_code(BEAMFile) ->
-    case beam_lib:chunks(BEAMFile, [debug_info]) of
-        {ok, {_Module, [{debug_info, DbgiV1}]}} ->
-            debug_info_v1(DbgiV1);
-        _ ->
-            case beam_lib:chunks(BEAMFile, [abstract_code]) of
-                {ok, {_Module, [{abstract_code, RawAbstV1}]}} ->
-                    raw_abstract_v1(RawAbstV1);
-                _ ->
-                    false
-            end
-    end.
-
-raw_abstract_v1({raw_abstract_v1, Forms}) ->
-    Forms.
-
-debug_info_v1({debug_info_v1, _, {Forms, _CompileInfo}}) ->
-    Forms.

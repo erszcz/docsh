@@ -5,6 +5,7 @@
          debug/3,
          format_error/1,
          get/2, get/3,
+         get_abstract_code/1,
          get_source_file/1,
          has_exdc/1,
          is_module_available/1,
@@ -118,6 +119,26 @@ has_exdc(BEAMFile) ->
         true -> true;
         _    -> false
     end.
+
+-spec get_abstract_code(file:filename()) -> docsh_beam:debug_info() | false.
+get_abstract_code(BEAMFile) ->
+    case beam_lib:chunks(BEAMFile, [debug_info]) of
+        {ok, {_Module, [{debug_info, DbgiV1}]}} ->
+            {ok, debug_info_v1(DbgiV1)};
+        _ ->
+            case beam_lib:chunks(BEAMFile, [abstract_code]) of
+                {ok, {_Module, [{abstract_code, RawAbstV1}]}} ->
+                    {ok, raw_abstract_v1(RawAbstV1)};
+                _ ->
+                    false
+            end
+    end.
+
+raw_abstract_v1({raw_abstract_v1, Forms}) ->
+    Forms.
+
+debug_info_v1({debug_info_v1, _, {Forms, _CompileInfo}}) ->
+    Forms.
 
 -spec get_source_file(file:filename()) -> {ok, file:filename()} | false.
 get_source_file(BEAMFile) ->
