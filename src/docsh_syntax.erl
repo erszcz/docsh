@@ -24,14 +24,14 @@
 
 -spec available(docsh_beam:t()) -> [docsh_reader:t()].
 available(Beam) ->
-    [ ?MODULE || docsh_beam:abst(Beam) /= false ].
+    [ ?MODULE || docsh_beam:abstract_code(Beam) /= false ].
 
 -spec to_internal(docsh_beam:t()) -> R when
       R :: {ok, docsh:internal()}
          | {error, any()}.
 to_internal(Beam) ->
     try
-        Forms = case {docsh_beam:abst(Beam), docsh_beam:source_file(Beam)} of
+        Forms = case {docsh_beam:abstract_code(Beam), docsh_beam:source_file(Beam)} of
                     {false, false} ->
                         error(no_debug_info_no_src, [Beam]);
                     {Abst, false} ->

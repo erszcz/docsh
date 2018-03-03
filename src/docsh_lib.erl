@@ -5,7 +5,6 @@
          debug/3,
          format_error/1,
          get/2, get/3,
-         get_debug_info/1,
          get_source_file/1,
          has_exdc/1,
          is_module_available/1,
@@ -98,7 +97,7 @@ process_beam(BEAMFile) ->
     has_exdc(BEAMFile)
         andalso error(exdc_present, [BEAMFile]),
     {ok, Beam} = docsh_beam:from_beam_file(BEAMFile),
-    case {docsh_beam:abst(Beam), docsh_beam:source_file(Beam)} of
+    case {docsh_beam:abstract_code(Beam), docsh_beam:source_file(Beam)} of
         {false, false} ->
             error(no_debug_info_no_src, [BEAMFile]);
         {_, false} ->
@@ -118,14 +117,6 @@ has_exdc(BEAMFile) ->
     case catch ([ throw(true) || {"ExDc", _} <- Chunks ]) of
         true -> true;
         _    -> false
-    end.
-
--spec get_debug_info(beam_lib:beam()) -> {ok, binary()} | false.
-get_debug_info(BEAMFile) ->
-    case beam_lib:chunks(BEAMFile, ["Abst"]) of
-        {ok, {_Module, [{"Abst", <<>>}]}} -> false;
-        {ok, {_Module, [{"Abst", Abst}]}} -> {ok, Abst};
-        _ -> false
     end.
 
 -spec get_source_file(file:filename()) -> {ok, file:filename()} | false.
