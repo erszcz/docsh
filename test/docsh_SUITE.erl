@@ -34,17 +34,6 @@ recon_has_docs_from_source(C) ->
 %% Helpers
 %%
 
-h0(_, Module) ->
-    code:ensure_loaded(Module),
-    ?eq(true, erlang:function_exported(Module, h, 0)),
-    ?eq(ok, Module:h()).
-
-h2(_, Module) ->
-    code:ensure_loaded(Module),
-    ?eq(true, erlang:function_exported(Module, h, 2)),
-    {Fun, Arity} = hd(Module:module_info(exports) -- [{h,0}, {h,2}]),
-    ?eq(ok, Module:h(Fun, Arity)).
-
 module_has_docs_from_debug_info(_, Mod) ->
     %% given
     File = code:which(Mod),
