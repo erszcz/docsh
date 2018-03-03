@@ -4,7 +4,7 @@
          from_loadable_module/1,
 
          name/1,
-         abst/1,
+         abstract_code/1,
          beam_file/1,
          source_file/1, source_file/2,
          attribute/2]).
@@ -50,9 +50,9 @@ from_beam_file(BEAMFile) ->
 -spec name(t()) -> module().
 name(B) -> B#docsh_beam.name.
 
--spec abst(t()) -> debug_info() | false.
-abst(B) ->
-    debug_info(beam_file(B)).
+-spec abstract_code(t()) -> debug_info() | false.
+abstract_code(B) ->
+    bind(docsh_lib:get_abstract_code(beam_file(B))).
 
 -spec beam_file(t()) -> file:filename().
 beam_file(B) -> B#docsh_beam.beam_file.
@@ -77,12 +77,3 @@ bind(false)   -> false.
 beam_name(BEAMFile) ->
     {ok, N, _} = beam_lib:all_chunks(BEAMFile),
     N.
-
--spec debug_info(beam_lib:beam()) -> debug_info() | false.
-debug_info(BEAMFile) ->
-    case bind(docsh_lib:get_debug_info(BEAMFile)) of
-        false -> false;
-        BAbst when is_binary(BAbst) ->
-            {raw_abstract_v1, Abst} = binary_to_term(BAbst),
-            Abst
-    end.

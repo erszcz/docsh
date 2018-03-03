@@ -34,17 +34,6 @@ recon_has_docs_from_source(C) ->
 %% Helpers
 %%
 
-h0(_, Module) ->
-    code:ensure_loaded(Module),
-    ?eq(true, erlang:function_exported(Module, h, 0)),
-    ?eq(ok, Module:h()).
-
-h2(_, Module) ->
-    code:ensure_loaded(Module),
-    ?eq(true, erlang:function_exported(Module, h, 2)),
-    {Fun, Arity} = hd(Module:module_info(exports) -- [{h,0}, {h,2}]),
-    ?eq(ok, Module:h(Fun, Arity)).
-
 module_has_docs_from_debug_info(_, Mod) ->
     %% given
     File = code:which(Mod),
@@ -72,7 +61,7 @@ has_docs(Mod) ->
     docsh_lib:has_exdc(Mod).
 
 has_debug_info(Mod) ->
-    case docsh_lib:get_debug_info(Mod) of
+    case docsh_lib:get_abstract_code(Mod) of
         {ok, _Abst} -> true;
         false -> false
     end.
@@ -84,6 +73,7 @@ has_source(Mod) ->
     end.
 
 strip_debug_info(BEAMFile) ->
-    {ok, _, Chunks} = beam_lib:all_chunks(BEAMFile),
-    NewChunks = lists:keystore("Abst", 1, Chunks, {"Abst", <<>>}),
-    {ok, _NewBEAM} = beam_lib:build_module(NewChunks).
+    {ok, _, Chunks0} = beam_lib:all_chunks(BEAMFile),
+    Chunks1 = lists:keydelete("Abst", 1, Chunks0),
+    Chunks2 = lists:keydelete("Dbgi", 1, Chunks1),
+    {ok, _NewBEAM} = beam_lib:build_module(Chunks2).
