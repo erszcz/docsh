@@ -9,6 +9,7 @@ services:
   - docker
 
 otp_release:
+  - 20.2
   - 19.3
   - 18.3
 
