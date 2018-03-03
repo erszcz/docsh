@@ -73,6 +73,7 @@ has_source(Mod) ->
     end.
 
 strip_debug_info(BEAMFile) ->
-    {ok, _, Chunks} = beam_lib:all_chunks(BEAMFile),
-    NewChunks = lists:keystore("Abst", 1, Chunks, {"Abst", <<>>}),
-    {ok, _NewBEAM} = beam_lib:build_module(NewChunks).
+    {ok, _, Chunks0} = beam_lib:all_chunks(BEAMFile),
+    Chunks1 = lists:keydelete("Abst", 1, Chunks0),
+    Chunks2 = lists:keydelete("Dbgi", 1, Chunks1),
+    {ok, _NewBEAM} = beam_lib:build_module(Chunks2).
