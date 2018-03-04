@@ -19,8 +19,52 @@ test1(_) ->
 
 apps() ->
     [
+     asn1,
+     common_test,
+     compiler,
+     cosEvent,
+     cosEventDomain,
+     cosFileTransfer,
+     cosNotification,
+     cosProperty,
+     cosTime,
+     cosTransactions,
+     crypto,
+     debugger,
+     dialyzer,
+     diameter,
+     edoc,
+     eldap,
+     erl_docgen,
+     erl_interface,
+     erts,
+     et,
+     eunit,
+     hipe,
+     ic,
+     inets,
+     jinterface,
      kernel,
-     stdlib
+     megaco,
+     mnesia,
+     observer,
+     odbc,
+     orber,
+     os_mon,
+     otp_mibs,
+     parsetools,
+     public_key,
+     reltool,
+     runtime_tools,
+     sasl,
+     snmp,
+     ssh,
+     ssl,
+     stdlib,
+     syntax_tools,
+     tools,
+     wx,
+     xmerl
     ].
 
 app_sources(App) ->
@@ -29,17 +73,29 @@ app_sources(App) ->
     ModulesSources = app_modules_sources(App, Modules),
     {App, ModulesSources}.
 
-app_modules_sources(_App, Modules) ->
-    [ begin
-          {ok, B} = docsh_beam:from_loadable_module(M),
-          {M, docsh_beam:source_file(B)}
-      end || M <- Modules ].
+app_modules_sources(App, Modules) ->
+    [ ModSource
+      || M <- Modules,
+         {M, _} = ModSource <-
+             [case docsh_beam:from_loadable_module(M) of
+                  {ok, B} ->
+                      {M, docsh_beam:source_file(B)};
+                  R ->
+                      ct:pal("can't get source for ~p ~p: ~p", [App, M, R]),
+                      skip
+              end] ].
 
 app_stats({App, ModulesSources}) ->
-    WithEdocFlag = [ case has_edoc_comments(Source) of
-                         true -> {M, has_edoc, Source};
-                         false -> {M, no_edoc, Source}
-                     end || {M, Source} <- ModulesSources ],
+    WithEdocFlag = [ WithFlag
+                     || {M, Source} <- ModulesSources,
+                        {M, _, _} = WithFlag <-
+                            [try has_edoc_comments(Source) of
+                                 true -> {M, has_edoc, Source};
+                                 false -> {M, no_edoc, Source}
+                             catch
+                                 E:R -> ct:pal("can't tell if has edoc: ~p ~p ~p", [App, M, Source]),
+                                        skip
+                             end] ],
     Stats = docsh_lib:group_by(fun ({_,HasEdoc,_}) -> HasEdoc end,
                                WithEdocFlag),
     {App, [ {Feature, length(Items), Items} || {Feature, Items} <- dict:to_list(Stats) ]}.
