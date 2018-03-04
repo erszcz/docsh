@@ -7,6 +7,7 @@
          get/2, get/3,
          get_abstract_code/1,
          get_source_file/1,
+         group_by/2,
          has_exdc/1,
          is_module_available/1,
          print/2, print/3,
@@ -217,3 +218,8 @@ is_module_available(Mod) ->
     catch
         _:undef -> false
     end.
+
+-spec group_by(fun(), list()) -> dict:dict().
+group_by(F, L) ->
+    lists:foldr(fun({K,V}, D) -> dict:append(K, V, D) end,
+                dict:new(), [ {F(X), X} || X <- L ]).

@@ -154,17 +154,13 @@ get_elixir_docs_v1(Mod) ->
     end.
 
 group_by_arity(Features) ->
-    dict:to_list(group_by(fun feature_arity/1, Features)).
+    dict:to_list(docsh_lib:group_by(fun feature_arity/1, Features)).
 
 feature_arity({moduledoc, _, _}) -> 0;
 feature_arity({header, _, _, A}) -> A;
 feature_arity({doc, _, A, _}) -> A;
 feature_arity({spec, _, A, _}) -> A;
 feature_arity({type, _, A, _}) -> A.
-
-group_by(F, L) ->
-    lists:foldr(fun({K,V}, D) -> dict:append(K, V, D) end,
-                dict:new(), [ {F(X), X} || X <- L ]).
 
 sort_by_arity(FeatureGroups) ->
     lists:sort(FeatureGroups).
