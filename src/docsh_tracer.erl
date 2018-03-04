@@ -4,6 +4,8 @@
 
 -define(il2b, iolist_to_binary).
 
+%% @doc Start and monitor a tracer process.
+%%
 %% Default dbg:dhandler/2 is nice,
 %% but when you want to use domain knowledge
 %% or discard some of the data (like too long arg lists / retvals)
@@ -20,7 +22,6 @@
 %%
 %% So, it's best to setup a process which will monitor the trace handler
 %% and print any 'DOWN' messages it receives.
-%% This will be done in my_tracer:start/0.
 start() ->
     %{ok, Tracer} = dbg:tracer(process, {fun ?MODULE:handler/2, standard_io}),
     {ok, Tracer} = dbg:tracer(process, {fun ?MODULE:handler/2, user}),
@@ -31,8 +32,8 @@ tracer_monitor(Pid) ->
     MRef = erlang:monitor(process, Pid),
     receive
         {'DOWN', MRef, process, Pid, Info} ->
-            io:format("process ~p exited with info: ~p~n",
-                      [Pid, Info])
+            io:format("~s ~p exited with info: ~p~n",
+                      [?MODULE, Pid, Info])
     end.
 
 handler({trace_ts, _Pid, call, _MFA, TS} = Trace, Out) ->
