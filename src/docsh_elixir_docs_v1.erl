@@ -23,7 +23,7 @@ from_internal(Internal) ->
 
 %% TODO: `x`s below are only placeholders - find out what should be there
 do({module, Info}) ->
-    {moduledoc, {x, get(description, Info, <<"(description missing)\n">>)}};
+    {moduledoc, {x, get(description, Info, <<"Documentation for the module is not available.\n">>)}};
 do({{type, NameArity}, {description, Desc}}) ->
     %% TODO: this is not compliant with Elixir docs format! make it so!
     {types, {NameArity, Desc}};
@@ -35,6 +35,6 @@ do({{function, NameArity}, {_, _, _, _, {description, D}}}) ->
             x, def,
             x,
             if
-                D == undefined -> <<"(description missing)\n\n">>;
+                D == undefined -> <<"Documentation is not available.\n\n">>;
                 D /= undefined -> D
             end}}.
