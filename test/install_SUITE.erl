@@ -1,6 +1,8 @@
 -module(install_SUITE).
 -compile(export_all).
 
+-import(docsh_helpers, [sh/1]).
+
 -include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
@@ -87,23 +89,6 @@ container_name(Prefix) ->
 which(Command) ->
     {done, 0, BPath} = sh("which " ++ Command),
     ?b2l(BPath).
-
-sh(Command) when is_binary(Command) -> sh([Command]);
-sh(Command) ->
-    case erlsh:oneliner(?b2l(?il2b(Command))) of
-        {done, 0 = Code, Result} = R ->
-            get(sh_log) == true andalso sh_log(Command, Code, Result),
-            R;
-        {done, Code, Result} = R ->
-            sh_log(Command, Code, Result),
-            ct:fail(R)
-    end.
-
-sh_log(Command, Code, Result) ->
-    ct:pal("command : ~ts\n"
-           "code    : ~p\n"
-           "result  : ~ts",
-           [Command, Code, Result]).
 
 start_container(Name, Args) ->
     Fdlink = erlsh:fdlink_executable(),
