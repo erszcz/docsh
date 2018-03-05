@@ -13,6 +13,9 @@
          print/2, print/3,
          process_beam/1]).
 
+-export([compile_info_source_file/1,
+         guessed_source_file/1]).
+
 -export_type([compiled_module/0]).
 
 -type k() :: any().
@@ -172,9 +175,27 @@ guessed_source_file(CompiledModule) when is_binary(CompiledModule) ->
     %% as it might've not been read from any on-disk .beam file.
     [];
 guessed_source_file(BEAMFile) ->
-    File1 = filename:join(filename:dirname(BEAMFile), "../src"),
-    File2 = filename:basename(BEAMFile, ".beam") ++ ".erl",
-    [filename:join(File1, File2)].
+    EbinPrefix = ebin_prefix(BEAMFile),
+    SrcSuffix = src_suffix(BEAMFile),
+    [filename:join(EbinPrefix ++ SrcSuffix)].
+
+ebin_prefix(BEAMFile) ->
+    Components = string:tokens(BEAMFile, "/"),
+    case BEAMFile of
+        "/" ++ _ -> ["/"];
+        _ -> [""]
+    end ++ lists:takewhile(fun not_ebin/1, Components).
+
+not_ebin("ebin") -> false;
+not_ebin(_) -> true.
+
+src_suffix(BEAMFile) ->
+    [CInfSourceFile] = compile_info_source_file(BEAMFile),
+    Components = string:tokens(CInfSourceFile, "/"),
+    lists:dropwhile(fun not_src/1, Components).
+
+not_src("src") -> false;
+not_src(_) -> true.
 
 -spec exdc(docsh_beam:t()) -> {string(), binary()}.
 exdc(Beam) ->
