@@ -76,7 +76,7 @@ app_sources(App) ->
 app_modules_sources(App, Modules) ->
     [ ModSource
       || M <- Modules,
-         {M, _} = ModSource <-
+         {_, _} = ModSource <-
              [case docsh_beam:from_loadable_module(M) of
                   {ok, B} ->
                       {M, docsh_beam:source_file(B)};
@@ -88,16 +88,17 @@ app_modules_sources(App, Modules) ->
 app_stats({App, ModulesSources}) ->
     WithEdocFlag = [ WithFlag
                      || {M, Source} <- ModulesSources,
-                        {M, _, _} = WithFlag <-
+                        {_, _, _} = WithFlag <-
                             [try has_edoc_comments(Source) of
                                  true -> {M, has_edoc, Source};
                                  false -> {M, no_edoc, Source}
                              catch
-                                 E:R -> ct:pal("can't tell if has edoc: ~p ~p ~p", [App, M, Source]),
+                                 _:_ -> ct:pal("can't tell if has edoc: ~p ~p ~p", [App, M, Source]),
                                         skip
                              end] ],
     Stats = docsh_lib:group_by(fun ({_,HasEdoc,_}) -> HasEdoc end,
                                WithEdocFlag),
+    %{App, [ {Feature, length(Items)} || {Feature, Items} <- dict:to_list(Stats) ]}.
     {App, [ {Feature, length(Items), Items} || {Feature, Items} <- dict:to_list(Stats) ]}.
 
 load_application(App) ->
