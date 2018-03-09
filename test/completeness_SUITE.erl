@@ -7,16 +7,16 @@ init_per_suite(_) -> {skip, "work in progress"}.
 
 all() ->
     [sanity_check,
-     test1].
+     edoc_in_otp].
 
 sanity_check(_) -> ok.
 
-test1(_) ->
+edoc_in_otp(_) ->
     %put(sh_log, true),
     Stats = [ app_stats(app_sources(App), [has_edoc]) || App <- apps() ],
     %Stats = [ app_stats(app_sources(App), [has_edoc, has_comments]) || App <- apps() ],
-    ct:pal("test1: ~p", [Stats]),
-    ct:fail("intentional").
+    ct:pal("edoc in OTP: ~p", [Stats]),
+    {skip, "we run this just for the stats printout"}.
 
 apps() ->
     [
