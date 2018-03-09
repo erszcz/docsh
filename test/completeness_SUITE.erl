@@ -27,7 +27,7 @@ docsh_works_for_each_file_with_edoc(_) ->
                                          false -> [];
                                          {_, _, Sources} -> Sources
                                      end ],
-    ct:pal("sources: ~p", [ModsSources]),
+    %ct:pal("sources: ~p", [ModsSources]),
     ModsEDocResults =
         [ {Mod, Result}
           || {Mod, _Features, _Source} <- ModsSources,
@@ -37,11 +37,17 @@ docsh_works_for_each_file_with_edoc(_) ->
                         catch
                             _:R  -> {error, R}
                         end] ],
-    ct:pal("results: ~p", [ModsEDocResults]),
-    ct:pal("results length check: ~p ~p ~p",
-           [length(ModsSources), length(ModsEDocResults),
-            length(ModsSources) == length(ModsEDocResults)]),
-    {skip, "just print the result"}.
+    %ct:pal("results: ~p", [ModsEDocResults]),
+    %ct:pal("results length check: ~p ~p ~p",
+    %       [length(ModsSources), length(ModsEDocResults),
+    %        length(ModsSources) == length(ModsEDocResults)]),
+    EDocFailed = [ {M, R} || {M, R} <- ModsEDocResults, R /= ok ],
+    ct:pal("failed: ~p", [EDocFailed]),
+    case EDocFailed of
+        [_|_] -> ct:fail("docsh_edoc fails for ~p out of ~p modules",
+                         [length(EDocFailed), length(ModsEDocResults)]);
+        _ -> ok
+    end.
 
 apps() ->
     [
