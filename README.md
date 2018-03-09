@@ -7,8 +7,7 @@ Forgetting again and again `dbg` flags or the syntax of `recon` trace patterns?
 Ever wished for access to documentation straight from `erl`
 the way it's possible in modern languages like Python, Ruby or Elixir?
 
-![docsh - light background](https://raw.githubusercontent.com/erszcz/docsh/wip/doc/light-bg.png)
-![docsh - dark background](https://raw.githubusercontent.com/erszcz/docsh/wip/doc/dark-bg.png)
+[![docsh - light and dark background](https://raw.githubusercontent.com/erszcz/docsh/wip/doc/light-dark-bg.png)](https://github.com/erszcz/docsh/blob/wip/doc/light-dark-bg.png)
 
 ```
 > h(recon).
