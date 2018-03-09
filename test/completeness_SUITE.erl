@@ -45,7 +45,9 @@ docsh_works_for_each_file_with_edoc(_) ->
     ct:pal("failed: ~p", [EDocFailed]),
     case EDocFailed of
         [_|_] ->
-            {skip, "run just for the analysis results"};
+            ct:pal("docsh_edoc fails for ~p out of ~p modules",
+                   [length(EDocFailed), length(ModsEDocResults)]),
+            {skip, "run just for the analysis printout"};
             %% TODO: uncomment this one day
             %ct:fail("docsh_edoc fails for ~p out of ~p modules",
             %        [length(EDocFailed), length(ModsEDocResults)]);
