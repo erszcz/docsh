@@ -13,7 +13,8 @@ sanity_check(_) -> ok.
 
 test1(_) ->
     %put(sh_log, true),
-    Stats = [ app_stats(app_sources(App)) || App <- apps() ],
+    Stats = [ app_stats(app_sources(App), [has_edoc]) || App <- apps() ],
+    %Stats = [ app_stats(app_sources(App), [has_edoc, has_comments]) || App <- apps() ],
     ct:pal("test1: ~p", [Stats]),
     ct:fail("intentional").
 
@@ -85,21 +86,21 @@ app_modules_sources(App, Modules) ->
                       skip
               end] ].
 
-app_stats({App, ModulesSources}) ->
+app_stats({App, ModulesSources}, Predicates) ->
     WithEdocFlag = [ WithFlag
                      || {M, Source} <- ModulesSources,
                         {_, _, _} = WithFlag <-
-                            [try has_edoc_comments(Source) of
-                                 true -> {M, has_edoc, Source};
-                                 false -> {M, no_edoc, Source}
+                            [try
+                                 Features = [ ?MODULE:P(Source) || P <- Predicates ],
+                                 {M, Features, Source}
                              catch
                                  _:_ -> ct:pal("can't tell if has edoc: ~p ~p ~p", [App, M, Source]),
                                         skip
                              end] ],
-    Stats = docsh_lib:group_by(fun ({_,HasEdoc,_}) -> HasEdoc end,
+    Stats = docsh_lib:group_by(fun ({_,Features,_}) -> Features end,
                                WithEdocFlag),
-    %{App, [ {Feature, length(Items)} || {Feature, Items} <- dict:to_list(Stats) ]}.
-    {App, [ {Feature, length(Items), Items} || {Feature, Items} <- dict:to_list(Stats) ]}.
+    {App, [ {Features, length(Items)} || {Features, Items} <- dict:to_list(Stats) ]}.
+    %{App, [ {Feature, length(Items), Items} || {Feature, Items} <- dict:to_list(Stats) ]}.
 
 load_application(App) ->
     case application:load(App) of
@@ -108,9 +109,15 @@ load_application(App) ->
         {error, R} -> error({cannot_load, App, R})
     end.
 
-has_edoc_comments(SourceFile) ->
+has_edoc(SourceFile) ->
     %% It's **so** unlikely that a file is EDoc-documented, but does not use the @doc tag.
     case sh(["grep -F @doc ", SourceFile, " > /dev/null"], [dont_fail]) of
-        {done, 0, _} -> true;
-        {done, _, _} -> false
+        {done, 0, _} -> has_edoc;
+        {done, _, _} -> no_edoc
+    end.
+
+has_comments(SourceFile) ->
+    case sh(["grep -F '%%' ", SourceFile, " > /dev/null"], [dont_fail]) of
+        {done, 0, _} -> has_comments;
+        {done, _, _} -> no_comments
     end.
