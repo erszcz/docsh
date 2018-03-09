@@ -11,4 +11,4 @@
 %% @doc Read information about the beam file and return in docsh internal format.
 -callback to_internal(docsh_beam:t()) -> R when
       R :: {ok, docsh:internal()}
-         | {error, any()}.
+         | {error, any(), [erlang:stack_item()]}.

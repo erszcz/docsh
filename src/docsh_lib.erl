@@ -37,9 +37,9 @@ convert(Readers, Writer, Beam) ->
 
 convert_one({Reader, Mod}) ->
     case Reader:to_internal(Mod) of
-        {error, R} ->
+        {error, R, Stacktrace} = Error ->
             %% TODO: this is a *_lib module - shouldn't we bubble it up?
-            print(standard_error, "~s\n", [format_error(R)]),
+            print(standard_error, "~s\n", [format_error(Error)]),
             [];
         {ok, InternalDoc} ->
             [InternalDoc]
@@ -222,9 +222,11 @@ format_error(no_debug_info_no_src) ->
 format_error(Reason) when is_list(Reason);
                           is_binary(Reason) ->
     Reason;
+format_error({error, Reason, Stacktrace}) ->
+    io_lib:format("docsh error: ~p~n~p~n", [Reason, Stacktrace]);
 format_error(Reason) ->
     Stacktrace = erlang:get_stacktrace(),
-    io_lib:format("docsh error: ~p~n~p~n", [Reason, Stacktrace]).
+    format_error({error, Reason, Stacktrace}).
 
 -spec available_readers(docsh_beam:t()) -> [docsh_reader:t()].
 available_readers(Beam) ->

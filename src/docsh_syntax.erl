@@ -42,7 +42,7 @@ to_internal(Beam) ->
                 end,
         {ok, [{module, [{name, module_name(Forms)}]}] ++ specs(Forms) ++ types(Forms)}
     catch
-        _:R -> {error, R}
+        _:R -> {error, R, erlang:get_stacktrace()}
     end.
 
 module_name(Forms) ->

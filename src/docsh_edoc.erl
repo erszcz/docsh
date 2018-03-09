@@ -35,7 +35,7 @@ to_internal(Beam) ->
         debug(internal, "internal:~n~p~n~n", [Internal]),
         {ok, Internal}
     catch
-        _:R -> {error, R}
+        _:R -> {error, R, erlang:get_stacktrace()}
     end.
 
 -spec to_otpsgml(docsh_beam:t(), file:filename()) -> R when
