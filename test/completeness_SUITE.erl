@@ -7,16 +7,41 @@ init_per_suite(_) -> {skip, "work in progress"}.
 
 all() ->
     [sanity_check,
-     edoc_in_otp].
+     %edoc_in_otp,
+     docsh_works_for_each_file_with_edoc].
 
 sanity_check(_) -> ok.
 
 edoc_in_otp(_) ->
     %put(sh_log, true),
-    Stats = [ app_stats(app_sources(App), [has_edoc]) || App <- apps() ],
-    %Stats = [ app_stats(app_sources(App), [has_edoc, has_comments]) || App <- apps() ],
+    Stats = [ app_stats(app_sources(App), [has_edoc], [no_details]) || App <- apps() ],
+    %Stats = [ app_stats(app_sources(App), [has_edoc, has_comments], [no_details]) || App <- apps() ],
     ct:pal("edoc in OTP: ~p", [Stats]),
     {skip, "we run this just for the stats printout"}.
+
+docsh_works_for_each_file_with_edoc(_) ->
+    Stats = [ app_stats(app_sources(App), [has_edoc], []) || App <- apps() ],
+    ModsSources = [ ModSource
+                    || {_App, AppStats} <- Stats,
+                       ModSource <- case lists:keyfind([has_edoc], 1, AppStats) of
+                                         false -> [];
+                                         {_, _, Sources} -> Sources
+                                     end ],
+    ct:pal("sources: ~p", [ModsSources]),
+    ModsEDocResults =
+        [ {Mod, Result}
+          || {Mod, _Features, _Source} <- ModsSources,
+             Result <- [try docsh_edoc:to_internal(element(2, docsh_beam:from_loadable_module(Mod))) of
+                            {ok, _Internal} -> ok;
+                            Error -> Error
+                        catch
+                            _:R  -> {error, R}
+                        end] ],
+    ct:pal("results: ~p", [ModsEDocResults]),
+    ct:pal("results length check: ~p ~p ~p",
+           [length(ModsSources), length(ModsEDocResults),
+            length(ModsSources) == length(ModsEDocResults)]),
+    {skip, "just print the result"}.
 
 apps() ->
     [
@@ -86,7 +111,7 @@ app_modules_sources(App, Modules) ->
                       skip
               end] ].
 
-app_stats({App, ModulesSources}, Predicates) ->
+app_stats({App, ModulesSources}, Predicates, Opts) ->
     WithEdocFlag = [ WithFlag
                      || {M, Source} <- ModulesSources,
                         {_, _, _} = WithFlag <-
@@ -99,8 +124,12 @@ app_stats({App, ModulesSources}, Predicates) ->
                              end] ],
     Stats = docsh_lib:group_by(fun ({_,Features,_}) -> Features end,
                                WithEdocFlag),
-    {App, [ {Features, length(Items)} || {Features, Items} <- dict:to_list(Stats) ]}.
-    %{App, [ {Feature, length(Items), Items} || {Feature, Items} <- dict:to_list(Stats) ]}.
+    case proplists:is_defined(no_details, Opts) of
+        false ->
+            {App, [ {Feature, length(Items), Items} || {Feature, Items} <- dict:to_list(Stats) ]};
+        true ->
+            {App, [ {Features, length(Items)} || {Features, Items} <- dict:to_list(Stats) ]}
+    end.
 
 load_application(App) ->
     case application:load(App) of
