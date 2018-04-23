@@ -9,7 +9,7 @@
 
 -import(docsh_lib, [get/2, get/3]).
 
--spec from_internal(docsh:internal()) -> any().
+-spec from_internal(docsh_internal:t()) -> any().
 from_internal(Internal) ->
     Intermediate = [ Out || In <- Internal, Out <- [do(In)], Out /= ignore ],
     {_, ModDoc, Rest} = lists:keytake(moduledoc, 1, Intermediate),

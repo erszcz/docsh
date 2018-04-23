@@ -27,7 +27,7 @@ available(Beam) ->
     [ ?MODULE || docsh_beam:abstract_code(Beam) /= false ].
 
 -spec to_internal(docsh_beam:t()) -> R when
-      R :: {ok, docsh:internal()}
+      R :: {ok, docsh_internal:t()}
          | {error, any(), [erlang:stack_item()]}.
 to_internal(Beam) ->
     try

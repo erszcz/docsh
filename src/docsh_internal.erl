@@ -7,6 +7,11 @@
 -export_type([key/0,
               item_kind/0]).
 
+%% Internal documentation format.
+%% Until 0.5.0 all `docsh_reader` modules convert to this format from their input.
+%% Until 0.5.0 all `docsh_writer` modules convert from this format to desired output.
+-type t() :: [{atom(), any()}].
+
 -type key() :: module() | mfa() | {module(), name(), any}.
 -type item_kind() :: moduledoc | doc | spec | type.
 
@@ -37,8 +42,8 @@ lookup(Key, Opts) ->
     end.
 
 -spec merge([Info]) -> MergedInfo when
-      Info :: docsh:internal(),
-      MergedInfo :: docsh:internal().
+      Info :: docsh_internal:t(),
+      MergedInfo :: docsh_internal:t().
 merge([]) -> [];
 merge([Info]) -> Info;
 merge([Info1, Info2 | Rest]) ->
