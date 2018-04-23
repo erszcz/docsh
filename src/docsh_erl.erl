@@ -6,11 +6,11 @@
          s/1, s/2, s/3,
          t/1, t/2, t/3]).
 
--import(docsh_embeddable, [key_to_module/1]).
+-import(docsh_internal, [key_to_module/1]).
 -import(docsh_lib, [print/2]).
 
 %% Function or type name.
--type name() :: docsh_embeddable:name().
+-type name() :: docsh_internal:name().
 
 %% @doc When invoked with a module as an argument like `h(lists)',
 %% then look up the module documentation.
@@ -73,13 +73,13 @@ t(M, T, Arity) when is_atom(M), is_atom(T),
     lookup({M, T, Arity}, [type]).
 
 -spec lookup(Key, Items) -> 'ok' when
-      Key :: docsh_embeddable:key(),
-      Items :: [docsh_embeddable:item_kind()].
+      Key :: docsh_internal:key(),
+      Items :: [docsh_internal:item_kind()].
 lookup(Key, Items) ->
     case get_beam(key_to_module(Key)) of
         {error, R} -> error(R, Key);
         {ok, _Beam} ->
-            docsh_embeddable:lookup(Key, Items)
+            docsh_internal:lookup(Key, Items)
     end.
 
 get_beam(M) ->
