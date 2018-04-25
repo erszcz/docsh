@@ -1,11 +1,11 @@
--module(docsh_elixir_docs_v1).
+-module(docsh_docsh_docs_v1).
 -behaviour(docsh_writer).
 
 -export([from_internal/1]).
 
 -export_type([external/0]).
 
--type external() :: {elixir_docs_v1, [{atom(), any()}]}.
+-type external() :: {docsh_docs_v1, [{atom(), any()}]}.
 
 -import(docsh_lib, [get/2, get/3]).
 
@@ -16,10 +16,10 @@ from_internal(Internal) ->
     Docs = proplists:get_all_values(docs, Rest),
     Specs = proplists:get_all_values(specs, Rest),
     Types = proplists:get_all_values(types, Rest),
-    {elixir_docs_v1, [{docs, Docs} || Docs /= [] ] ++
-                     [{specs, Specs} || Specs /= [] ] ++
-                     [{types, Types} || Types /= [] ] ++
-                     [ModDoc]}.
+    {docsh_docs_v1, [{docs, Docs} || Docs /= [] ] ++
+                    [{specs, Specs} || Specs /= [] ] ++
+                    [{types, Types} || Types /= [] ] ++
+                    [ModDoc]}.
 
 %% TODO: `x`s below are only placeholders - find out what should be there
 do({module, Info}) ->

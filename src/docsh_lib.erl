@@ -100,7 +100,7 @@ beam_diff(BEAM1, BEAM2) ->
       Warning :: no_debug_info | no_src.
 process_beam(BEAMFile) ->
     has_exdc(BEAMFile)
-        andalso error(exdc_present, [BEAMFile]),
+        andalso error(docs_present, [BEAMFile]),
     {ok, Beam} = docsh_beam:from_beam_file(BEAMFile),
     case {docsh_beam:abstract_code(Beam), docsh_beam:source_file(Beam)} of
         {false, false} ->
@@ -119,7 +119,7 @@ process_beam(BEAMFile) ->
 -spec has_exdc(beam_lib:beam()) -> boolean().
 has_exdc(BEAMFile) ->
     {ok, _, Chunks} = beam_lib:all_chunks(BEAMFile),
-    case catch ([ throw(true) || {"ExDc", _} <- Chunks ]) of
+    case catch ([ throw(true) || {"Docs", _} <- Chunks ]) of
         true -> true;
         _    -> false
     end.
@@ -202,9 +202,9 @@ exdc(Beam) ->
     FromMods = available_readers(Beam),
     FromMods == []
         andalso error(no_readers_available),
-    ToMod = docsh_elixir_docs_v1,
-    ExDc = convert(FromMods, ToMod, Beam),
-    {"ExDc", term_to_binary(ExDc, [compressed])}.
+    ToMod = docsh_docsh_docs_v1,
+    Docs = convert(FromMods, ToMod, Beam),
+    {"Docs", term_to_binary(Docs, [compressed])}.
 
 add_chunks(BEAMFile, NewChunks) ->
     {ok, _, OldChunks} = beam_lib:all_chunks(BEAMFile),
@@ -215,8 +215,8 @@ format_error({no_debug_info, Mod}) ->
     io_lib:format("Abstract code for ~s is not available.\n", [Mod]);
 format_error({no_src, Mod}) ->
     io_lib:format("Source file for ~s is not available.\n", [Mod]);
-format_error(exdc_present) ->
-    <<"ExDc chunk already present">>;
+format_error(docs_present) ->
+    <<"Docs chunk already present">>;
 format_error(no_debug_info_no_src) ->
     <<"neither debug_info nor .erl available">>;
 format_error(Reason) when is_list(Reason);

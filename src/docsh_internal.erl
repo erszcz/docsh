@@ -168,7 +168,7 @@ format_mfa(M, F, A) ->
 
 do_with_docs(Mod, Fun, Opts) ->
     try
-        do_with_supported(Fun, get_elixir_docs_v1(Mod), Opts)
+        do_with_supported(Fun, get_docsh_docs_v1(Mod), Opts)
     catch
         error:{no_docs, R} ->
             <<"docs missing: ", R/bytes>>;
@@ -177,18 +177,18 @@ do_with_docs(Mod, Fun, Opts) ->
                    io_lib:format("~p\n~p\n", [R, erlang:get_stacktrace()])])
     end.
 
-do_with_supported(Fun, {elixir_docs_v1, Docs}, Opts) ->
+do_with_supported(Fun, {docsh_docs_v1, Docs}, Opts) ->
     Fun(Docs, Opts);
 do_with_supported(_, _, _) ->
     <<"Documentation format not supported">>.
 
-get_elixir_docs_v1(Mod) ->
+get_docsh_docs_v1(Mod) ->
     BEAMFile = code:which(Mod),
-    case beam_lib:chunks(BEAMFile, ["ExDc"]) of
-        {ok, {Mod, [{"ExDc", BExDc}]}} ->
-            erlang:binary_to_term(BExDc);
+    case beam_lib:chunks(BEAMFile, ["Docs"]) of
+        {ok, {Mod, [{"Docs", BDocs}]}} ->
+            erlang:binary_to_term(BDocs);
         {error, _, {missing_chunk, _, _}} ->
-            error({no_docs, <<"no ExDc chunk">>})
+            error({no_docs, <<"no Docs chunk">>})
     end.
 
 group_by_arity(Features) ->
