@@ -28,7 +28,7 @@ available(Beam) ->
 
 -spec to_internal(docsh_beam:t()) -> R when
       R :: {ok, docsh:internal()}
-         | {error, any()}.
+         | {error, any(), [erlang:stack_item()]}.
 to_internal(Beam) ->
     try
         Forms = case {docsh_beam:abstract_code(Beam), docsh_beam:source_file(Beam)} of
