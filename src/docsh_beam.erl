@@ -6,6 +6,7 @@
          name/1,
          abstract_code/1,
          beam_file/1,
+         docs/1,
          source_file/1, source_file/2,
          attribute/2]).
 
@@ -56,6 +57,16 @@ abstract_code(B) ->
 
 -spec beam_file(t()) -> file:filename().
 beam_file(B) -> B#docsh_beam.beam_file.
+
+-spec docs(t()) -> docsh_format:t().
+docs(#docsh_beam{} = B) ->
+    case beam_lib:chunks(beam_file(B), ["Docs"]) of
+        {ok, {_Mod, [{"Docs", BDocs}]}} ->
+            erlang:binary_to_term(BDocs);
+        {error, _, {missing_chunk, _, _}} ->
+            %% TODO: should this module throw or return errors by value?
+            error({no_docs, <<"no Docs chunk">>})
+    end.
 
 -spec source_file(t()) -> file:filename() | false.
 source_file(B) -> B#docsh_beam.source_file.

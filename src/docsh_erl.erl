@@ -6,7 +6,6 @@
          s/1, s/2, s/3,
          t/1, t/2, t/3]).
 
--import(docsh_internal, [key_to_module/1]).
 -import(docsh_lib, [print/2]).
 
 %% Function or type name.
@@ -78,8 +77,9 @@ t(M, T, Arity) when is_atom(M), is_atom(T),
 lookup(Key, Items) ->
     case get_beam(key_to_module(Key)) of
         {error, R} -> error(R, Key);
-        {ok, _Beam} ->
-            docsh_internal:lookup(Key, Items)
+        {ok, Beam} ->
+            Result = docsh_format:lookup(Beam, Key, Items),
+            print("~ts", [Result])
     end.
 
 get_beam(M) ->
@@ -157,3 +157,7 @@ stick_module(Module) -> stick_module(Module, code:is_sticky(Module)).
 
 stick_module(Module, false) -> code:stick_mod(Module);
 stick_module(_,_) -> false.
+
+-spec key_to_module(docsh_internal:key()) -> module().
+key_to_module(M) when is_atom(M) -> M;
+key_to_module({M,_,_}) -> M.

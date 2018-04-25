@@ -1,7 +1,6 @@
 -module(docsh_internal).
 
--export([key_to_module/1,
-         lookup/2,
+-export([lookup/3,
          merge/1]).
 
 -export_type([key/0,
@@ -29,16 +28,13 @@
 %%' Public
 %%
 
--spec key_to_module(key()) -> module().
-key_to_module(M) when is_atom(M) -> M;
-key_to_module({M,_,_}) -> M.
-
--spec lookup(key(), [item_kind()]) -> 'ok'.
-lookup(Key, Opts) ->
-    case fetch_features(Key, Opts) of
-        [] -> no_features(Key, Opts);
+%-spec lookup(docsh_beam:t(), key(), [item_kind()]) -> 'ok'.
+lookup({docsh_docs_v1, Docs}, Key, Opts) ->
+    case fetch_features(Docs, Key, Opts) of
+        [] ->
+            no_features(Key, Opts);
         Features ->
-            print("~ts", [format_features(Features, key_to_arity(Key), Opts)])
+            format_features(Features, key_to_arity(Key), Opts)
     end.
 
 -spec merge([Info]) -> MergedInfo when
@@ -77,14 +73,11 @@ module(Info) ->
 key_to_arity(M) when is_atom(M) -> any;
 key_to_arity({_,_,A}) -> A.
 
-fetch_features(Key, Opts0) ->
-    F = fun (Docs, Opts) ->
-                FlatDocs = flatten_docs(Docs),
-                Features = filter_features(FlatDocs, Key, Opts),
-                Arities = find_arities(Features),
-                generate_headers(Key, Arities) ++ Features
-        end,
-    do_with_docs(key_to_module(Key), F, Opts0).
+fetch_features(Docs, Key, Opts) ->
+    FlatDocs = flatten_docs(Docs),
+    Features = filter_features(FlatDocs, Key, Opts),
+    Arities = find_arities(Features),
+    generate_headers(Key, Arities) ++ Features.
 
 flatten_docs(Docs) ->
     F = fun ({moduledoc, _} = ModDoc) -> [ModDoc];
@@ -165,31 +158,6 @@ format_key({M, F, A}) -> format_mfa(M, F, A).
 
 format_mfa(M, F, A) ->
     [?a2b(M), $:, ?a2b(F), $/, case A of any -> $*; _ -> ?i2b(A) end].
-
-do_with_docs(Mod, Fun, Opts) ->
-    try
-        do_with_supported(Fun, get_docsh_docs_v1(Mod), Opts)
-    catch
-        error:{no_docs, R} ->
-            <<"docs missing: ", R/bytes>>;
-        _:R ->
-            ?il2b([<<"docsh error: ">>,
-                   io_lib:format("~p\n~p\n", [R, erlang:get_stacktrace()])])
-    end.
-
-do_with_supported(Fun, {docsh_docs_v1, Docs}, Opts) ->
-    Fun(Docs, Opts);
-do_with_supported(_, _, _) ->
-    <<"Documentation format not supported">>.
-
-get_docsh_docs_v1(Mod) ->
-    BEAMFile = code:which(Mod),
-    case beam_lib:chunks(BEAMFile, ["Docs"]) of
-        {ok, {Mod, [{"Docs", BDocs}]}} ->
-            erlang:binary_to_term(BDocs);
-        {error, _, {missing_chunk, _, _}} ->
-            error({no_docs, <<"no Docs chunk">>})
-    end.
 
 group_by_arity(Features) ->
     dict:to_list(docsh_lib:group_by(fun feature_arity/1, Features)).
