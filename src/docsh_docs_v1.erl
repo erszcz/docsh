@@ -2,7 +2,7 @@
 -module(docsh_docs_v1).
 
 -behaviour(docsh_format).
--export([lookup/2,
+-export([lookup/3,
          merge/1]).
 
 -export_type([t/0]).
@@ -37,10 +37,10 @@
 -type i18n_doc() :: #{}.
 -endif.
 
--spec lookup(docsh_beam:t(), docsh_format:kna()) -> [binary()].
-lookup(_Beam, _Key) ->
+-spec lookup(docsh_format:t(), docsh_format:key(), docsh_format:kinds()) -> [binary()].
+lookup(#docs_v1{} = Docs, _Key, _Kinds) ->
     error(not_implemented),
-    [].
+    {not_found, <<"docsh: docs_v1 lookup not implemented">>}.
 
 -spec merge([t()]) -> t().
 merge(_) ->
