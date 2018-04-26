@@ -12,7 +12,9 @@ all() ->
     [edoc_example_has_docs_from_debug_info,
      edoc_example_has_docs_from_source,
      recon_has_docs_from_debug_info,
-     recon_has_docs_from_source].
+     recon_has_docs_from_source,
+     simple_lookup_should_just_work,
+     simple_lookup_should_not_work_if_no_doc_is_available].
 
 %%
 %% Tests
@@ -29,6 +31,19 @@ recon_has_docs_from_debug_info(C) ->
 
 recon_has_docs_from_source(C) ->
     module_has_docs_from_source(C, recon).
+
+simple_lookup_should_just_work(_) ->
+    {ok, Beam} = docsh_lib:get_beam(proplists),
+    Doc = docsh_format:lookup(Beam, proplists, [moduledoc]),
+    ct:pal("doc: ~p", [Doc]),
+    ?assertMatch({ok, _}, Doc).
+
+simple_lookup_should_not_work_if_no_doc_is_available(_) ->
+    {ok, Beam} = docsh_lib:get_beam(lists),
+    %% TODO: This is cheating, should return not_found, but we store a placeholder.
+    {ok, Doc} = docsh_format:lookup(Beam, lists, [moduledoc]),
+    ct:pal("doc: ~p", [Doc]),
+    ?assertMatch({_,_}, binary:match(Doc, <<"is not available">>)).
 
 %%
 %% Helpers
