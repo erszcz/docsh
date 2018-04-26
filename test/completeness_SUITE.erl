@@ -6,9 +6,12 @@
 %init_per_suite(_) -> {skip, "work in progress"}.
 
 all() ->
-    [sanity_check,
+    [
+     sanity_check,
      %edoc_in_otp,
-     docsh_works_for_each_file_with_edoc].
+     %intermediate_representations,
+     docsh_works_for_each_file_with_edoc
+    ].
 
 sanity_check(_) -> ok.
 
@@ -54,6 +57,26 @@ docsh_works_for_each_file_with_edoc(_) ->
         _ ->
             ok
     end.
+
+intermediate_representations(Config) ->
+    PrivDir = test_server:lookup_config(priv_dir, Config),
+    Stats = [ app_stats(app_sources(App), [has_edoc], []) || App <- apps() ],
+    ModsSources = [ ModSource
+                    || {_App, AppStats} <- Stats,
+                       ModSource <- case lists:keyfind([has_edoc], 1, AppStats) of
+                                        false -> [];
+                                        {_, _, Sources} -> Sources
+                                    end ],
+    [ ok
+      || {Mod, _Features, _Source} <- ModsSources,
+         _ <- [try docsh_edoc:to_internal(element(2, docsh_beam:from_loadable_module(Mod)),
+                                          [{debug, {PrivDir, [source, edoc, html, internal, otpsgml]}}]) of
+                   {ok, _Internal} -> ok;
+                   Error -> Error
+               catch
+                   _:R  -> {error, R}
+               end] ],
+    {skip, "we run this just for the on disk results: " ++ PrivDir}.
 
 apps() ->
     [
