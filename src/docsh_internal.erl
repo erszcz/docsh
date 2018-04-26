@@ -17,8 +17,6 @@
 %% Function or type name.
 -type name() :: atom().
 
--import(docsh_lib, [print/2]).
-
 -define(a2b(A), atom_to_binary(A, utf8)).
 -define(a2l(A), atom_to_list(A)).
 -define(i2b(I), integer_to_binary(I)).
@@ -32,10 +30,12 @@
 lookup({docsh_docs_v1, Docs}, Key, Opts) ->
     case fetch_features(Docs, Key, Opts) of
         [] ->
-            no_features(Key, Opts);
+            {not_found, ?il2b(no_features(Key, Opts))};
         Features ->
-            format_features(Features, key_to_arity(Key), Opts)
-    end.
+            {ok, ?il2b(format_features(Features, key_to_arity(Key), Opts))}
+    end;
+lookup(Format, Key, Opts) ->
+    {not_found, ?il2b(unrecognized_format(Format))}.
 
 -spec merge([Info]) -> MergedInfo when
       Info :: docsh_internal:t(),
@@ -147,8 +147,13 @@ format_feature({_Kind, _, _, Doc}) ->
     [Doc, $\n].
 
 no_features(Key, Opts) ->
-    print("\ndocsh: no ~ts for ~ts\n\n",
-          [format_kinds(Opts), format_key(Key)]).
+    io_lib:format("\ndocsh: no ~ts for ~ts\n\n",
+                  [format_kinds(Opts), format_key(Key)]).
+
+unrecognized_format(Format) ->
+    io_lib:format("\ndocsh: ~ts is not recognized by ~ts - please report at "
+                  "https://github.com/erszcz/docsh\n\n",
+                  [element(1, Format), ?MODULE]).
 
 format_kinds(Kinds) ->
     string:join([ ?a2l(K) || K <- Kinds ], "/").

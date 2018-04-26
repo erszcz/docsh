@@ -78,8 +78,12 @@ lookup(Key, Items) ->
     case docsh_lib:get_beam(key_to_module(Key)) of
         {error, R} -> error(R, Key);
         {ok, Beam} ->
-            Result = docsh_format:lookup(Beam, Key, Items),
-            print("~ts", [Result])
+            case docsh_format:lookup(Beam, Key, Items) of
+                {not_found, Message} ->
+                    print("~ts", [Message]);
+                {ok, Doc} ->
+                    print("~ts", [Doc])
+            end
     end.
 
 -spec key_to_module(docsh_internal:key()) -> module().
