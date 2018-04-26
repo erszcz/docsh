@@ -17,7 +17,7 @@
 -opaque t() :: #docs_v1{anno :: erl_anno:anno(),
                         beam_language :: atom(),
                         format :: mime_type(),
-                        module_doc :: #{language() := string_()} | none | hidden,
+                        module_doc :: i18n_doc() | none | hidden,
                         metadata :: map(),
                         docs :: [item()]}.
 
@@ -26,11 +26,16 @@
 -type item() :: {KNA :: docsh_format:kna(),
                  Anno :: erl_anno:anno(),
                  Signature :: [binary()],
-                 Doc :: #{language() := string_()} | none | hidden,
+                 Doc :: i18n_doc() | none | hidden,
                  Metadata :: map()}.
 
+-ifndef(no_map_specs).
+-type i18n_doc() :: #{language() := string_()}.
 -type language() :: binary().
 -type string_() :: binary().
+-else.
+-type i18n_doc() :: #{}.
+-endif.
 
 -spec lookup(docsh_beam:t(), docsh_format:kna()) -> [binary()].
 lookup(_Beam, _Key) ->
