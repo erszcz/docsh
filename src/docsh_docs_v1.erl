@@ -2,8 +2,7 @@
 -module(docsh_docs_v1).
 
 -behaviour(docsh_format).
--export([lookup/3,
-         merge/1]).
+-export([lookup/3]).
 
 -export_type([t/0]).
 
@@ -41,8 +40,3 @@
 lookup(#docs_v1{} = Docs, _Key, _Kinds) ->
     error(not_implemented),
     {not_found, <<"docsh: docs_v1 lookup not implemented">>}.
-
--spec merge([t()]) -> t().
-merge(_) ->
-    error(not_implemented),
-    #docs_v1{}.

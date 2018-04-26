@@ -12,7 +12,6 @@
 -type error_message() :: binary().
 
 -callback lookup(docsh_format:t(), key(), kinds()) -> [binary()].
--callback merge([t()]) -> t().
 
 -spec lookup(docsh_beam:t(), key(), kinds()) -> {ok, binary()} | {not_found, error_message()}.
 lookup(Beam, Key, Items) ->
