@@ -37,7 +37,7 @@ convert(Readers, Writer, Beam) ->
 
 convert_one({Reader, Mod}) ->
     case Reader:to_internal(Mod) of
-        {error, R, Stacktrace} = Error ->
+        {error, _R, _Stacktrace} = Error ->
             %% TODO: this is a *_lib module - shouldn't we bubble it up?
             print(standard_error, "~s\n", [format_error(Error)]),
             [];
