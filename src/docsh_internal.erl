@@ -26,7 +26,8 @@
 %%' Public
 %%
 
-%-spec lookup(docsh_beam:t(), key(), [item_kind()]) -> 'ok'.
+-spec lookup(docsh_format:t(), key(), [item_kind()]) -> R when
+      R :: {ok, binary()} | {not_found, docsh_format:error_message()}.
 lookup({docsh_docs_v1, Docs}, Key, Opts) ->
     case fetch_features(Docs, Key, Opts) of
         [] ->

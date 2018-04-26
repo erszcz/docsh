@@ -2,15 +2,19 @@
 
 -export([lookup/3]).
 
--export_type([kna/0]).
-
 -type t() :: any().
--type kna() :: {atom(), atom(), arity()}.
+-type key() :: module() | kna() | docsh_internal:key().
+-type kna() :: {kind(), atom(), arity()}.
+-type kind() :: function | type | callback  %% EEP-48 general
+              | macro.                      %% Elixir/LFE
+-type kinds() :: [docsh_internal:item_kind()].
 
--callback lookup(docsh_beam:t(), kna()) -> [binary()].
+-type error_message() :: binary().
+
+-callback lookup(docsh_format:t(), key(), kinds()) -> [binary()].
 -callback merge([t()]) -> t().
 
-%-spec lookup(docsh_beam:t(), Key, Items) -> [binary()].
+-spec lookup(docsh_beam:t(), key(), kinds()) -> {ok, binary()} | {not_found, error_message()}.
 lookup(Beam, Key, Items) ->
     KnownFormats = application:get_env(docsh, docs_chunk_formats, default_formats()),
     Docs = docsh_beam:docs(Beam),
