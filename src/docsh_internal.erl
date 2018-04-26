@@ -34,7 +34,7 @@ lookup({docsh_docs_v1, Docs}, Key, Opts) ->
         Features ->
             {ok, ?il2b(format_features(Features, key_to_arity(Key), Opts))}
     end;
-lookup(Format, Key, Opts) ->
+lookup(Format, _Key, _Opts) ->
     {not_found, ?il2b(unrecognized_format(Format))}.
 
 -spec merge([Info]) -> MergedInfo when
