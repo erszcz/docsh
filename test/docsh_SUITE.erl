@@ -58,7 +58,7 @@ docsh_transform_in_memory(File) ->
     NewBEAM.
 
 has_docs(Mod) ->
-    docsh_lib:has_exdc(Mod).
+    docsh_lib:has_docs(Mod).
 
 has_debug_info(Mod) ->
     case docsh_lib:get_abstract_code(Mod) of
