@@ -15,7 +15,7 @@
 
 -spec lookup(docsh_beam:t(), key(), kinds()) -> {ok, binary()} | {not_found, error_message()}.
 lookup(Beam, Key, Items) ->
-    KnownFormats = application:get_env(docsh, docs_chunk_formats, default_formats()),
+    KnownFormats = application:get_env(docsh, extra_docs_chunk_formats, []) ++ default_formats(),
     Docs = docsh_beam:docs(Beam),
     DocsFormat = element(1, Docs),
     case lists:keyfind(DocsFormat, 1, KnownFormats) of
