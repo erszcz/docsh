@@ -27,7 +27,7 @@ lookup(Beam, Key, Items) ->
 
 default_formats() ->
     [
-     {docsh_docs_v1, docsh_internal}
+     {docsh_docs_v1, docsh_docsh_docs_v1}
      %% TODO: add docsh_docs_v1
      %{docs_v1, docsh_docs_v1}
     ].
