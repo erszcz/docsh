@@ -107,13 +107,13 @@ process_beam(BEAMFile) ->
         {false, false} ->
             error(no_debug_info_no_src, [BEAMFile]);
         {_, false} ->
-            {ok, Bin} = add_chunks(BEAMFile, [exdc(Beam)]),
+            {ok, Bin} = add_chunks(BEAMFile, [make_docs_chunk(Beam)]),
             {ok, Bin, [no_src]};
         {false, _} ->
-            {ok, Bin} = add_chunks(BEAMFile, [exdc(Beam)]),
+            {ok, Bin} = add_chunks(BEAMFile, [make_docs_chunk(Beam)]),
             {ok, Bin, [no_debug_info]};
         _ ->
-            {ok, Bin} = add_chunks(BEAMFile, [exdc(Beam)]),
+            {ok, Bin} = add_chunks(BEAMFile, [make_docs_chunk(Beam)]),
             {ok, Bin, []}
     end.
 
@@ -198,8 +198,8 @@ src_suffix(BEAMFile) ->
 not_src("src") -> false;
 not_src(_) -> true.
 
--spec exdc(docsh_beam:t()) -> {string(), binary()}.
-exdc(Beam) ->
+-spec make_docs_chunk(docsh_beam:t()) -> {string(), binary()}.
+make_docs_chunk(Beam) ->
     FromMods = available_readers(Beam),
     FromMods == []
         andalso error(no_readers_available),
