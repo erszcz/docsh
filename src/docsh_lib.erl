@@ -12,7 +12,9 @@
          has_docs/1,
          is_module_available/1,
          print/2, print/3,
-         process_beam/1]).
+         process_beam/1,
+         stick_module/1,
+         unstick_module/1]).
 
 -export([compile_info_source_file/1,
          guessed_source_file/1]).
@@ -311,7 +313,10 @@ rebuild(B, CacheDir) ->
     {ok, NewBEAM, Warnings} = docsh_lib:process_beam(BEAMFile),
     [ print("~s", [docsh_lib:format_error({W, docsh_beam:name(B)})]) || W <- Warnings ],
     NewBEAMFile = filename:join([CacheDir, filename:basename(BEAMFile)]),
-    ok = file:write_file(NewBEAMFile, NewBEAM),
+    case application:get_env(docsh, enable_cache, true) of
+        true -> ok = file:write_file(NewBEAMFile, NewBEAM);
+        _ -> ok
+    end,
     docsh_beam:from_beam_file(NewBEAMFile).
 
 unstick_module(Module) -> unstick_module(Module, code:is_sticky(Module)).

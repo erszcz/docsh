@@ -9,12 +9,41 @@
 -define(eq(Expected, Actual), ?assertEqual(Expected, Actual)).
 
 all() ->
+    [{group, docsh_docs_v1},
+     {group, docs_v1}].
+
+groups() ->
+    [{docsh_docs_v1, [], tests()},
+     {docs_v1, [], tests()}].
+
+tests() ->
     [edoc_example_has_docs_from_debug_info,
      edoc_example_has_docs_from_source,
      recon_has_docs_from_debug_info,
      recon_has_docs_from_source,
      simple_lookup_should_just_work,
      simple_lookup_should_not_work_if_no_doc_is_available].
+
+init_per_suite(Config) ->
+    ok = application:load(docsh),
+    ok = application:set_env(docsh, enable_cache, false),
+    Config.
+
+end_per_suite(Config) -> Config.
+
+init_per_group(docs_v1 = _GroupName, Config) ->
+    ok = application:set_env(docsh, docsh_writer, docsh_docs_v1),
+    Config;
+init_per_group(_GroupName, Config) -> Config.
+
+end_per_group(_, Config) ->
+    Config.
+
+init_per_testcase(CaseName, Config) ->
+    ct_helper:test_specific_init(?MODULE, CaseName, Config).
+
+end_per_testcase(CaseName, Config) ->
+    ct_helper:test_specific_end(?MODULE, CaseName, Config).
 
 %%
 %% Tests
@@ -32,11 +61,25 @@ recon_has_docs_from_debug_info(C) ->
 recon_has_docs_from_source(C) ->
     module_has_docs_from_source(C, recon).
 
+simple_lookup_should_just_work(init, Config) ->
+    load_stripped(proplists),
+    Config;
+simple_lookup_should_just_work(end_, Config) ->
+    load_stripped(proplists),
+    Config.
+
 simple_lookup_should_just_work(_) ->
     {ok, Beam} = docsh_lib:get_beam(proplists),
     Doc = docsh_format:lookup(Beam, proplists, [moduledoc]),
     ct:pal("doc: ~p", [Doc]),
     ?assertMatch({ok, _}, Doc).
+
+simple_lookup_should_not_work_if_no_doc_is_available(init, Config) ->
+    load_stripped(lists),
+    Config;
+simple_lookup_should_not_work_if_no_doc_is_available(end_, Config) ->
+    load_stripped(lists),
+    Config.
 
 simple_lookup_should_not_work_if_no_doc_is_available(_) ->
     {ok, Beam} = docsh_lib:get_beam(lists),
@@ -91,4 +134,13 @@ strip_debug_info(BEAMFile) ->
     {ok, _, Chunks0} = beam_lib:all_chunks(BEAMFile),
     Chunks1 = lists:keydelete("Abst", 1, Chunks0),
     Chunks2 = lists:keydelete("Dbgi", 1, Chunks1),
-    {ok, _NewBEAM} = beam_lib:build_module(Chunks2).
+    Chunks3 = lists:keydelete("Docs", 1, Chunks2),
+    {ok, _NewBEAM} = beam_lib:build_module(Chunks3).
+
+load_stripped(Mod) ->
+    File = code:which(Mod),
+    {ok, NoDebugInfoBMod} = strip_debug_info(File),
+    docsh_lib:unstick_module(Mod),
+    {module, Mod} = code:load_binary(Mod, File, NoDebugInfoBMod),
+    code:purge(Mod),
+    docsh_lib:stick_module(Mod).
