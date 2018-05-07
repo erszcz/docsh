@@ -203,7 +203,7 @@ exdc(Beam) ->
     FromMods = available_readers(Beam),
     FromMods == []
         andalso error(no_readers_available),
-    ToMod = docsh_docsh_docs_v1,
+    ToMod = application:get_env(docsh, docsh_writer, docsh_docsh_docs_v1),
     Docs = convert(FromMods, ToMod, Beam),
     {"Docs", term_to_binary(Docs, [compressed])}.
 
