@@ -4,6 +4,9 @@
 -behaviour(docsh_format).
 -export([lookup/3]).
 
+-behaviour(docsh_writer).
+-export([from_internal/1]).
+
 -export_type([t/0]).
 
 -record(docs_v1, {anno,
@@ -41,3 +44,8 @@
 lookup(#docs_v1{} = _Docs, _Key, _Kinds) ->
     error(not_implemented),
     {not_found, <<"docsh: docs_v1 lookup not implemented">>}.
+
+-spec from_internal(docsh_internal:t()) -> t().
+from_internal(Internal) ->
+    error(not_implemented),
+    #docs_v1{}.
