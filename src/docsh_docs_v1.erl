@@ -36,7 +36,8 @@
 -type i18n_doc() :: #{}.
 -endif.
 
--spec lookup(docsh_format:t(), docsh_format:key(), docsh_format:kinds()) -> [binary()].
+-spec lookup(docsh_format:t(), docsh_format:key(), docsh_format:kinds()) -> {ok, binary()}
+                                                                          | {not_found, binary()}.
 lookup(#docs_v1{} = _Docs, _Key, _Kinds) ->
     error(not_implemented),
     {not_found, <<"docsh: docs_v1 lookup not implemented">>}.

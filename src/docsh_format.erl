@@ -2,6 +2,8 @@
 
 -export([lookup/3]).
 
+-export_type([error_message/0]).
+
 -type t() :: any().
 -type key() :: module() | kna() | docsh_internal:key().
 -type kna() :: {kind(), atom(), arity()}.
@@ -11,7 +13,8 @@
 
 -type error_message() :: binary().
 
--callback lookup(docsh_format:t(), key(), kinds()) -> [binary()].
+-callback lookup(docsh_format:t(), key(), kinds()) -> {ok, binary()}
+                                                    | {not_found, error_message()}.
 
 -spec lookup(docsh_beam:t(), key(), kinds()) -> {ok, binary()} | {not_found, error_message()}.
 lookup(Beam, Key, Items) ->
