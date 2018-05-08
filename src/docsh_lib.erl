@@ -6,13 +6,13 @@
          format_error/1,
          get/2, get/3,
          get_abstract_code/1,
-         get_beam/1,
+         get_docs/1,
          get_source_file/1,
          group_by/2,
          has_docs/1,
          is_module_available/1,
+         make_docs/1,
          print/2, print/3,
-         process_beam/1,
          stick_module/1,
          unstick_module/1]).
 
@@ -99,26 +99,6 @@ beam_diff(BEAM1, BEAM2) ->
     [{BEAM1, Name1, Keys1 -- Keys2},
      {BEAM2, Name2, Keys2 -- Keys1}].
 
--spec process_beam(beam_lib:beam()) -> {ok, binary(), [Warning]} when
-      Warning :: no_debug_info | no_src.
-process_beam(BEAMFile) ->
-    has_docs(BEAMFile)
-        andalso error(docs_present, [BEAMFile]),
-    {ok, Beam} = docsh_beam:from_beam_file(BEAMFile),
-    case {docsh_beam:abstract_code(Beam), docsh_beam:source_file(Beam)} of
-        {false, false} ->
-            error(no_debug_info_no_src, [BEAMFile]);
-        {_, false} ->
-            {ok, Bin} = add_chunks(BEAMFile, [make_docs_chunk(Beam)]),
-            {ok, Bin, [no_src]};
-        {false, _} ->
-            {ok, Bin} = add_chunks(BEAMFile, [make_docs_chunk(Beam)]),
-            {ok, Bin, [no_debug_info]};
-        _ ->
-            {ok, Bin} = add_chunks(BEAMFile, [make_docs_chunk(Beam)]),
-            {ok, Bin, []}
-    end.
-
 -spec has_docs(beam_lib:beam()) -> boolean().
 has_docs(BEAMFile) ->
     {ok, _, Chunks} = beam_lib:all_chunks(BEAMFile),
@@ -200,15 +180,6 @@ src_suffix(BEAMFile) ->
 not_src("src") -> false;
 not_src(_) -> true.
 
--spec make_docs_chunk(docsh_beam:t()) -> {string(), binary()}.
-make_docs_chunk(Beam) ->
-    FromMods = available_readers(Beam),
-    FromMods == []
-        andalso error(no_readers_available),
-    ToMod = application:get_env(docsh, docsh_writer, docsh_docsh_docs_v1),
-    Docs = convert(FromMods, ToMod, Beam),
-    {"Docs", term_to_binary(Docs, [compressed])}.
-
 add_chunks(BEAMFile, NewChunks) ->
     {ok, _, OldChunks} = beam_lib:all_chunks(BEAMFile),
     {ok, _NewBEAM} = beam_lib:build_module(OldChunks ++ NewChunks).
@@ -250,74 +221,54 @@ group_by(F, L) ->
     lists:foldr(fun({K,V}, D) -> dict:append(K, V, D) end,
                 dict:new(), [ {F(X), X} || X <- L ]).
 
-get_beam(M) ->
+get_docs(M) ->
     case docsh_beam:from_loaded_module(M) of
         {error, _} = E -> E;
         {ok, B} ->
-            case has_docs(docsh_beam:beam_file(B)) of
-                true -> {ok, B};
+            case fetch_cached_docs(B) of
+                {ok, Docs} ->
+                    {ok, Docs};
                 false ->
-                    {ok, NewB} = cached_or_rebuilt(B, ensure_cache_dir()),
-                    reload(NewB),
-                    %% M reloaded from cache will have its .beam_file pointing at the cache.
-                    %% This will cause the source resolution mechanism to fail.
-                    %% We have to fix that for EDoc availability check to work properly.
-                    get_beam(M, docsh_beam:source_file(B))
+                    {ok, Docs, Warnings} = make_docs(B),
+                    [ print("~s", [docsh_lib:format_error({W, docsh_beam:name(B)})]) || W <- Warnings ],
+                    %% TODO: enable cache at some point
+                    %cache_docs(B, Docs),
+                    {ok, Docs}
             end
     end.
 
-get_beam(M, OriginalSourceFile) ->
-    %% M is now rebuilt and/or reloaded from cache.
-    {ok, Beam} = get_beam(M),
-    {ok, docsh_beam:source_file(Beam, OriginalSourceFile)}.
+fetch_cached_docs(_) ->
+    %% TODO: enable cache at some point
+    false.
 
--spec cached_or_rebuilt(docsh_beam:t(), file:name()) -> {ok, docsh_beam:t()}.
-cached_or_rebuilt(Beam, CacheDir) ->
-    %% TODO: find the module in cache, don't rebuild every time
-    {ok, _RebuiltBeam} = rebuild(Beam, CacheDir).
-
-ensure_cache_dir() ->
-    CacheDir = cache_dir(),
-    IsFile = filelib:is_file(CacheDir),
-    IsDir = filelib:is_dir(CacheDir),
-    case {IsFile, IsDir} of
-        {true, true} ->
-            CacheDir;
-        {true, false} ->
-            error(cache_location_is_not_a_dir);
-        _ ->
-            ok = file:make_dir(CacheDir),
-            CacheDir
-    end.
-
-cache_dir() ->
-    case {os:getenv("XDG_CACHE_HOME"), os:getenv("HOME")} of
-        {false, false} -> error(no_cache_dir);
-        {false, Home} -> filename:join([Home, ".docsh"]);
-        {XDGCache, _} -> filename:join([XDGCache, "docsh"])
-    end.
-
--spec reload(docsh_beam:t()) -> ok.
-reload(Beam) ->
+-spec make_docs(docsh_beam:t()) -> {ok, docsh_format:t(), [Warning]} when
+      Warning :: no_debug_info | no_src.
+make_docs(Beam) ->
     BEAMFile = docsh_beam:beam_file(Beam),
-    Path = filename:join([filename:dirname(BEAMFile),
-                          filename:basename(BEAMFile, ".beam")]),
-    unstick_module(docsh_beam:name(Beam)),
-    {module, _} = code:load_abs(Path),
-    stick_module(docsh_beam:name(Beam)),
-    ok.
+    has_docs(BEAMFile)
+        andalso error(docs_present, [BEAMFile]),
+    case {docsh_beam:abstract_code(Beam), docsh_beam:source_file(Beam)} of
+        {false, false} ->
+            error(no_debug_info_no_src, [BEAMFile]);
+        {_, false} ->
+            {ok, do_make_docs(Beam), [no_src]};
+        {false, _} ->
+            {ok, do_make_docs(Beam), [no_debug_info]};
+        _ ->
+            {ok, do_make_docs(Beam), []}
+    end.
 
--spec rebuild(docsh_beam:t(), string()) -> any().
-rebuild(B, CacheDir) ->
-    BEAMFile = docsh_beam:beam_file(B),
-    {ok, NewBEAM, Warnings} = docsh_lib:process_beam(BEAMFile),
-    [ print("~s", [docsh_lib:format_error({W, docsh_beam:name(B)})]) || W <- Warnings ],
-    NewBEAMFile = filename:join([CacheDir, filename:basename(BEAMFile)]),
-    case application:get_env(docsh, enable_cache, true) of
-        true -> ok = file:write_file(NewBEAMFile, NewBEAM);
-        _ -> ok
-    end,
-    docsh_beam:from_beam_file(NewBEAMFile).
+-spec do_make_docs(docsh_beam:t()) -> {string(), binary()}.
+do_make_docs(Beam) ->
+    FromMods = available_readers(Beam),
+    FromMods == []
+        andalso error(no_readers_available),
+    ToMod = application:get_env(docsh, docsh_writer, docsh_docsh_docs_v1),
+    convert(FromMods, ToMod, Beam).
+
+-spec make_docsh_chunk(docsh_format:t()) -> {beam_lib:chunkid(), beam_lib:dataB()}.
+make_docsh_chunk(Docs) ->
+    {"Docs", term_to_binary(Docs, [compressed])}.
 
 unstick_module(Module) -> unstick_module(Module, code:is_sticky(Module)).
 

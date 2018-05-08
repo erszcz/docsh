@@ -75,10 +75,10 @@ t(M, T, Arity) when is_atom(M), is_atom(T),
       Key :: docsh_internal:key(),
       Items :: [docsh_internal:item_kind()].
 lookup(Key, Items) ->
-    case docsh_lib:get_beam(key_to_module(Key)) of
+    case docsh_lib:get_docs(key_to_module(Key)) of
         {error, R} -> error(R, Key);
-        {ok, Beam} ->
-            case docsh_format:lookup(Beam, Key, Items) of
+        {ok, Docs} ->
+            case docsh_format:lookup(Docs, Key, Items) of
                 {not_found, Message} ->
                     print("~ts", [Message]);
                 {ok, Doc} ->

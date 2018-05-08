@@ -89,15 +89,8 @@ activated(user_default) ->
 %%
 
 commands() ->
-    [ {"transform BEAMFile to NewBEAMFile", fun transform/1},
-      {"diff BEAMFile1 BEAMFile2",          fun diff/1},
-      {"help",                              fun usage/1} ].
-
-transform(["transform", BEAMFile, "to", NewBEAMFile]) ->
-    'try'(fun () -> {ok, NewBEAM, Warnings} = docsh_lib:process_beam(BEAMFile),
-                    [ print("~s", [docsh_lib:format_error({W, BEAMFile})])
-                      || W <- Warnings ],
-                    ok = file:write_file(NewBEAMFile, NewBEAM) end).
+    [ {"diff BEAMFile1 BEAMFile2", fun diff/1},
+      {"help",                     fun usage/1} ].
 
 diff(["diff", BEAM1, BEAM2]) ->
     'try'(fun () -> Diff = docsh_lib:beam_diff(BEAM1, BEAM2),

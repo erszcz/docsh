@@ -9,8 +9,11 @@
 -define(eq(Expected, Actual), ?assertEqual(Expected, Actual)).
 
 all() ->
-    [{group, docsh_docs_v1},
-     {group, docs_v1}].
+    [
+     {group, docsh_docs_v1}
+     %% TODO: reenable when appropriate
+     %{group, docs_v1}
+    ].
 
 groups() ->
     [{docsh_docs_v1, [], tests()},
@@ -61,28 +64,14 @@ recon_has_docs_from_debug_info(C) ->
 recon_has_docs_from_source(C) ->
     module_has_docs_from_source(C, recon).
 
-simple_lookup_should_just_work(init, Config) ->
-    load_stripped(proplists),
-    Config;
-simple_lookup_should_just_work(end_, Config) ->
-    load_stripped(proplists),
-    Config.
-
 simple_lookup_should_just_work(_) ->
-    {ok, Beam} = docsh_lib:get_beam(proplists),
+    {ok, Beam} = docsh_lib:get_docs(proplists),
     Doc = docsh_format:lookup(Beam, proplists, [moduledoc]),
     ct:pal("doc: ~p", [Doc]),
     ?assertMatch({ok, _}, Doc).
 
-simple_lookup_should_not_work_if_no_doc_is_available(init, Config) ->
-    load_stripped(lists),
-    Config;
-simple_lookup_should_not_work_if_no_doc_is_available(end_, Config) ->
-    load_stripped(lists),
-    Config.
-
 simple_lookup_should_not_work_if_no_doc_is_available(_) ->
-    {ok, Beam} = docsh_lib:get_beam(lists),
+    {ok, Beam} = docsh_lib:get_docs(lists),
     %% TODO: This is cheating, should return not_found, but we store a placeholder.
     {ok, Doc} = docsh_format:lookup(Beam, lists, [moduledoc]),
     ct:pal("doc: ~p", [Doc]),
@@ -96,24 +85,24 @@ module_has_docs_from_debug_info(_, Mod) ->
     %% given
     File = code:which(Mod),
     ?assert(has_debug_info(File)),
-    %% when
-    BMod = docsh_transform_in_memory(File),
-    %% then
-    ?assert(has_docs(BMod)).
+    {ok, Beam} = docsh_beam:from_beam_file(File),
+    %% when / then
+    ?assertMatch({ok, _Docs, []}, docsh_lib:make_docs(Beam)).
 
-module_has_docs_from_source(_, Mod) ->
+module_has_docs_from_source(C, Mod) ->
     %% given
     File = code:which(Mod),
     {ok, NoDebugInfoBMod} = strip_debug_info(File),
     ?assert(not has_debug_info(NoDebugInfoBMod)),
-    %% when
-    BMod = docsh_transform_in_memory(NoDebugInfoBMod),
-    %% then
-    ?assert(has_docs(BMod)).
+    PrivDir = ?config(priv_dir, C),
+    NewFile = filename:join([PrivDir, filename:basename(File)]),
+    ok = file:write_file(NewFile, NoDebugInfoBMod),
+    {ok, Beam} = docsh_beam:from_beam_file(NewFile),
+    %% when / then
+    ?assertMatch({ok, _Docs, [no_debug_info]}, docsh_lib:make_docs(Beam)).
 
 docsh_transform_in_memory(File) ->
-    {ok, NewBEAM, _} = docsh_lib:process_beam(File),
-    NewBEAM.
+    File.
 
 has_docs(Mod) ->
     docsh_lib:has_docs(Mod).
@@ -136,11 +125,3 @@ strip_debug_info(BEAMFile) ->
     Chunks2 = lists:keydelete("Dbgi", 1, Chunks1),
     Chunks3 = lists:keydelete("Docs", 1, Chunks2),
     {ok, _NewBEAM} = beam_lib:build_module(Chunks3).
-
-load_stripped(Mod) ->
-    File = code:which(Mod),
-    {ok, NoDebugInfoBMod} = strip_debug_info(File),
-    docsh_lib:unstick_module(Mod),
-    {module, Mod} = code:load_binary(Mod, File, NoDebugInfoBMod),
-    code:purge(Mod),
-    docsh_lib:stick_module(Mod).
