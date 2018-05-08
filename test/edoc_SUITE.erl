@@ -19,7 +19,7 @@ all() ->
      edoc_format_ul].
 
 edoc_to_internal(_) ->
-    {ok, DBeam} = docsh_beam:from_loadable_module(edoc_example),
+    {ok, DBeam} = docsh_beam:from_loaded_module(edoc_example),
     ct:pal("~p", [DBeam]),
     ?eq([{module, [{name, edoc_example},
                    {description, <<"Top-level module doc.\n">>}]},
@@ -31,7 +31,7 @@ edoc_to_internal(_) ->
         unwrap(?TESTED:to_internal(DBeam))).
 
 edoc_format(_) ->
-    {ok, DBeam} = docsh_beam:from_loadable_module(edoc_example2),
+    {ok, DBeam} = docsh_beam:from_loaded_module(edoc_example2),
     D = function_description({g,0}, unwrap(?TESTED:to_internal(DBeam))),
     ct:pal("~s", [D]),
     ?eq([<<"g() returns a more complex value,\n"
@@ -105,7 +105,7 @@ edoc_format_ul(C) ->
                          "    a match specification\n">>).
 
 edoc_format(_, Element, Expected) ->
-    {ok, DBeam} = docsh_beam:from_loadable_module(edoc_example2),
+    {ok, DBeam} = docsh_beam:from_loaded_module(edoc_example2),
     D = function_description({Element, 0}, unwrap(?TESTED:to_internal(DBeam))),
     ct:pal("~s", [D]),
     ?eq([Expected], [D]).

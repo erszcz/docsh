@@ -251,7 +251,7 @@ group_by(F, L) ->
                 dict:new(), [ {F(X), X} || X <- L ]).
 
 get_beam(M) ->
-    case docsh_beam:from_loadable_module(M) of
+    case docsh_beam:from_loaded_module(M) of
         {error, _} = E -> E;
         {ok, B} ->
             case has_docs(docsh_beam:beam_file(B)) of

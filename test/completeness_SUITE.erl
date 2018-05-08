@@ -34,7 +34,7 @@ docsh_works_for_each_file_with_edoc(_) ->
     ModsEDocResults =
         [ {Mod, Result}
           || {Mod, _Features, _Source} <- ModsSources,
-             Result <- [try docsh_edoc:to_internal(element(2, docsh_beam:from_loadable_module(Mod))) of
+             Result <- [try docsh_edoc:to_internal(element(2, docsh_beam:from_loaded_module(Mod))) of
                             {ok, _Internal} -> ok;
                             Error -> Error
                         catch
@@ -69,7 +69,7 @@ intermediate_representations(Config) ->
                                     end ],
     [ ok
       || {Mod, _Features, _Source} <- ModsSources,
-         _ <- [try docsh_edoc:to_internal(element(2, docsh_beam:from_loadable_module(Mod)),
+         _ <- [try docsh_edoc:to_internal(element(2, docsh_beam:from_loaded_module(Mod)),
                                           [{debug, {PrivDir, [source, edoc, html, internal, otpsgml]}}]) of
                    {ok, _Internal} -> ok;
                    Error -> Error
@@ -138,7 +138,7 @@ app_modules_sources(App, Modules) ->
     [ ModSource
       || M <- Modules,
          {_, _} = ModSource <-
-             [case docsh_beam:from_loadable_module(M) of
+             [case docsh_beam:from_loaded_module(M) of
                   {ok, B} ->
                       {M, docsh_beam:source_file(B)};
                   R ->

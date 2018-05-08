@@ -1,7 +1,7 @@
 -module(docsh_beam).
 
 -export([from_beam_file/1,
-         from_loadable_module/1,
+         from_loaded_module/1,
 
          name/1,
          abstract_code/1,
@@ -29,8 +29,8 @@
 %% API
 %%
 
--spec from_loadable_module(module()) -> {ok, t()} | {error, any()}.
-from_loadable_module(Mod) ->
+-spec from_loaded_module(module()) -> {ok, t()} | {error, any()}.
+from_loaded_module(Mod) ->
     case code:which(Mod) of
         E when E =:= non_existing;
                E =:= cover_compiled;
