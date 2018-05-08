@@ -10,9 +10,8 @@
 
 all() ->
     [
-     {group, docsh_docs_v1}
-     %% TODO: reenable when appropriate
-     %{group, docs_v1}
+     {group, docsh_docs_v1},
+     {group, docs_v1}
     ].
 
 groups() ->
