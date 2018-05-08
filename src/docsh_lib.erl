@@ -147,10 +147,17 @@ check_source_file(SourceFile, false) ->
         false -> false
     end.
 
+-spec compile_info_source_file(file:filename()) -> [file:filename()].
 compile_info_source_file(BEAMFile) ->
-    {ok, {_, [{_, CInf}]}} = beam_lib:chunks(BEAMFile, ["CInf"]),
-    {source, File} = lists:keyfind(source, 1, erlang:binary_to_term(CInf)),
-    [File].
+    case beam_lib:chunks(BEAMFile, ["CInf"]) of
+        {ok, {_, [{_, CInf}]}} ->
+            case lists:keyfind(source, 1, erlang:binary_to_term(CInf)) of
+                {source, File} -> [File];
+                false -> []
+            end;
+        _ ->
+            []
+    end.
 
 -spec guessed_source_file(file:filename() | compiled_module()) -> [file:filename()].
 guessed_source_file(CompiledModule) when is_binary(CompiledModule) ->
@@ -179,10 +186,6 @@ src_suffix(BEAMFile) ->
 
 not_src("src") -> false;
 not_src(_) -> true.
-
-add_chunks(BEAMFile, NewChunks) ->
-    {ok, _, OldChunks} = beam_lib:all_chunks(BEAMFile),
-    {ok, _NewBEAM} = beam_lib:build_module(OldChunks ++ NewChunks).
 
 -spec format_error(any()) -> iolist().
 format_error({no_debug_info, Mod}) ->
@@ -221,6 +224,7 @@ group_by(F, L) ->
     lists:foldr(fun({K,V}, D) -> dict:append(K, V, D) end,
                 dict:new(), [ {F(X), X} || X <- L ]).
 
+-spec get_docs(module()) -> {ok, docsh_format:t()} | {error, any()}.
 get_docs(M) ->
     case docsh_beam:from_loaded_module(M) of
         {error, _} = E -> E;
@@ -266,15 +270,13 @@ do_make_docs(Beam) ->
     ToMod = application:get_env(docsh, docsh_writer, docsh_docsh_docs_v1),
     convert(FromMods, ToMod, Beam).
 
--spec make_docsh_chunk(docsh_format:t()) -> {beam_lib:chunkid(), beam_lib:dataB()}.
-make_docsh_chunk(Docs) ->
-    {"Docs", term_to_binary(Docs, [compressed])}.
-
+-spec unstick_module(module()) -> any().
 unstick_module(Module) -> unstick_module(Module, code:is_sticky(Module)).
 
 unstick_module(Module, true) -> code:unstick_mod(Module);
 unstick_module(_,_) -> false.
 
+-spec stick_module(module()) -> any().
 stick_module(Module) -> stick_module(Module, code:is_sticky(Module)).
 
 stick_module(Module, false) -> code:stick_mod(Module);

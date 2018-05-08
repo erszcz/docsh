@@ -23,6 +23,9 @@ available(Beam) ->
 to_internal(Beam) ->
     to_internal(Beam, []).
 
+-spec to_internal(docsh_beam:t(), list()) -> R when
+      R :: {ok, docsh_internal:t()}
+         | {error, any(), [erlang:stack_item()]}.
 to_internal(Beam, Opts) ->
     try
         File = case docsh_beam:source_file(Beam) of
