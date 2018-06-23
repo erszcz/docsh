@@ -1,11 +1,20 @@
 -module(docsh_internal).
 
--export([merge/1]).
+-export([grouped/1,
+         merge/1]).
+
+-type t() :: flat() | grouped().
 
 %% Internal documentation format used for merging module info
 %% fetched from different sources (edoc, debug info, etc).
 %% This format is flat hence its suitability for merging.
--type t() :: [{atom(), any()}].
+-type flat() :: [{atom(), any()}].
+
+%% This format contains all info about an entitiy under a `{name(), arity()}' key.
+%% Entity kind has to be inferred from the entry's content.
+-type grouped() :: #{{name(), arity()} => any()}.
+
+-type name() :: atom().
 
 -define(a2b(A), atom_to_binary(A, utf8)).
 -define(a2l(A), atom_to_list(A)).
@@ -30,6 +39,12 @@ merge([Info1, Info2 | Rest]) ->
             merge([merge2(Info1, Info2) | Rest])
     end.
 
+-spec grouped(t()) -> t().
+grouped(#{} = Grouped) -> Grouped;
+grouped([_|_] = Internal) ->
+    Dict = docsh_lib:group_by(fun item_name_and_arity/1, Internal),
+    maps:from_list(dict:to_list(Dict)).
+
 %%.
 %%' Internal
 %%
@@ -47,5 +62,10 @@ module(Info) ->
     {_, Props} = lists:keyfind(module, 1, Info),
     {_, Mod} = lists:keyfind(name, 1, Props),
     Mod.
+
+item_name_and_arity({module, _Info})            -> {module, 0};
+item_name_and_arity({{type, NameArity}, _})     -> NameArity;
+item_name_and_arity({{spec, NameArity}, _})     -> NameArity;
+item_name_and_arity({{function, NameArity}, _}) -> NameArity.
 
 %%. vim: foldmethod=marker foldmarker=%%',%%.
