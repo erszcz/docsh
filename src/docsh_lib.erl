@@ -264,11 +264,14 @@ make_docs(Beam) ->
 
 -spec do_make_docs(docsh_beam:t()) -> {string(), binary()}.
 do_make_docs(Beam) ->
-    FromMods = available_readers(Beam),
+    FromMods = get_readers(Beam),
     FromMods == []
         andalso error(no_readers_available),
     ToMod = application:get_env(docsh, docsh_writer, docsh_docsh_docs_v1),
     convert(FromMods, ToMod, Beam).
+
+get_readers(Beam) ->
+    application:get_env(docsh, readers, available_readers(Beam)).
 
 -spec unstick_module(module()) -> any().
 unstick_module(Module) -> unstick_module(Module, code:is_sticky(Module)).
