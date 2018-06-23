@@ -52,7 +52,7 @@ from_internal(Internal) ->
 %%' Internal
 %%
 
-%% TODO: `x`s below are only placeholders - find out what should be there
+%% TODO: `x's below are only placeholders - find out what should be there
 do({module, Info}) ->
     {moduledoc, {x, get(description, Info, <<"Documentation for the module is not available.\n">>)}};
 do({{type, NameArity}, {description, Desc}}) ->
