@@ -229,10 +229,10 @@ get_docs(M) ->
     case docsh_beam:from_loaded_module(M) of
         {error, _} = E -> E;
         {ok, B} ->
-            case fetch_cached_docs(B) of
+            case do_get_docs(B) of
                 {ok, Docs} ->
                     {ok, Docs};
-                false ->
+                {error, _} ->
                     {ok, Docs, Warnings} = make_docs(B),
                     [ print("~s", [docsh_lib:format_error({W, docsh_beam:name(B)})]) || W <- Warnings ],
                     %% TODO: enable cache at some point
@@ -241,9 +241,12 @@ get_docs(M) ->
             end
     end.
 
-fetch_cached_docs(_) ->
-    %% TODO: enable cache at some point
-    false.
+do_get_docs(B) ->
+    try
+        {ok, docsh_beam:docs(B)}
+    catch _:R ->
+        {error, R}
+    end.
 
 -spec make_docs(docsh_beam:t()) -> {ok, docsh_format:t(), [Warning]} when
       Warning :: no_debug_info | no_src.
