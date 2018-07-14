@@ -94,7 +94,7 @@ format_functions(Mod, Items, Kinds, Lang) ->
                DocIfRequested <- [ "" ++ [ ["\n", format_maybe_doc(MaybeDoc, Lang)]
                                            || lists:member(doc, Kinds) ] ] ]).
 
-format_types(Mod, Items, Lang) ->
+format_types(_Mod, Items, _Lang) ->
     ?il2b([ [?il2b([Signature])]
             || {{_, _Name, _Arity}, _, Signature, _, _Metadata} <- Items ]).
 
