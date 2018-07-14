@@ -497,3 +497,34 @@ Should be stored in `Docs` chunk? If yes, the item begins with [Docs]:
     can be put into doc free text
 
 [edoc-type-specs]: http://erlang.org/doc/apps/edoc/chapter.html#id64247
+
+
+## 2018-07-14 Elixir doc in Erlang shell
+
+```
+11:51:33 erszcz @ x2 : ~/work/erszcz/docsh (eep-48 %)
+$ cat .tool-versions
+elixir ref-34a4a49af0508e939a2595242dfdea3609351edf
+11:51:48 erszcz @ x2 : ~/work/erszcz/docsh (eep-48 %)
+$ asdf current elixir
+ref-34a4a49af0508e939a2595242dfdea3609351edf(set by /home/erszcz/work/erszcz/docsh/.tool-versions)
+11:51:54 erszcz @ x2 : ~/work/erszcz/docsh (eep-48 %)
+$ export ELIXIR_LIBS=/home/erszcz/apps/asdf/installs/elixir/ref-34a4a49af0508e939a2595242dfdea3609351edf/lib/*/ebin
+11:52:04 erszcz @ x2 : ~/work/erszcz/docsh (eep-48 %)
+$ erl -pa $ELIXIR_LIBS
+Erlang/OTP 20 [erts-9.2] [source] [64-bit] [smp:8:8] [ds:8:8:10] [async-threads:10] [hipe] [kernel-poll:false]
+
+Enabled docsh from: /home/erszcz/work/erszcz/docsh/_build/default/lib/docsh
+Call h(docsh) for interactive help.
+
+Eshell V9.2  (abort with ^G)
+1> h('Elixir.Code').
+
+# Elixir.Code
+
+Utilities for managing code compilation, code evaluation, and code loading.
+
+This module complements Erlang's [`:code` module](http://www.erlang.org/doc/man/code.html)
+to add behaviour which is specific to Elixir. Almost all of the functions in this module
+have global side effects on the behaviour of Elixir.
+```
