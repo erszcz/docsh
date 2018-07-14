@@ -10,13 +10,11 @@
 
 all() ->
     [
-     {group, docsh_docs_v1},
      {group, docs_v1}
     ].
 
 groups() ->
-    [{docsh_docs_v1, [], tests()},
-     {docs_v1, [], tests()}].
+    [{docs_v1, [], tests()}].
 
 tests() ->
     [edoc_example_has_docs_from_debug_info,
@@ -33,10 +31,8 @@ init_per_suite(Config) ->
 
 end_per_suite(Config) -> Config.
 
-init_per_group(docs_v1 = _GroupName, Config) ->
-    ok = application:set_env(docsh, docsh_writer, docsh_docs_v1),
-    Config;
-init_per_group(_GroupName, Config) -> Config.
+init_per_group(_GroupName, Config) ->
+    Config.
 
 end_per_group(_, Config) ->
     Config.

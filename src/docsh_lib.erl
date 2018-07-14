@@ -270,8 +270,11 @@ do_make_docs(Beam) ->
     FromMods = get_readers(Beam),
     FromMods == []
         andalso error(no_readers_available),
-    ToMod = application:get_env(docsh, docsh_writer, docsh_docsh_docs_v1),
+    ToMod = application:get_env(docsh, docsh_writer, default_writer()),
     convert(FromMods, ToMod, Beam).
+
+default_writer() ->
+    docsh_docs_v1.
 
 get_readers(Beam) ->
     application:get_env(docsh, readers, available_readers(Beam)).

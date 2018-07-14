@@ -62,8 +62,8 @@
 
 -import(docsh_lib, [print/2, print/3]).
 
-%% External documentation format.
-%% Right now the only supported format is custom docsh_docsh_docs_v1.
+%% External documentation format as described in EEP-48:
+%% http://erlang.org/eep/eeps/eep-0048.html
 -type external() :: any().
 
 %%
