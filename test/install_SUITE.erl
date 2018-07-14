@@ -1,7 +1,8 @@
 -module(install_SUITE).
 -compile(export_all).
 
--import(docsh_helpers, [sh/1]).
+-import(docsh_helpers, [check_precondition/2,
+                        sh/1]).
 
 -include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
@@ -15,10 +16,10 @@ all() ->
     [docker_linux].
 
 init_per_suite(Config) ->
-    [ check(P, Config) || P <- prerequisites() ],
+    [ check_precondition(P, Config) || P <- preconditions() ],
     Config.
 
-prerequisites() ->
+preconditions() ->
     [
      { "docker in $PATH", fun (_Config) -> {_, _, <<"Docker", _/bytes>>} = sh("docker -v") end },
      { "git in $PATH", fun (_) -> {_, _, <<"usage: git", _/bytes>>} = sh("git --help") end }
@@ -71,14 +72,6 @@ docker_linux(_) ->
 %%
 %% Helpers
 %%
-
-check({Name, P}, Config) ->
-    try
-        P(Config),
-        ok
-    catch _:Reason ->
-        ct:fail("~ts failed: ~p", [Name, Reason])
-    end.
 
 container_name(Prefix) ->
     RawRandomBytes = crypto:strong_rand_bytes(9),

@@ -28,3 +28,11 @@ sh_log(Command, Code, Result) ->
            "code    : ~p\n"
            "result  : ~ts",
            [Command, Code, Result]).
+
+check_precondition({Name, P}, Config) ->
+    try
+        P(Config),
+        ok
+    catch _:Reason ->
+        ct:fail("~ts failed: ~p", [Name, Reason])
+    end.
