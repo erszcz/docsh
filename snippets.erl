@@ -238,3 +238,12 @@ dbg:tpl(filelib, is_regular, x).  %% THIS MAY TAKE ~20 SECONDS!!!111oneone
 %{26131796,false}
 %(docsh@x4)8> timer:tc(filelib, is_regular, ["/not-net/isildur/ldisk/daily_build/19_prebuild_opu_o.2016-12-12_21/otp_src_19/lib/stdlib/src/lists.erl"]).
 %{171,false}
+
+%% 2018-04-26
+rr(xmerl).
+{ok, [Test2]} = file:consult("eunit-test-2.etf").
+Test2Description = lists:keyfind(description, #xmlElement.name, Test2#xmlElement.content).
+io:format("~ts", [xmerl:export_simple(Test2Description#xmlElement.content, xmerl_text)]).
+Test2DescriptionFull = lists:keyfind(fullDescription, #xmlElement.name, Test2Description#xmlElement.content).
+io:format("~ts", [xmerl:export_simple(Test2DescriptionFull#xmlElement.content, xmerl_html)]).
+io:format("~ts", [xmerl:export_simple(Test2DescriptionFull#xmlElement.content, xmerl_text)]).

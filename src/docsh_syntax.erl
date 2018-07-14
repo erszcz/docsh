@@ -27,8 +27,8 @@ available(Beam) ->
     [ ?MODULE || docsh_beam:abstract_code(Beam) /= false ].
 
 -spec to_internal(docsh_beam:t()) -> R when
-      R :: {ok, docsh:internal()}
-         | {error, any()}.
+      R :: {ok, docsh_internal:t()}
+         | {error, any(), [erlang:stack_item()]}.
 to_internal(Beam) ->
     try
         Forms = case {docsh_beam:abstract_code(Beam), docsh_beam:source_file(Beam)} of
@@ -42,7 +42,7 @@ to_internal(Beam) ->
                 end,
         {ok, [{module, [{name, module_name(Forms)}]}] ++ specs(Forms) ++ types(Forms)}
     catch
-        _:R -> {error, R}
+        _:R -> {error, R, erlang:get_stacktrace()}
     end.
 
 module_name(Forms) ->

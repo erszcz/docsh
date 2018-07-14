@@ -11,7 +11,7 @@ all() ->
     [syntax_to_internal].
 
 syntax_to_internal(_) ->
-    {ok, DBeam} = docsh_beam:from_loadable_module(edoc_example),
+    {ok, DBeam} = docsh_beam:from_loaded_module(edoc_example),
     ct:pal("~p", [DBeam]),
     ?eq([{module, [{name, edoc_example}]},
          {{spec, {f,0}}, {description, <<"-spec f() -> r().\n">>}},

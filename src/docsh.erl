@@ -58,20 +58,13 @@
 %% Scripting API
 -export([activated/1]).
 
--export_type([external/0,
-              internal/0]).
+-export_type([external/0]).
 
 -import(docsh_lib, [print/2, print/3]).
 
-%% External documentation format.
-%% Right now the only supported format is docsh_elixir_docs_v1 which
-%% (TODO) aims to be compatible with Elixir at some point in the future.
+%% External documentation format as described in EEP-48:
+%% http://erlang.org/eep/eeps/eep-0048.html
 -type external() :: any().
-
-%% Internal documentation format.
-%% All `docsh_reader` modules convert to this format from their input.
-%% All `docsh_writer` modules convert from this format to desired output.
--type internal() :: [{atom(), any()}].
 
 %%
 %% Escript API
@@ -96,15 +89,8 @@ activated(user_default) ->
 %%
 
 commands() ->
-    [ {"transform BEAMFile to NewBEAMFile", fun transform/1},
-      {"diff BEAMFile1 BEAMFile2",          fun diff/1},
-      {"help",                              fun usage/1} ].
-
-transform(["transform", BEAMFile, "to", NewBEAMFile]) ->
-    'try'(fun () -> {ok, NewBEAM, Warnings} = docsh_lib:process_beam(BEAMFile),
-                    [ print("~s", [docsh_lib:format_error({W, BEAMFile})])
-                      || W <- Warnings ],
-                    ok = file:write_file(NewBEAMFile, NewBEAM) end).
+    [ {"diff BEAMFile1 BEAMFile2", fun diff/1},
+      {"help",                     fun usage/1} ].
 
 diff(["diff", BEAM1, BEAM2]) ->
     'try'(fun () -> Diff = docsh_lib:beam_diff(BEAM1, BEAM2),

@@ -1,14 +1,13 @@
 -module(docsh_edoc).
 
--compile(export_all).
-
 -behaviour(docsh_reader).
 -export([available/1,
          to_internal/1]).
 
--export([flat/1]).
+%% Test API
+-export([to_internal/2]).
 
--import(docsh_lib, [debug/3]).
+-import(docsh_lib, [print/2]).
 
 -define(l(Args), fun () -> Args end).
 
@@ -19,45 +18,47 @@ available(Beam) ->
                  docsh_beam:source_file(Beam) /= false ].
 
 -spec to_internal(docsh_beam:t()) -> R when
-      R :: {ok, docsh:internal()}
-         | {error, any()}.
+      R :: {ok, docsh_internal:t()}
+         | {error, any(), [erlang:stack_item()]}.
 to_internal(Beam) ->
+    to_internal(Beam, []).
+
+-spec to_internal(docsh_beam:t(), list()) -> R when
+      R :: {ok, docsh_internal:t()}
+         | {error, any(), [erlang:stack_item()]}.
+to_internal(Beam, Opts) ->
     try
         File = case docsh_beam:source_file(Beam) of
                    false -> error(edoc_requires_source);
                    F when is_list(F) -> F
                end,
-        EDoc = edoc(File),
-        debug(edoc, "edoc:~n~p~n~n", ?l([EDoc])),
-        debug(xml,  "xml:~n~s~n~n",  ?l([xmerl:export_simple([EDoc], xmerl_xml)])),
-        debug(html, "html:~n~s~n~n", ?l([edoc:layout(EDoc)])),
+        {_Mod, EDoc} = edoc:get_doc(File, []),
+        [ write(docsh_beam:name(Beam), Tag, OutDir, dispatch(Tag, File, EDoc))
+          || {OutDir, Tags} <- [proplists:get_value(debug, Opts)],
+             Tag <- Tags ],
         Internal = xmerl:export_simple([EDoc], docsh_edoc_xmerl),
-        debug(internal, "internal:~n~p~n~n", [Internal]),
         {ok, Internal}
     catch
-        _:R -> {error, R}
+        _:R -> {error, R, erlang:get_stacktrace()}
     end.
 
--spec to_otpsgml(docsh_beam:t(), file:filename()) -> R when
-      R :: ok | {error, any()}.
-to_otpsgml(DBeam, OutFile) ->
-    try
-        File = case docsh_beam:source_file(DBeam) of
-                   false -> error(edoc_requires_source);
-                   F when is_list(F) -> F
-               end,
-        EDoc = edoc(File),
-        Formatted = io_lib:format("~s\n", [xmerl:export_simple([EDoc], xmerl_otpsgml)]),
-        file:write_file(OutFile, Formatted)
-    catch
-        _:R -> {error, R}
-    end.
+dispatch(source,    File, _EDoc) ->
+    {ok, Content} = file:read_file(File),
+    Content;
+dispatch(edoc,     _File,  EDoc) -> pp(EDoc);
+dispatch(xml,      _File,  EDoc) -> pp(xmerl:export_simple([EDoc], xmerl_xml));
+dispatch(html,     _File,  EDoc) -> io_lib:format("~s", [edoc:layout(EDoc)]);
+dispatch(flat,     _File,  EDoc) -> pp(xmerl:export_simple([EDoc], docsh_edoc_xmerl_flat));
+dispatch(internal, _File,  EDoc) -> pp(xmerl:export_simple([EDoc], docsh_edoc_xmerl));
+dispatch(otpsgml,  _File,  EDoc) -> io_lib:format("~s", [xmerl:export_simple([EDoc], xmerl_otpsgml)]);
+dispatch(text,     _File,  EDoc) -> pp(xmerl:export_simple([EDoc], xmerl_text)).
 
-edoc(File) ->
-    {_Mod, EDoc} = edoc:get_doc(File, []),
-    EDoc.
+write(Mod, Tag, print, Content) ->
+    print("\n>>> ~p.~p:\n~p\n", [Mod, Tag, Content]);
+write(Mod, Tag, OutDir, Content) ->
+    SMod = atom_to_list(Mod),
+    STag = atom_to_list(Tag),
+    file:write_file(filename:join([OutDir,  SMod ++ "." ++ STag]), Content).
 
--spec flat(file:filename()) -> any().
-flat(File) ->
-    EDoc = edoc(File),
-    xmerl:export_simple([EDoc], docsh_edoc_xmerl_flat).
+pp(Content) ->
+    io_lib:format("~p", [Content]).

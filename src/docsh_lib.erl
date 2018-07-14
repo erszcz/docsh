@@ -6,11 +6,18 @@
          format_error/1,
          get/2, get/3,
          get_abstract_code/1,
+         get_docs/1,
          get_source_file/1,
-         has_exdc/1,
+         group_by/2,
+         has_docs/1,
          is_module_available/1,
+         make_docs/1,
          print/2, print/3,
-         process_beam/1]).
+         stick_module/1,
+         unstick_module/1]).
+
+-export([compile_info_source_file/1,
+         guessed_source_file/1]).
 
 -export_type([compiled_module/0]).
 
@@ -33,9 +40,9 @@ convert(Readers, Writer, Beam) ->
 
 convert_one({Reader, Mod}) ->
     case Reader:to_internal(Mod) of
-        {error, R} ->
+        {error, _R, _Stacktrace} = Error ->
             %% TODO: this is a *_lib module - shouldn't we bubble it up?
-            print(standard_error, "~s\n", [format_error(R)]),
+            print(standard_error, "~s\n", [format_error(Error)]),
             [];
         {ok, InternalDoc} ->
             [InternalDoc]
@@ -92,30 +99,10 @@ beam_diff(BEAM1, BEAM2) ->
     [{BEAM1, Name1, Keys1 -- Keys2},
      {BEAM2, Name2, Keys2 -- Keys1}].
 
--spec process_beam(beam_lib:beam()) -> {ok, binary(), [Warning]} when
-      Warning :: no_debug_info | no_src.
-process_beam(BEAMFile) ->
-    has_exdc(BEAMFile)
-        andalso error(exdc_present, [BEAMFile]),
-    {ok, Beam} = docsh_beam:from_beam_file(BEAMFile),
-    case {docsh_beam:abstract_code(Beam), docsh_beam:source_file(Beam)} of
-        {false, false} ->
-            error(no_debug_info_no_src, [BEAMFile]);
-        {_, false} ->
-            {ok, Bin} = add_chunks(BEAMFile, [exdc(Beam)]),
-            {ok, Bin, [no_src]};
-        {false, _} ->
-            {ok, Bin} = add_chunks(BEAMFile, [exdc(Beam)]),
-            {ok, Bin, [no_debug_info]};
-        _ ->
-            {ok, Bin} = add_chunks(BEAMFile, [exdc(Beam)]),
-            {ok, Bin, []}
-    end.
-
--spec has_exdc(beam_lib:beam()) -> boolean().
-has_exdc(BEAMFile) ->
+-spec has_docs(beam_lib:beam()) -> boolean().
+has_docs(BEAMFile) ->
     {ok, _, Chunks} = beam_lib:all_chunks(BEAMFile),
-    case catch ([ throw(true) || {"ExDc", _} <- Chunks ]) of
+    case catch ([ throw(true) || {"Docs", _} <- Chunks ]) of
         true -> true;
         _    -> false
     end.
@@ -160,10 +147,17 @@ check_source_file(SourceFile, false) ->
         false -> false
     end.
 
+-spec compile_info_source_file(file:filename()) -> [file:filename()].
 compile_info_source_file(BEAMFile) ->
-    {ok, {_, [{_, CInf}]}} = beam_lib:chunks(BEAMFile, ["CInf"]),
-    {source, File} = lists:keyfind(source, 1, erlang:binary_to_term(CInf)),
-    [File].
+    case beam_lib:chunks(BEAMFile, ["CInf"]) of
+        {ok, {_, [{_, CInf}]}} ->
+            case lists:keyfind(source, 1, erlang:binary_to_term(CInf)) of
+                {source, File} -> [File];
+                false -> []
+            end;
+        _ ->
+            []
+    end.
 
 -spec guessed_source_file(file:filename() | compiled_module()) -> [file:filename()].
 guessed_source_file(CompiledModule) when is_binary(CompiledModule) ->
@@ -171,38 +165,45 @@ guessed_source_file(CompiledModule) when is_binary(CompiledModule) ->
     %% as it might've not been read from any on-disk .beam file.
     [];
 guessed_source_file(BEAMFile) ->
-    File1 = filename:join(filename:dirname(BEAMFile), "../src"),
-    File2 = filename:basename(BEAMFile, ".beam") ++ ".erl",
-    [filename:join(File1, File2)].
+    EbinPrefix = ebin_prefix(BEAMFile),
+    SrcSuffix = src_suffix(BEAMFile),
+    [filename:join(EbinPrefix ++ SrcSuffix)].
 
--spec exdc(docsh_beam:t()) -> {string(), binary()}.
-exdc(Beam) ->
-    FromMods = available_readers(Beam),
-    FromMods == []
-        andalso error(no_readers_available),
-    ToMod = docsh_elixir_docs_v1,
-    ExDc = convert(FromMods, ToMod, Beam),
-    {"ExDc", term_to_binary(ExDc, [compressed])}.
+ebin_prefix(BEAMFile) ->
+    Components = string:tokens(BEAMFile, "/"),
+    case BEAMFile of
+        "/" ++ _ -> ["/"];
+        _ -> [""]
+    end ++ lists:takewhile(fun not_ebin/1, Components).
 
-add_chunks(BEAMFile, NewChunks) ->
-    {ok, _, OldChunks} = beam_lib:all_chunks(BEAMFile),
-    {ok, _NewBEAM} = beam_lib:build_module(OldChunks ++ NewChunks).
+not_ebin("ebin") -> false;
+not_ebin(_) -> true.
+
+src_suffix(BEAMFile) ->
+    [CInfSourceFile] = compile_info_source_file(BEAMFile),
+    Components = string:tokens(CInfSourceFile, "/"),
+    lists:dropwhile(fun not_src/1, Components).
+
+not_src("src") -> false;
+not_src(_) -> true.
 
 -spec format_error(any()) -> iolist().
 format_error({no_debug_info, Mod}) ->
     io_lib:format("Abstract code for ~s is not available.\n", [Mod]);
 format_error({no_src, Mod}) ->
     io_lib:format("Source file for ~s is not available.\n", [Mod]);
-format_error(exdc_present) ->
-    <<"ExDc chunk already present">>;
+format_error(docs_present) ->
+    <<"Docs chunk already present">>;
 format_error(no_debug_info_no_src) ->
     <<"neither debug_info nor .erl available">>;
 format_error(Reason) when is_list(Reason);
                           is_binary(Reason) ->
     Reason;
+format_error({error, Reason, Stacktrace}) ->
+    io_lib:format("docsh error: ~p~n~p~n", [Reason, Stacktrace]);
 format_error(Reason) ->
     Stacktrace = erlang:get_stacktrace(),
-    io_lib:format("docsh error: ~p~n~p~n", [Reason, Stacktrace]).
+    format_error({error, Reason, Stacktrace}).
 
 -spec available_readers(docsh_beam:t()) -> [docsh_reader:t()].
 available_readers(Beam) ->
@@ -217,3 +218,75 @@ is_module_available(Mod) ->
     catch
         _:undef -> false
     end.
+
+-spec group_by(fun(), list()) -> dict:dict().
+group_by(F, L) ->
+    lists:foldr(fun({K,V}, D) -> dict:append(K, V, D) end,
+                dict:new(), [ {F(X), X} || X <- L ]).
+
+-spec get_docs(module()) -> {ok, docsh_format:t()} | {error, any()}.
+get_docs(M) ->
+    case docsh_beam:from_loaded_module(M) of
+        {error, _} = E -> E;
+        {ok, B} ->
+            case do_get_docs(B) of
+                {ok, Docs} ->
+                    {ok, Docs};
+                {error, _} ->
+                    {ok, Docs, Warnings} = make_docs(B),
+                    [ print("~s", [docsh_lib:format_error({W, docsh_beam:name(B)})]) || W <- Warnings ],
+                    %% TODO: enable cache at some point
+                    %cache_docs(B, Docs),
+                    {ok, Docs}
+            end
+    end.
+
+do_get_docs(B) ->
+    try
+        {ok, docsh_beam:docs(B)}
+    catch _:R ->
+        {error, R}
+    end.
+
+-spec make_docs(docsh_beam:t()) -> {ok, docsh_format:t(), [Warning]} when
+      Warning :: no_debug_info | no_src.
+make_docs(Beam) ->
+    BEAMFile = docsh_beam:beam_file(Beam),
+    has_docs(BEAMFile)
+        andalso error(docs_present, [BEAMFile]),
+    case {docsh_beam:abstract_code(Beam), docsh_beam:source_file(Beam)} of
+        {false, false} ->
+            error(no_debug_info_no_src, [BEAMFile]);
+        {_, false} ->
+            {ok, do_make_docs(Beam), [no_src]};
+        {false, _} ->
+            {ok, do_make_docs(Beam), [no_debug_info]};
+        _ ->
+            {ok, do_make_docs(Beam), []}
+    end.
+
+-spec do_make_docs(docsh_beam:t()) -> {string(), binary()}.
+do_make_docs(Beam) ->
+    FromMods = get_readers(Beam),
+    FromMods == []
+        andalso error(no_readers_available),
+    ToMod = application:get_env(docsh, docsh_writer, default_writer()),
+    convert(FromMods, ToMod, Beam).
+
+default_writer() ->
+    docsh_docs_v1.
+
+get_readers(Beam) ->
+    application:get_env(docsh, readers, available_readers(Beam)).
+
+-spec unstick_module(module()) -> any().
+unstick_module(Module) -> unstick_module(Module, code:is_sticky(Module)).
+
+unstick_module(Module, true) -> code:unstick_mod(Module);
+unstick_module(_,_) -> false.
+
+-spec stick_module(module()) -> any().
+stick_module(Module) -> stick_module(Module, code:is_sticky(Module)).
+
+stick_module(Module, false) -> code:stick_mod(Module);
+stick_module(_,_) -> false.

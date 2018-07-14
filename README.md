@@ -7,48 +7,7 @@ Forgetting again and again `dbg` flags or the syntax of `recon` trace patterns?
 Ever wished for access to documentation straight from `erl`
 the way it's possible in modern languages like Python, Ruby or Elixir?
 
-![docsh in action](https://github.com/erszcz/blog/blob/69e14100229b6733a9ece5840fb23f29f32d2b33/posts/3.update-on-docsh/docsh-shell.gif)
-
-```
-> h(recon).
-## Description
-
-Recon, as a module, provides access to the high-level functionality
-contained in the Recon application.
-... snip ...
-
-## Types
-
--type proc_attrs() ::
-          {pid(),
-           Attr :: _,
-           [Name ::
-                atom() |
-                {current_function, mfa()} |
-                {initial_call, mfa()},
-            ...]}.
-
--type inet_attrs() :: {port(), Attr :: _, [{atom(), term()}]}.
-
-... snip ...
-
-> h(fun recon:get_state/1).
--spec get_state(pid_term()) -> term().
-
-Shorthand call to recon:get_state(PidTerm, 5000)
-
-ok
-> h(fun recon:get_state/2).
--spec get_state(pid_term(), Ms :: non_neg_integer() | infinity) ->
-                   term().
-
-Fetch the internal state of an OTP process.
-Calls sys:get_state/2 directly in R16B01+, and fetches
-it dynamically on older versions of OTP.
-
-ok
->
-```
+[![docsh - light and dark background](https://raw.githubusercontent.com/erszcz/docsh/master/doc/light-dark-bg.png)](https://github.com/erszcz/docsh/blob/master/doc/light-dark-bg.png)
 
 You're in the right place.
 `docsh` makes online (as in _when connected to a live system_,
@@ -107,27 +66,27 @@ Now you can rely on your chosen package's documentation as the guide
 to its use:
 
 ```erlang
-1> h(lists, keyfind).
+1> h(proplists, get_value, 3).
 
-lists:keyfind/3
+proplists:get_value/3
 
--spec keyfind(Key, N, TupleList) -> Tuple | false when Key :: term(),
-                                                       N :: pos_integer(),
-                                                       TupleList :: [Tuple],
-                                                       Tuple :: tuple().
+-spec get_value(Key, List, Default) -> term() when Key :: term(),
+                                                   List :: [term()],
+                                                   Default :: term().
 
-ok
-2> h(lists).
-
-# Module lists
-
-## Description
-
-(description missing)
-
-## Types
+Returns the value of a simple key/value property in
+List. If lookup(Key, List) would yield
+{Key, Value}, this function returns the corresponding
+Value, otherwise Default is returned.
 
 ok
+2> h(proplists).
+
+# proplists
+
+Support functions for property lists.
+
+...
 ```
 
 Well, your mileage may vary ;p
@@ -151,12 +110,13 @@ Eshell V8.2  (abort with ^G)
 
 lists:keyfind/3
 
--spec keyfind(Key, N, TupleList) -> Tuple | false
-                 when
-                     Key :: term(),
-                     N :: pos_integer(),
-                     TupleList :: [Tuple],
-                     Tuple :: tuple().
+-spec keyfind(Key, N, TupleList) -> Tuple | false when Key :: term(),
+                                                       N :: pos_integer(),
+                                                       TupleList :: [Tuple],
+                                                       Tuple :: tuple().
+
+Documentation is not available.
+
 
 ok
 2>
