@@ -256,7 +256,7 @@ make_docs(Beam) ->
         andalso error(docs_present, [BEAMFile]),
     case {docsh_beam:abstract_code(Beam), docsh_beam:source_file(Beam)} of
         {false, false} ->
-            error(no_debug_info_no_src, [BEAMFile]);
+            error({no_debug_info_no_src, BEAMFile}, [BEAMFile]);
         {_, false} ->
             {ok, do_make_docs(Beam), [no_src]};
         {false, _} ->
