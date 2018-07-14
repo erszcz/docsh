@@ -145,7 +145,7 @@ step(_ModuleInfo, {Name, Arity}, Info0, { #docs_v1{} = DocsV1, DocsMap }) ->
     KNA = {Kind, Name, Arity},
     Entry = { {Kind, Name, Arity},
               erl_anno:new({0, 1}),
-              signature(Name, Arity, Info),
+              signature(Kind, Name, Arity, Info),
               #{<<"en">> => description(Name, Arity, Info)},
               #{} },
     {DocsV1, DocsMap#{KNA => Entry}}.
@@ -165,19 +165,18 @@ infer_item_kind(Info) ->
         _ -> type
     end.
 
-signature(Name, Arity, Info) ->
-    case {docsh_lib:get(spec, Info, not_found),
-          docsh_lib:get(type, Info, not_found)} of
-        {not_found, not_found} ->
+signature(Kind, Name, Arity, Info) ->
+    InfoKey = case Kind of
+                  function -> spec;
+                  type -> type
+              end,
+    case docsh_lib:get(InfoKey, Info, not_found) of
+        not_found ->
             SName = atom_to_list(Name),
             SArity = integer_to_list(Arity),
             [iolist_to_binary([SName, "/", SArity])];
-        {Spec, not_found} ->
-            [Spec];
-        {not_found, Type} ->
-            [Type];
-        {_Spec, _Type} ->
-            error(spec_and_type_present, [Name, Arity, Info])
+        InfoItem ->
+            [InfoItem]
     end.
 
 module_doc(ModuleInfo) ->
