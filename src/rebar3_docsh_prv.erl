@@ -1,6 +1,9 @@
 -module('rebar3_docsh_prv').
 
--export([init/1, do/1, format_error/1]).
+-behaviour(provider).
+-export([init/1,
+         do/1,
+         format_error/1]).
 
 -define(PROVIDER, compile).
 -define(DEPS, [{default, compile}]).
