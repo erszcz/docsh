@@ -1,4 +1,4 @@
--module(rebar3_docsh_prv_SUITE).
+-module(rebar3_prv_docsh_SUITE).
 -compile([export_all]).
 
 -import(docsh_helpers, [check_precondition/2,
@@ -15,6 +15,18 @@ preconditions() ->
 
 end_per_suite(_Config) ->
     ok.
+
+%%
+%% Config
+%%
+
+recon_repo() ->
+    "https://github.com/erszcz/recon".
+
+%%
+%% Tests
+%%
+
 
 %%
 %% Helpers

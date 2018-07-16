@@ -1,4 +1,4 @@
--module('rebar3_docsh_prv').
+-module('rebar3_prv_docsh').
 
 -behaviour(provider).
 -export([init/1,
