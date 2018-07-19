@@ -1,7 +1,8 @@
 -module(install_SUITE).
--compile(export_all).
+-compile([export_all, nowarn_export_all]).
 
 -import(docsh_helpers, [check_precondition/2,
+                        current_git_commit/0,
                         sh/1]).
 
 -include_lib("common_test/include/ct.hrl").
@@ -113,13 +114,6 @@ is_container_running(Name) ->
         sh(["docker ps | grep ", Name, " | grep Up"]),
         true
     catch _:_ -> false end.
-
-current_git_commit() ->
-    case os:getenv("TRAVIS_PULL_REQUEST_SHA") of
-        false -> {_, _, R} = sh("git rev-parse HEAD"),
-                 R;
-        Commit -> Commit
-    end.
 
 clone(Repo) ->
     ["git clone ", Repo].
