@@ -1,7 +1,9 @@
 -module(install_SUITE).
--compile(export_all).
+-compile([export_all, nowarn_export_all]).
 
--import(docsh_helpers, [sh/1]).
+-import(docsh_helpers, [check_precondition/2,
+                        current_git_commit/0,
+                        sh/1]).
 
 -include_lib("common_test/include/ct.hrl").
 -include_lib("eunit/include/eunit.hrl").
@@ -15,10 +17,10 @@ all() ->
     [docker_linux].
 
 init_per_suite(Config) ->
-    [ check(P, Config) || P <- prerequisites() ],
+    [ check_precondition(P, Config) || P <- preconditions() ],
     Config.
 
-prerequisites() ->
+preconditions() ->
     [
      { "docker in $PATH", fun (_Config) -> {_, _, <<"Docker", _/bytes>>} = sh("docker -v") end },
      { "git in $PATH", fun (_) -> {_, _, <<"usage: git", _/bytes>>} = sh("git --help") end }
@@ -72,14 +74,6 @@ docker_linux(_) ->
 %% Helpers
 %%
 
-check({Name, P}, Config) ->
-    try
-        P(Config),
-        ok
-    catch _:Reason ->
-        ct:fail("~ts failed: ~p", [Name, Reason])
-    end.
-
 container_name(Prefix) ->
     RawRandomBytes = crypto:strong_rand_bytes(9),
     Base64 = base64:encode(RawRandomBytes),
@@ -120,13 +114,6 @@ is_container_running(Name) ->
         sh(["docker ps | grep ", Name, " | grep Up"]),
         true
     catch _:_ -> false end.
-
-current_git_commit() ->
-    case os:getenv("TRAVIS_PULL_REQUEST_SHA") of
-        false -> {_, _, R} = sh("git rev-parse HEAD"),
-                 R;
-        Commit -> Commit
-    end.
 
 clone(Repo) ->
     ["git clone ", Repo].

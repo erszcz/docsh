@@ -1,6 +1,5 @@
 -module(ct_helper).
-
--compile([export_all]).
+-compile([export_all, nowarn_export_all]).
 
 %% @doc Like ct:get_config/1, but calls error/1 if Key is not found / undefined.
 %% This guarantees to fail fast if required config options are missing from

@@ -1,5 +1,5 @@
 -module(docsh_helpers).
--compile([export_all]).
+-compile([export_all, nowarn_export_all]).
 
 -define(b2l(B), binary_to_list(B)).
 -define(il2b(IL), iolist_to_binary(IL)).
@@ -28,3 +28,18 @@ sh_log(Command, Code, Result) ->
            "code    : ~p\n"
            "result  : ~ts",
            [Command, Code, Result]).
+
+check_precondition({Name, P}, Config) ->
+    try
+        P(Config),
+        ok
+    catch _:Reason ->
+        ct:fail("~ts failed: ~p", [Name, Reason])
+    end.
+
+current_git_commit() ->
+    case os:getenv("TRAVIS_PULL_REQUEST_SHA") of
+        false -> {_, _, R} = sh("git rev-parse HEAD"),
+                 R;
+        Commit -> Commit
+    end.

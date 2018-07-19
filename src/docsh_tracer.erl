@@ -1,6 +1,5 @@
 -module(docsh_tracer).
-
--compile([export_all]).
+-compile([export_all, nowarn_export_all]).
 
 -define(il2b, iolist_to_binary).
 

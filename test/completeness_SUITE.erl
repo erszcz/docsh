@@ -1,5 +1,5 @@
 -module(completeness_SUITE).
--compile(export_all).
+-compile([export_all, nowarn_export_all]).
 
 -import(docsh_helpers, [sh/2]).
 
