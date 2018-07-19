@@ -1,5 +1,5 @@
 -module(rebar3_prv_docsh_SUITE).
--compile([export_all]).
+-compile([export_all, nowarn_export_all]).
 
 -import(docsh_helpers, [check_precondition/2,
                         sh/1]).
