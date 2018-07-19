@@ -17,7 +17,14 @@ end_per_suite(_Config) ->
     ok.
 
 all() ->
-    [rebar3_prv_docsh_compiles_in_the_docs_chunk].
+    [{group, main}].
+
+groups() ->
+    [{main, [sequence],
+      [
+       rebar3_prv_docsh_compiles_in_the_docs_chunk,
+       rebar3_prv_docsh_handles_present_docs_chunk
+      ]}].
 
 %%
 %% Config
@@ -49,6 +56,13 @@ rebar3_prv_docsh_compiles_in_the_docs_chunk(_) ->
     [ok, ok, ok, ok] = [ element(1, MD) || MD <- ModuleDocs ],
     ok.
 
+rebar3_prv_docsh_handles_present_docs_chunk(_) ->
+    %% given the previously cloned repo (these tests run in sequence!)
+    AppName = "recon",
+    %% when compiling / then we should exit without `docs_present` error
+    {ok, _ProjectDir} = compile(AppName),
+    ok.
+
 %%
 %% Helpers
 %%
@@ -65,7 +79,7 @@ compile(Project) ->
     try
         ok = file:set_cwd(ProjectDir),
         rebar_agent:start_link(rebar_state:new()),
-        r3:compile(),
+        ok = r3:compile(),
         {ok, ProjectDir}
     after
         ok = file:set_cwd(Dir)
