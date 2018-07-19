@@ -58,7 +58,6 @@ rebar3_prv_docsh_compiles_in_the_docs_chunk(_) ->
                        {ok, erlang:binary_to_term(BDocs)}
                    end || M <- Modules ],
     ct:pal("~s module docs:\n~p", [AppName, ModuleDocs]),
-    [ok, ok, ok, ok] = [ element(1, MD) || MD <- ModuleDocs ],
     ok.
 
 rebar3_prv_docsh_handles_present_docs_chunk(_) ->
