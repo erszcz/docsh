@@ -5,16 +5,31 @@
 Still can't write match specs from the top of your head?
 Forgetting again and again `dbg` flags or the syntax of `recon` trace patterns?
 Ever wished for access to documentation straight from `erl`
-the way it's possible in modern languages like Python, Ruby or Elixir?
+the way it's possible in languages like Python, Ruby or Elixir?
 
 [![docsh - light and dark background](https://raw.githubusercontent.com/erszcz/docsh/master/doc/light-dark-bg.png)](https://github.com/erszcz/docsh/blob/master/doc/light-dark-bg.png)
 
-You're in the right place.
-`docsh` makes online (as in _when connected to a live system_,
-not _in the internets_) access to documentation possible in Erlang.
+
+## Embed docs in your modules
+
+Write them first in your `.erl` files.
+Then add the following to your project's `rebar.config':
+
+```erlang
+{plugins,
+ [
+  {rebar3_prv_docsh, {git, "https://github.com/erszcz/docsh", {ref, "0.6.0"}}}
+ ]}.
 
 
-## Installation
+{provider_hooks,
+ [
+  {post, [{compile, {docsh, compile}}]}
+ ]}.
+```
+
+
+## Extend `erl` with docs access
 
 ```
 git clone https://github.com/erszcz/docsh
@@ -62,41 +77,8 @@ Eshell V8.2  (abort with ^G)
 1>
 ```
 
-Now you can rely on your chosen package's documentation as the guide
-to its use:
 
-```erlang
-1> h(proplists, get_value, 3).
-
-proplists:get_value/3
-
--spec get_value(Key, List, Default) -> term() when Key :: term(),
-                                                   List :: [term()],
-                                                   Default :: term().
-
-Returns the value of a simple key/value property in
-List. If lookup(Key, List) would yield
-{Key, Value}, this function returns the corresponding
-Value, otherwise Default is returned.
-
-ok
-2> h(proplists).
-
-# proplists
-
-Support functions for property lists.
-
-...
-```
-
-Well, your mileage may vary ;p
-Check out [examples.md](examples.md) for how the docs are formatted
-when they actually are provided for a project.
-Better yet, just play with docsh with a project of your choice
-and let me know of the experience!
-
-
-## Usage
+## Access docs in `erl`
 
 Let's see what docsh can give us for some OTP modules.
 We call `h/2` to get the doc for `lists:keyfind` no matter the arity:
@@ -105,21 +87,37 @@ We call `h/2` to get the doc for `lists:keyfind` no matter the arity:
 $ erl
 Erlang/OTP 19 [erts-8.2] [source] [64-bit] [smp:8:8] [async-threads:10] [hipe] [kernel-poll:false]
 
+Enabled docsh from: /Users/erszcz/work/erszcz/docsh/_build/default/lib/docsh
+Call h(docsh) for interactive help.
+
 Eshell V8.2  (abort with ^G)
-1> h(lists, keyfind).
+1> h(proplists).
 
-lists:keyfind/3
+# proplists
 
--spec keyfind(Key, N, TupleList) -> Tuple | false when Key :: term(),
-                                                       N :: pos_integer(),
-                                                       TupleList :: [Tuple],
-                                                       Tuple :: tuple().
+Support functions for property lists.
 
-Documentation is not available.
+Property lists are ordinary lists containing entries in the form
+of either tuples, whose first elements are keys used for lookup and
+insertion, or atoms, which work as shorthand for tuples {Atom,
+true}. (Other terms are allowed in the lists, but are ignored
+by this module.) If there is more than one entry in a list for a
+certain key, the first occurrence normally overrides any later
+(irrespective of the arity of the tuples).
 
+Property lists are useful for representing inherited properties,
+such as options passed to a function where a user may specify options
+overriding the default settings, object properties, annotations,
+etc.
+
+% @type property() = atom() | tuple()
 
 ok
-2>
+2> t(proplists).
+-type property() :: atom() | tuple().
+-type proplist() :: [property()].
+ok
+3>
 ```
 
 Let's try with Recon:
@@ -135,6 +133,9 @@ Once in the Erlang shell:
 
 ```erlang
 Erlang/OTP 19 [erts-8.2] [source] [64-bit] [smp:8:8] [async-threads:10] [hipe] [kernel-poll:false]
+
+Enabled docsh from: /Users/erszcz/work/erszcz/docsh/_build/default/lib/docsh
+Call h(docsh) for interactive help.
 
 Eshell V8.2  (abort with ^G)
 > s(recon_trace, calls).
@@ -167,11 +168,6 @@ Having read them, we want a more detailed description of `recon_trace:calls/2`,
 so we ask for the doc and specify the arity with `h/3`.
 
 Try it with your project!
-
-
-## ?!
-
-Yes, I've seen _Ghost in the Shell_ ;)
 
 
 [edoc:module-tags]: http://erlang.org/doc/apps/edoc/chapter.html#Module_tags

@@ -1,4 +1,22 @@
--module('rebar3_prv_docsh').
+%% @doc Store modules' documentation in Docs chunks according to EEP-48.
+%%
+%% Add the following code to your project's `rebar.config':
+%%
+%% ```
+%% {plugins,
+%%  [
+%%   {rebar3_prv_docsh, {git, "https://github.com/erszcz/docsh", {ref, "0.6.0"}}}
+%%  ]}.
+%%
+%%
+%% {provider_hooks,
+%%  [
+%%   {post, [{compile, {docsh, compile}}]}
+%%  ]}.
+%% '''
+%%
+%% @end
+-module(rebar3_prv_docsh).
 
 -behaviour(provider).
 -export([init/1,

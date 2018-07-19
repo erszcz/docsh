@@ -1,7 +1,11 @@
 %% @doc
-%% Welcome to docsh, the missing documentation viewer for the Erlang shell.
+%% Welcome to docsh, a documentation engine for the Erlang shell.
 %% This project provides a number of helpers for accessing module and function
 %% doc comments, function specs and exported types.
+%%
+%% If you want your project to have embedded documentation,
+%% use `rebar3_prv_docsh' plugin.
+%% If you want to browse some docs first, read on.
 %%
 %% To access this documentation you've quite likely typed:
 %%
@@ -47,7 +51,6 @@
 %% the installation steps or what `user_default' is.
 %%
 %% If you want to call docsh as a library, please refer to `docsh_erl'.
-%% (TODO) As of now it's the only way to use docsh from Elixir's iex.
 %% @end
 
 -module(docsh).
