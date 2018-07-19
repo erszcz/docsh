@@ -229,16 +229,9 @@ get_docs(M) ->
     case docsh_beam:from_loaded_module(M) of
         {error, _} = E -> E;
         {ok, B} ->
-            case do_get_docs(B) of
-                {ok, Docs} ->
-                    {ok, Docs};
-                {error, _} ->
-                    {ok, Docs, Warnings} = make_docs(B),
-                    [ print("~s", [docsh_lib:format_error({W, docsh_beam:name(B)})]) || W <- Warnings ],
-                    %% TODO: enable cache at some point
-                    %cache_docs(B, Docs),
-                    {ok, Docs}
-            end
+            MakeDocs = application:get_env(docsh, compile_on_demand, compile_if_missing),
+            AvailableDocs = do_get_docs(B),
+            dispatch_docs_extraction(B, MakeDocs, AvailableDocs)
     end.
 
 do_get_docs(B) ->
@@ -247,6 +240,24 @@ do_get_docs(B) ->
     catch _:R ->
         {error, R}
     end.
+
+dispatch_docs_extraction(B, never, AvailableDocs) ->
+    %% just for troubleshooting
+    {ok, [B, never, AvailableDocs]};
+dispatch_docs_extraction(_, compile_if_missing, {ok, Docs}) ->
+    {ok, Docs};
+dispatch_docs_extraction(B, compile_if_missing, {error, _} = Err) ->
+    %% TODO: log Reason?
+    dispatch_docs_extraction(B, always, Err);
+dispatch_docs_extraction(B, always, _) ->
+    dispatch_docs_extraction_(B).
+
+dispatch_docs_extraction_(B) ->
+    {ok, Docs, Warnings} = make_docs(B),
+    [ print("~s", [docsh_lib:format_error({W, docsh_beam:name(B)})]) || W <- Warnings ],
+    %% TODO: enable cache at some point
+    %cache_docs(B, Docs),
+    {ok, Docs}.
 
 -spec make_docs(docsh_beam:t()) -> {ok, docsh_format:t(), [Warning]} when
       Warning :: no_debug_info | no_src.
