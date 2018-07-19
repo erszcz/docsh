@@ -86,7 +86,7 @@ compile(Project) ->
     try
         ok = file:set_cwd(ProjectDir),
         rebar_agent:start_link(rebar_state:new()),
-        ok = r3:compile(),
+        ok = rebar_agent:do(compile),
         {ok, ProjectDir}
     after
         ok = file:set_cwd(Dir)
