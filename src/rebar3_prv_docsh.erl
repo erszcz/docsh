@@ -62,12 +62,17 @@ app_beam_files(App) ->
 
 -spec process_beam(rebar_state:t(), file:filename()) -> ok.
 process_beam(_State, BeamFile) ->
-    {ok, B} = docsh_beam:from_beam_file(BeamFile),
-    {ok, Docs, Warnings} = docsh_lib:make_docs(B),
-    print_warnings(docsh_beam:name(B), Warnings),
-    DocsChunk = make_docs_chunk(Docs),
-    {ok, NewBeam} = add_chunks(BeamFile, [DocsChunk]),
-    ok = file:write_file(BeamFile, NewBeam).
+    case docsh_lib:has_docs(BeamFile) of
+        true ->
+            ok;
+        false ->
+            {ok, B} = docsh_beam:from_beam_file(BeamFile),
+            {ok, Docs, Warnings} = docsh_lib:make_docs(B),
+            print_warnings(docsh_beam:name(B), Warnings),
+            DocsChunk = make_docs_chunk(Docs),
+            {ok, NewBeam} = add_chunks(BeamFile, [DocsChunk]),
+            ok = file:write_file(BeamFile, NewBeam)
+    end.
 
 print_warnings(Name, Warnings) ->
     [ docsh_lib:print("~s", [docsh_lib:format_error({W, Name})]) || W <- Warnings ].
