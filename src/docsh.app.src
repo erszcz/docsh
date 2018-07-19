@@ -10,7 +10,8 @@
   {env,[]},
   {modules, []},
 
-  {contributors, []},
-  {licenses, []},
-  {links, []}
+  {maintainers, ["Radek Szymczyszyn <lavrin@gmail.com>"]},
+  {licenses, ["Apache-2.0"]},
+  {links, [{"Github", "https://github.com/erszcz/docsh"},
+           {"EEP 48", "https://www.erlang.org/erlang-enhancement-proposals/eep-0048.html"}]}
  ]}.
