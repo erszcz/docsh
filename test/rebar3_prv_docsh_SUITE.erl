@@ -2,6 +2,7 @@
 -compile([export_all, nowarn_export_all]).
 
 -import(docsh_helpers, [check_precondition/2,
+                        current_git_commit/0,
                         sh/1]).
 
 init_per_suite(Config) ->
@@ -30,6 +31,9 @@ groups() ->
 %% Config
 %%
 
+docsh_repo() ->
+    "https://github.com/erszcz/docsh".
+
 recon_repo() ->
     "https://github.com/erszcz/recon".
 
@@ -42,6 +46,7 @@ rebar3_prv_docsh_compiles_in_the_docs_chunk(_) ->
     %% given
     AppName = "recon",
     sh(clone(recon_repo())),
+    get_docsh_plugin(AppName, docsh_repo(), current_git_commit()),
     %% when
     {ok, ProjectDir} = compile(AppName),
     %% then all modules have the "Docs" chunk
@@ -73,6 +78,9 @@ quote(Text) ->
 clone(Repo) ->
     ["git clone ", Repo].
 
+clone(Repo, Target) ->
+    ["git clone ", Repo, " ", Target].
+
 compile(Project) ->
     {ok, Dir} = file:get_cwd(),
     ProjectDir = filename:join([Dir, Project]),
@@ -84,6 +92,12 @@ compile(Project) ->
     after
         ok = file:set_cwd(Dir)
     end.
+
+get_docsh_plugin(AppName, DocshRepo, Ref) ->
+    DocshPlugin = filename:join([AppName, "_checkouts", "rebar3_prv_docsh"]),
+    ok = filelib:ensure_dir(DocshPlugin),
+    sh(clone(DocshRepo, DocshPlugin)),
+    sh("cd " ++ DocshPlugin ++ " && git checkout " ++ Ref).
 
 app_modules(AppName, ProjectDir) ->
     AppFile = filename:join([ProjectDir, "_build", "default", "lib", AppName, "ebin", AppName ++ ".app"]),
