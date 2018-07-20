@@ -4,7 +4,7 @@
 %% doc comments, function specs and exported types.
 %%
 %% If you want your project to have embedded documentation,
-%% use `rebar3_prv_docsh' plugin.
+%% use `rebar3_docsh' plugin.
 %% If you want to browse some docs first, read on.
 %%
 %% To access this documentation you've quite likely typed:

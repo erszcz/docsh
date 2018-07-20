@@ -1,4 +1,4 @@
--module(rebar3_prv_docsh_SUITE).
+-module(rebar3_docsh_SUITE).
 -compile([export_all, nowarn_export_all]).
 
 -import(docsh_helpers, [check_precondition/2,
@@ -23,8 +23,8 @@ all() ->
 groups() ->
     [{main, [sequence],
       [
-       rebar3_prv_docsh_compiles_in_the_docs_chunk,
-       rebar3_prv_docsh_handles_present_docs_chunk
+       rebar3_docsh_compiles_in_the_docs_chunk,
+       rebar3_docsh_handles_present_docs_chunk
       ]}].
 
 %%
@@ -41,7 +41,7 @@ recon_repo() ->
 %% Tests
 %%
 
-rebar3_prv_docsh_compiles_in_the_docs_chunk(_) ->
+rebar3_docsh_compiles_in_the_docs_chunk(_) ->
     put(sh_log, true),
     %% given
     AppName = "recon",
@@ -60,7 +60,7 @@ rebar3_prv_docsh_compiles_in_the_docs_chunk(_) ->
     %ct:pal("~s module docs:\n~p", [AppName, ModuleDocs]),
     ok.
 
-rebar3_prv_docsh_handles_present_docs_chunk(_) ->
+rebar3_docsh_handles_present_docs_chunk(_) ->
     %% given the previously cloned repo (these tests run in sequence!)
     AppName = "recon",
     %% when compiling / then we should exit without `docs_present` error
@@ -93,7 +93,7 @@ compile(Project) ->
     end.
 
 get_docsh_plugin(AppName, DocshRepo, Ref) ->
-    DocshPlugin = filename:join([AppName, "_checkouts", "rebar3_prv_docsh"]),
+    DocshPlugin = filename:join([AppName, "_checkouts", "rebar3_docsh"]),
     ok = filelib:ensure_dir(DocshPlugin),
     sh(clone(DocshRepo, DocshPlugin)),
     sh("cd " ++ DocshPlugin ++ " && git checkout " ++ Ref).

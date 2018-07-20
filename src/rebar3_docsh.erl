@@ -5,7 +5,7 @@
 %% ```
 %% {plugins,
 %%  [
-%%   {rebar3_prv_docsh, {git, "https://github.com/erszcz/docsh", {ref, "0.6.0"}}}
+%%   {rebar3_docsh, "0.6.1", {pkg, docsh}}
 %%  ]}.
 %%
 %%
@@ -16,7 +16,7 @@
 %% '''
 %%
 %% @end
--module(rebar3_prv_docsh).
+-module(rebar3_docsh).
 
 -behaviour(provider).
 -export([init/1,

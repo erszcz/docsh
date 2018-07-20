@@ -18,7 +18,7 @@ Then add the following to your project's `rebar.config':
 ```erlang
 {plugins,
  [
-  {rebar3_prv_docsh, {git, "https://github.com/erszcz/docsh", {ref, "0.6.0"}}}
+  {rebar3_docsh, "0.6.1", {pkg, docsh}}
  ]}.
 
 
