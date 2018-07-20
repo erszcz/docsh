@@ -13,7 +13,7 @@ the way it's possible in languages like Python, Ruby or Elixir?
 ## Embed docs in your modules
 
 Write them first in your `.erl` files.
-Then add the following to your project's `rebar.config':
+Then add the following to your project's `rebar.config`:
 
 ```erlang
 {plugins,
