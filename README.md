@@ -1,6 +1,7 @@
 # Docs in the Shell
 
 [![TravisCI Build Status](https://travis-ci.org/erszcz/docsh.svg?branch=master)](https://travis-ci.org/erszcz/docsh)
+[![Hex version badge](https://img.shields.io/hexpm/v/docsh.svg)](https://hex.pm/packages/docsh)
 
 Still can't write match specs from the top of your head?
 Forgetting again and again `dbg` flags or the syntax of `recon` trace patterns?
