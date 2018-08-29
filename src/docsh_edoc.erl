@@ -46,7 +46,7 @@ dispatch(source,    File, _EDoc) ->
     {ok, Content} = file:read_file(File),
     Content;
 dispatch(edoc,     _File,  EDoc) -> pp(EDoc);
-dispatch(xml,      _File,  EDoc) -> pp(xmerl:export_simple([EDoc], xmerl_xml));
+dispatch(xml,      _File,  EDoc) -> xmerl:export_simple([EDoc], xmerl_xml);
 dispatch(html,     _File,  EDoc) -> io_lib:format("~s", [edoc:layout(EDoc)]);
 dispatch(flat,     _File,  EDoc) -> pp(xmerl:export_simple([EDoc], docsh_edoc_xmerl_flat));
 dispatch(internal, _File,  EDoc) -> pp(xmerl:export_simple([EDoc], docsh_edoc_xmerl));
