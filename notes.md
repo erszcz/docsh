@@ -528,3 +528,17 @@ This module complements Erlang's [`:code` module](http://www.erlang.org/doc/man/
 to add behaviour which is specific to Elixir. Almost all of the functions in this module
 have global side effects on the behaviour of Elixir.
 ```
+
+# 2018-08-31 Doc generation in Erlang/OTP
+
+The numbers below refer to `erlang-types-to-xml-to-man.png` schema.
+
+`erl_docgen` is the library used for doc generation.
+`erl_docgen/priv/dtd/common.refs.dtd` defines the `datatype` element used,
+among others, in `erlref` XML documents (1, 2).
+Manapges are built from `erlref` documents (5, 2).
+`erlref` documents do not contain type definitions (2) - these come from
+source files (3) and are extracted with
+`erl_docgen/priv/bin/specs_gen.escript` (4).
+Finally, manpages (5) contain type definitions coming from `.erl` source
+files (3) and handwritten type descriptions coming from `erlref` XML files (2).
