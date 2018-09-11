@@ -247,3 +247,6 @@ io:format("~ts", [xmerl:export_simple(Test2Description#xmlElement.content, xmerl
 Test2DescriptionFull = lists:keyfind(fullDescription, #xmlElement.name, Test2Description#xmlElement.content).
 io:format("~ts", [xmerl:export_simple(Test2DescriptionFull#xmlElement.content, xmerl_html)]).
 io:format("~ts", [xmerl:export_simple(Test2DescriptionFull#xmlElement.content, xmerl_text)]).
+
+{ok, EE} = docsh_beam:from_loaded_module(edoc_example).
+docsh_edoc:to_internal(EE, [{debug, {".", [xml]}}]).
