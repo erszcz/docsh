@@ -76,7 +76,7 @@ t(M, T, Arity) when is_atom(M), is_atom(T),
       Items :: [docsh_internal:item_kind()].
 lookup(Key, Items) ->
     case docsh_lib:get_docs(key_to_module(Key)) of
-        {error, R} -> error(R, Key);
+        {error, R} -> erlang:error(R, Key);
         {ok, Docs} ->
             case docsh_format:lookup(Docs, Key, Items) of
                 {not_found, Message} ->

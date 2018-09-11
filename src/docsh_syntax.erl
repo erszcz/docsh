@@ -33,7 +33,7 @@ to_internal(Beam) ->
     try
         Forms = case {docsh_beam:abstract_code(Beam), docsh_beam:source_file(Beam)} of
                     {false, false} ->
-                        error(no_debug_info_no_src, [Beam]);
+                        erlang:error(no_debug_info_no_src, [Beam]);
                     {Abst, false} ->
                         Abst;
                     {_, Source} ->
@@ -47,7 +47,7 @@ to_internal(Beam) ->
 
 module_name(Forms) ->
     case lists:keyfind(module, 3, Forms) of
-        false -> error(not_found, [Forms]);
+        false -> erlang:error(not_found, [Forms]);
         {_, _, module, Mod} -> Mod
     end.
 

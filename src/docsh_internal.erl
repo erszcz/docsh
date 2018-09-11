@@ -32,10 +32,10 @@ merge([]) -> [];
 merge([Info]) -> Info;
 merge([Info1, Info2 | Rest]) ->
     case are_disjoint(Info1, Info2) of
-        false -> error(not_disjoint, [Info1, Info2 | Rest]);
+        false -> erlang:error(not_disjoint, [Info1, Info2 | Rest]);
         true ->
             (module(Info1) =:= module(Info2)
-             orelse error(different_modules, [Info1, Info2 | Rest])),
+             orelse erlang:error(different_modules, [Info1, Info2 | Rest])),
             merge([merge2(Info1, Info2) | Rest])
     end.
 

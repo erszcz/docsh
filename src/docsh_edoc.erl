@@ -29,7 +29,7 @@ to_internal(Beam) ->
 to_internal(Beam, Opts) ->
     try
         File = case docsh_beam:source_file(Beam) of
-                   false -> error(edoc_requires_source);
+                   false -> erlang:error(edoc_requires_source);
                    F when is_list(F) -> F
                end,
         {_Mod, EDoc} = edoc:get_doc(File, []),

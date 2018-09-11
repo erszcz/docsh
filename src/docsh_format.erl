@@ -24,7 +24,7 @@ lookup(Docs, Key, Items) ->
         {DocsFormat, FormatMod} ->
             FormatMod:lookup(Docs, Key, Items);
         false ->
-            error({unknown_docs_format, DocsFormat}, [Docs, Key, Items])
+            erlang:error({unknown_docs_format, DocsFormat}, [Docs, Key, Items])
     end.
 
 default_formats() ->
