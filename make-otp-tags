@@ -1,0 +1,15 @@
+#!/bin/sh
+
+[ -z "$WHERE" ] && WHERE="/Users/erszcz/work/erlang/otp/lib"
+[ -z "$CTAGS" ] && CTAGS=/Users/erszcz/apps/ctags/bin/ctags
+
+[ -f tags ] && rm tags
+find ${WHERE} \
+    -name .git -prune -o \
+    -name '*.ex' -print -o \
+    -name '*.exs' -print -o \
+    -name '*.erl' -print -o \
+    -name '*.hrl' -print -o \
+    -name '*.c' -print -o \
+    -name '*.h' -print \
+    | ${CTAGS} --languages=erlang -f tags.otp -L-
