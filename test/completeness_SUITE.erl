@@ -170,7 +170,7 @@ load_application(App) ->
     case application:load(App) of
         ok -> ok;
         {error, {already_loaded, App}} -> ok;
-        {error, R} -> error({cannot_load, App, R})
+        {error, R} -> erlang:error({cannot_load, App, R})
     end.
 
 has_edoc(SourceFile) ->
