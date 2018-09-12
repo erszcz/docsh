@@ -30,7 +30,8 @@
 '#root#'([#xmlElement{name = module} = Module], _, _, _) ->
     #{name => get_module_name(Module),
       description => get_module_description(Module),
-      functions => get_functions(Module)}.
+      functions => get_functions(Module),
+      types => get_types(Module)}.
 
 -spec '#element#'(any(), any(), any(), any(), any()) -> any().
 '#element#'(_, _, _, _, E) -> E.
@@ -62,8 +63,49 @@ get_function(#xmlElement{attributes = Attrs} = Function) ->
       exported    => list_to_boolean('find_attribute!'(exported, Attrs)),
       description => get_function_description(Function)}.
 
+get_types(#xmlElement{name = module} = M) ->
+    get_content(typedecls, [], fun get_types/1, M);
+get_types(#xmlElement{name = typedecls, content = Content}) ->
+    [ get_type(Type) || #xmlElement{name = typedecl} = Type <- Content ].
+
+-spec get_type(#xmlElement{}) -> #{kind        := 'type',
+                                   name        := atom(),
+                                   arity       := arity(),
+                                   description := binary()}.
+get_type(#xmlElement{name = typedecl} = Type) ->
+    #{kind        => 'type',
+      name        => get_type_name(Type),
+      arity       => get_type_arity(Type),
+      description => get_type_description(Type)}.
+
 get_function_description(#xmlElement{name = function} = Function) ->
     get_description(Function).
+
+get_type_name(#xmlElement{name = typedecl} = Type) ->
+    get_type_def(fun get_type_name/1, Type);
+get_type_name(#xmlElement{name = typedef} = TypeDef) ->
+    case get_content(erlangName, {error, no_erlang_name}, fun get_type_name/1, TypeDef) of
+        {error, no_erlang_name} -> erlang:error({not_found, erlangName});
+        TypeName -> TypeName
+    end;
+get_type_name(#xmlElement{name = erlangName, attributes = Attrs}) ->
+    ?l2ea('find_attribute!'(name, Attrs)).
+
+get_type_arity(#xmlElement{name = typedecl} = Type) ->
+    get_type_def(fun get_type_arity/1, Type);
+get_type_arity(#xmlElement{name = typedef} = TypeDef) ->
+    case get_content(argtypes, {error, no_argtypes}, fun get_type_arity/1, TypeDef) of
+        {error, no_argtypes} -> erlang:error({not_found, argtypes});
+        TypeArity -> TypeArity
+    end;
+get_type_arity(#xmlElement{name = argtypes, content = Content}) ->
+    count_args(Content).
+
+count_args(Args) ->
+    length([ Arg || #xmlElement{name = type} = Arg <- Args ]).
+
+get_type_description(#xmlElement{name = typedecl} = Type) ->
+    get_description(Type).
 
 %% Intended only for tracing.
 debug(_, _) -> ok.
@@ -86,6 +128,12 @@ get_full_description(#xmlElement{name = fullDescription, content = Content}) ->
 %% TODO: this might need extending
 format_text([#xmlText{value = Text}]) ->
     ?il2b(Text).
+
+get_type_def(ContinueFun, #xmlElement{name = typedecl} = Type) ->
+    case get_content(typedef, {error, no_typedef}, ContinueFun, Type) of
+        {error, no_typedef} -> erlang:error({not_found, typedef, Type});
+        ContinuationResult -> ContinuationResult
+    end.
 
 list_to_boolean("yes") -> true;
 list_to_boolean("no")  -> false.
