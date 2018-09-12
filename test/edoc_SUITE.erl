@@ -21,14 +21,27 @@ all() ->
 edoc_to_internal(_) ->
     {ok, DBeam} = docsh_beam:from_loaded_module(edoc_example),
     ct:pal("~p", [DBeam]),
-    ?eq([{module, [{name, edoc_example},
-                   {description, <<"Top-level module doc.\n">>}]},
-         {{function, {f,0}}, {{name, f},
-                              {arity, 0},
-                              {exported, true},
-                              {label, <<"f-0">>},
-                              {description, <<"Doc for f/0.\n">>}}}],
-        unwrap(?TESTED:to_internal(DBeam))).
+    ?assertEqual( #{name => edoc_example,
+                    description => <<"Top-level module doc.">>,
+                    functions => [ #{kind => function,
+                                     name => f,
+                                     arity => 0,
+                                     exported => true,
+                                     description => <<"Doc for f/0.">>} ],
+                    types => [ #{kind => type,
+                                 name => r,
+                                 arity => 0,
+                                 description => <<"Doc for type r().">>},
+                               #{kind => type,
+                                 name => s,
+                                 arity => 0,
+                                 description => <<"Example opaque type s().">>},
+                               #{kind => type,
+                                 name => t,
+                                 arity => 1,
+                                 description => <<"Unary type t/1.">>} ]},
+
+                  unwrap(?TESTED:to_internal(DBeam)) ).
 
 edoc_format(_) ->
     {ok, DBeam} = docsh_beam:from_loaded_module(edoc_example2),
