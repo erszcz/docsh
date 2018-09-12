@@ -119,4 +119,4 @@ source_file(Mod) ->
     proplists:get_value(source, Mod:module_info(compile)).
 
 unwrap({ok, V}) -> V;
-unwrap(Else) -> error(not_ok, [Else]).
+unwrap(Else) -> erlang:error(not_ok, [Else]).

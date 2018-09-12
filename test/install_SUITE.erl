@@ -100,7 +100,7 @@ wait_for(Predicate) ->
     wait_for(Predicate, 10 * 1000).
 
 wait_for(_Predicate, Timeout) when Timeout < 0 ->
-    error(timeout);
+    erlang:error(timeout);
 wait_for( Predicate, Timeout) ->
     case Predicate() of
         true -> ok;
