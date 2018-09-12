@@ -34,11 +34,12 @@
       types => get_types(Module)}.
 
 -spec '#element#'(any(), any(), any(), any(), any()) -> any().
-'#element#'(_, _, _, _, E) -> E.
+'#element#'(_Name, _Data, _Attrs, _Parents, E) -> E.
 
 %% The '#text#' function is called for every text segment.
 -spec '#text#'(any()) -> any().
-'#text#'(Text) -> ?il2b(Text).
+'#text#'(Text) ->
+	docsh_edown_xmerl:'#text#'(Text).
 
 get_module_name(#xmlElement{attributes = Attrs}) ->
     ?l2ea('find_attribute!'(name, Attrs)).
@@ -125,9 +126,8 @@ get_full_description(#xmlElement{name = description} = D) ->
 get_full_description(#xmlElement{name = fullDescription, content = Content}) ->
     format_text(Content).
 
-%% TODO: this might need extending
-format_text([#xmlText{value = Text}]) ->
-    ?il2b(Text).
+format_text(Entities) ->
+    ?il2b(xmerl:export_simple(Entities, docsh_edown_xmerl)).
 
 get_type_def(ContinueFun, #xmlElement{name = typedecl} = Type) ->
     case get_content(typedef, {error, no_typedef}, ContinueFun, Type) of

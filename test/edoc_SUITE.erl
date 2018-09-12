@@ -123,10 +123,9 @@ edoc_format(_, Element, Expected) ->
     ct:pal("~s", [D]),
     ?eq([Expected], [D]).
 
-function_description(F, Docs) ->
-    {{function, F},
-     {_,_,_,_,{description, D}}} = lists:keyfind({function, F}, 1, Docs),
-    D.
+function_description({Name, Arity}, #{functions := Functions}) ->
+    maps:get(description, hd([ F || F = #{name := FName, arity := FArity } <- Functions,
+                                    FName =:= Name, FArity =:= Arity ])).
 
 source_file(Mod) ->
     proplists:get_value(source, Mod:module_info(compile)).
