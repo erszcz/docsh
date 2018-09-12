@@ -125,9 +125,9 @@ get_full_description(#xmlElement{name = description} = D) ->
 get_full_description(#xmlElement{name = fullDescription, content = Content}) ->
     format_text(Content).
 
-%% TODO: this might need extending
-format_text([#xmlText{value = Text}]) ->
-    ?il2b(Text).
+format_text(TextSubtree) ->
+    %% Just return the EDoc subtree for storage or later processing.
+    TextSubtree.
 
 get_type_def(ContinueFun, #xmlElement{name = typedecl} = Type) ->
     case get_content(typedef, {error, no_typedef}, ContinueFun, Type) of
