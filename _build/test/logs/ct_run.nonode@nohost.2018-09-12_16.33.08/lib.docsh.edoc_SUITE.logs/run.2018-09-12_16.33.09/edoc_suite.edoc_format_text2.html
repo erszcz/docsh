@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Test edoc_SUITE:edoc_format_text2 result</title>
+<meta http-equiv="cache-control" content="no-cache"></meta>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"></meta>
+<link rel="stylesheet" href="../../ct_default.css" type="text/css"></link>
+<script type="text/javascript" src="../../jquery-latest.js"></script>
+<script type="text/javascript" src="../../jquery.tablesorter.min.js"></script>
+</head>
+<body>
+
+<a name="top"></a><pre>
+=== Test case: <a href="edoc_suite.src.html#edoc_format_text2-1">edoc_SUITE:edoc_format_text2/1</a> (click for source code)
+
+=== Config value:
+
+    [{watchdog,&lt;0.277.0&gt;},
+     {tc_logfile,"/Users/erszcz/work/erszcz/docsh/_build/test/logs/ct_run.nonode@nohost.2018-09-12_16.33.08/lib.docsh.edoc_SUITE.logs/run.2018-09-12_16.33.09/edoc_suite.edoc_format_text2.html"},
+     {tc_group_properties,[{suite,edoc_SUITE}]},
+     {tc_group_path,[]},
+     {data_dir,"/Users/erszcz/work/erszcz/docsh/_build/test/lib/docsh/test/edoc_SUITE_data/"},
+     {priv_dir,"/Users/erszcz/work/erszcz/docsh/_build/test/logs/ct_run.nonode@nohost.2018-09-12_16.33.08/lib.docsh.edoc_SUITE.logs/run.2018-09-12_16.33.09/log_private/"}]
+
+=== Current directory is "/Users/erszcz/work/erszcz/docsh/_build/test/logs/ct_run.nonode@nohost.2018-09-12_16.33.08"
+
+=== Started at 2018-09-12 16:33:11
+
+<br />
+
+</pre>
+<div class="default"><pre><b>*** User 2018-09-12 16:33:11.444 ***</b>
+
+
+Some
+loose text,
+not a paragraph.
+
+A paragraph.
+
+
+</pre></div>
+<pre>
+
+</pre>
+<div class="ct_error_notify"><pre><b>*** CT Error Notification 2018-09-12 16:33:11.445 ***</b>
+edoc_SUITE:'-edoc_format/3-fun-0-' failed on line 124
+Reason: assertEqual
+
+<a href="#end">Full error description and stacktrace</a>
+</pre></div>
+<pre>
+<a name="end"></a>
+
+
+=== Ended at 2018-09-12 16:33:11
+=== Location: [{edoc_SUITE,'-edoc_format/3-fun-0-',<a href="edoc_suite.src.html#124">124</a>},
+              {test_server,ts_tc,1546},
+              {test_server,run_test_case_eval1,1062},
+              {test_server,run_test_case_eval,994}]
+=== Reason: {assertEqual,
+                     [{module,edoc_SUITE},
+                      {line,124},
+                      {expression,"lists : sort ( __Actual )"},
+                      {expected,
+                          [&lt;&lt;"Some\nloose text,\nnot a paragraph.\n\nA paragraph.\n"&gt;&gt;]},
+                      {value,
+                          [&lt;&lt;"\n\nSome\nloose text,\nnot a paragraph.\n\nA paragraph.\n\n"&gt;&gt;]}]}
+  in function  edoc_SUITE:'-edoc_format/3-fun-0-'/2 (/Users/erszcz/work/erszcz/docsh/_build/test/lib/docsh/test/edoc_SUITE.erl, line 124)
+  in call from test_server:ts_tc/3 (test_server.erl, line 1546)
+  in call from test_server:run_test_case_eval1/6 (test_server.erl, line 1062)
+  in call from test_server:run_test_case_eval/9 (test_server.erl, line 994)
+</pre>
+<center>
+<br /><hr /><p>
+<a href="../../../all_runs.html">Test run history
+</a>  |  <a href="../../../index.html">Top level test index
+</a>  |  <a href="../../../suite.log.latest.html">Latest test result</a>
+</p>
+<div class="copyright">Copyright &copy; 2018 <a href="http://www.erlang.org">Open Telecom Platform</a><br />
+Updated: <!--date-->Wed Sep 12 2018 16:33:11<!--/date--><br />
+</div>
+</center>
+</body>
+</html>

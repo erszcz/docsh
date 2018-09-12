@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Test lib.docsh.edoc_SUITE results</title>
+<meta http-equiv="cache-control" content="no-cache"></meta>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"></meta>
+<link rel="stylesheet" href="../../ct_default.css" type="text/css"></link>
+<script type="text/javascript" src="../../jquery-latest.js"></script>
+<script type="text/javascript" src="../../jquery.tablesorter.min.js"></script>
+<script type="text/javascript">
+// Parser for date format, e.g: Wed Jul 4 2012 11:24:15
+var monthNames = {};
+monthNames["Jan"] = "01"; monthNames["Feb"] = "02";
+monthNames["Mar"] = "03"; monthNames["Apr"] = "04";
+monthNames["May"] = "05"; monthNames["Jun"] = "06";
+monthNames["Jul"] = "07"; monthNames["Aug"] = "08";
+monthNames["Sep"] = "09"; monthNames["Oct"] = "10";
+monthNames["Nov"] = "11"; monthNames["Dec"] = "12";
+$.tablesorter.addParser({
+  id: 'CTDateSorter',
+  is: function(s) {
+      return false; },
+  format: function(s) {
+      if (s.length < 2) return 999999999;
+      else {
+          var date = s.match(/(\w{3})\s(\w{3})\s(\d{2})\s(\d{4})\s(\d{2}):(\d{2}):(\d{2})/);
+          var y = date[4]; var mo = monthNames[date[2]]; var d = String(date[3]);
+          var h = String(date[5]); var mi = String(date[6]); var sec = String(date[7]);
+          return (parseInt('' + y + mo + d + h + mi + sec)); }},
+  type: 'numeric' });
+// Parser for general text format
+$.tablesorter.addParser({
+  id: 'CTTextSorter',
+  is: function(s) {
+    return false; },
+  format: function(s) {
+    if (s.length < 1) return 'zzzzzzzz';
+    else if (s == "?") return 'zzzzzzz';
+    else if (s == "-") return 'zzzzzz';
+    else if (s == "FAILED") return 'A';
+    else if (s == "SKIPPED") return 'B';
+    else if (s == "OK") return 'C';
+    else return '' + s; },
+  type: 'text' });
+// Parser for numerical values
+$.tablesorter.addParser({
+  id: 'CTValSorter',
+  is: function(s) {
+    return false; },
+  format: function(s) {
+    if (s.length < 1) return '-2';
+    else if (s == "?") return '-1';
+    else if ((s.search(/(\d{1,})\s/)) >= 0) {
+      var num = s.match(/(\d{1,})\s/);
+      return (parseInt('' + num[1])); }
+    else if ((s.search(/(\d{1,})\.(\d{3})s/)) >= 0) {
+      var num = s.match(/(\d{1,})\.(\d{3})/);
+      if (num[1] == "0") return (parseInt('' + num[2]));
+      else return (parseInt('' + num[1] + num[2])); }
+    else return '' + s; },
+  type: 'numeric' });
+$(document).ready(function() {
+  $("#SortableTable").tablesorter({
+    headers: { 
+      0: { sorter: 'CTValSorter' },
+      1: { sorter: 'CTTextSorter' },
+      2: { sorter: 'CTTextSorter' },
+      3: { sorter: 'CTTextSorter' },
+      5: { sorter: 'CTValSorter' },
+      6: { sorter: 'CTTextSorter' },
+      7: { sorter: 'CTTextSorter' }
+    }
+  });
+  $("#SortableTable").trigger("update");
+  $("#SortableTable").trigger("appendCache");
+});
+</script>
+</head>
+<body>
+
+<h1>Results for <i>lib.docsh.edoc_SUITE</i></h1>
+<h4>Test started at 2018-09-12 16:33:09</h4>
+<p><b>Host info:</b><br />
+Run by erszcz on nohost<br />Used Erlang v9.2 in "/Users/erszcz/.asdf/installs/erlang/20.2/lib/erlang"</p>
+<p><ul>
+<li><a href="suite.log">Full textual log</a></li>
+<li><a href="cover.html">Coverage log</a></li>
+<li><a href="unexpected_io.log.html">Unexpected I/O log</a></li>
+</ul></p>
+<p><i>Executing <b>9</b> test cases...</i>
+<br />
+</p>
+<table id="SortableTable">
+<thead>
+<tr><th>Num</th><th>Module</th><th>Group</th><th>Case</th><th>Log</th><th>Time</th><th>Result</th><th>Comment</th></tr>
+</thead>
+<tbody>
+<tr class="even"><td><font color="black"></font></td><td><font color="black">common_test</font></td><td><font color="black"></font></td><td><a href="ct_framework.init_per_suite.html">init_per_suite</a></td><td><a href="ct_framework.init_per_suite.html#top">&lt;</a> <a href="ct_framework.init_per_suite.html#end">&gt;</a></td><td><font color="black">0.000s</font></td><td><font color="green">Ok</font></td><td></td></tr>
+<tr class="odd"><td><font color="black">1</font></td><td><font color="black">edoc_SUITE</font></td><td><font color="black"></font></td><td><a href="edoc_suite.edoc_to_internal.html">edoc_to_internal</a></td><td><a href="edoc_suite.edoc_to_internal.html#top">&lt;</a> <a href="edoc_suite.edoc_to_internal.html#end">&gt;</a></td><td><font color="black">0.900s</font></td><td><font color="green">Ok</font></td><td></td></tr>
+<tr class="even"><td><font color="black">2</font></td><td><font color="black">edoc_SUITE</font></td><td><font color="black"></font></td><td><a href="edoc_suite.edoc_format.html">edoc_format</a></td><td><a href="edoc_suite.edoc_format.html#top">&lt;</a> <a href="edoc_suite.edoc_format.html#end">&gt;</a></td><td><font color="black">0.066s</font></td><td><font color="red">FAILED</font></td><td><font color="red">{edoc_SUITE,'-edoc_format/1-fun-0-',<a href="edoc_suite.src.html#50">50</a>}</font><br /><font color="green"><font color="brown">assertEqual</font></font></td></tr>
+<tr class="odd"><td><font color="black">3</font></td><td><font color="black">edoc_SUITE</font></td><td><font color="black"></font></td><td><a href="edoc_suite.edoc_format_code_in_loose_text.html">edoc_format_code_in_loose_text</a></td><td><a href="edoc_suite.edoc_format_code_in_loose_text.html#top">&lt;</a> <a href="edoc_suite.edoc_format_code_in_loose_text.html#end">&gt;</a></td><td><font color="black">0.043s</font></td><td><font color="red">FAILED</font></td><td><font color="red">{edoc_SUITE,'-edoc_format/3-fun-0-',<a href="edoc_suite.src.html#124">124</a>}</font><br /><font color="green"><font color="brown">assertEqual</font></font></td></tr>
+<tr class="even"><td><font color="black">4</font></td><td><font color="black">edoc_SUITE</font></td><td><font color="black"></font></td><td><a href="edoc_suite.edoc_format_dl.html">edoc_format_dl</a></td><td><a href="edoc_suite.edoc_format_dl.html#top">&lt;</a> <a href="edoc_suite.edoc_format_dl.html#end">&gt;</a></td><td><font color="black">0.041s</font></td><td><font color="red">FAILED</font></td><td><font color="red">{edoc_SUITE,'-edoc_format/3-fun-0-',<a href="edoc_suite.src.html#124">124</a>}</font><br /><font color="green"><font color="brown">assertEqual</font></font></td></tr>
+<tr class="odd"><td><font color="black">5</font></td><td><font color="black">edoc_SUITE</font></td><td><font color="black"></font></td><td><a href="edoc_suite.edoc_format_p.html">edoc_format_p</a></td><td><a href="edoc_suite.edoc_format_p.html#top">&lt;</a> <a href="edoc_suite.edoc_format_p.html#end">&gt;</a></td><td><font color="black">0.032s</font></td><td><font color="red">FAILED</font></td><td><font color="red">{edoc_SUITE,'-edoc_format/3-fun-0-',<a href="edoc_suite.src.html#124">124</a>}</font><br /><font color="green"><font color="brown">assertEqual</font></font></td></tr>
+<tr class="even"><td><font color="black">6</font></td><td><font color="black">edoc_SUITE</font></td><td><font color="black"></font></td><td><a href="edoc_suite.edoc_format_pre.html">edoc_format_pre</a></td><td><a href="edoc_suite.edoc_format_pre.html#top">&lt;</a> <a href="edoc_suite.edoc_format_pre.html#end">&gt;</a></td><td><font color="black">0.040s</font></td><td><font color="red">FAILED</font></td><td><font color="red">{edoc_SUITE,'-edoc_format/3-fun-0-',<a href="edoc_suite.src.html#124">124</a>}</font><br /><font color="green"><font color="brown">assertEqual</font></font></td></tr>
+<tr class="odd"><td><font color="black">7</font></td><td><font color="black">edoc_SUITE</font></td><td><font color="black"></font></td><td><a href="edoc_suite.edoc_format_text1.html">edoc_format_text1</a></td><td><a href="edoc_suite.edoc_format_text1.html#top">&lt;</a> <a href="edoc_suite.edoc_format_text1.html#end">&gt;</a></td><td><font color="black">0.054s</font></td><td><font color="red">FAILED</font></td><td><font color="red">{edoc_SUITE,'-edoc_format/3-fun-0-',<a href="edoc_suite.src.html#124">124</a>}</font><br /><font color="green"><font color="brown">assertEqual</font></font></td></tr>
+<tr class="even"><td><font color="black">8</font></td><td><font color="black">edoc_SUITE</font></td><td><font color="black"></font></td><td><a href="edoc_suite.edoc_format_text2.html">edoc_format_text2</a></td><td><a href="edoc_suite.edoc_format_text2.html#top">&lt;</a> <a href="edoc_suite.edoc_format_text2.html#end">&gt;</a></td><td><font color="black">0.059s</font></td><td><font color="red">FAILED</font></td><td><font color="red">{edoc_SUITE,'-edoc_format/3-fun-0-',<a href="edoc_suite.src.html#124">124</a>}</font><br /><font color="green"><font color="brown">assertEqual</font></font></td></tr>
+<tr class="odd"><td><font color="black">9</font></td><td><font color="black">edoc_SUITE</font></td><td><font color="black"></font></td><td><a href="edoc_suite.edoc_format_ul.html">edoc_format_ul</a></td><td><a href="edoc_suite.edoc_format_ul.html#top">&lt;</a> <a href="edoc_suite.edoc_format_ul.html#end">&gt;</a></td><td><font color="black">0.036s</font></td><td><font color="red">FAILED</font></td><td><font color="red">{edoc_SUITE,'-edoc_format/3-fun-0-',<a href="edoc_suite.src.html#124">124</a>}</font><br /><font color="green"><font color="brown">assertEqual</font></font></td></tr>
+<tr class="even"><td><font color="black"></font></td><td><font color="black">common_test</font></td><td><font color="black"></font></td><td><a href="ct_framework.end_per_suite.html">end_per_suite</a></td><td><a href="ct_framework.end_per_suite.html#top">&lt;</a> <a href="ct_framework.end_per_suite.html#end">&gt;</a></td><td><font color="black">0.000s</font></td><td><font color="green">Ok</font></td><td></td></tr>
+
+</tbody>
+<tfoot>
+<tr><td></td><td><b>TOTAL</b></td><td></td><td></td><td></td><td>2.053s</td><td><b>FAILED</b></td><td>1 Ok, 8 Failed of 9</td></tr>
+</tfoot>
+
+</table>
+<center>
+<br /><hr /><p>
+<a href="../../../all_runs.html">Test run history
+</a>  |  <a href="../../../index.html">Top level test index
+</a>  |  <a href="../../../suite.log.latest.html">Latest test result</a>
+</p>
+<div class="copyright">Copyright &copy; 2018 <a href="http://www.erlang.org">Open Telecom Platform</a><br />
+Updated: <!--date-->Wed Sep 12 2018 16:33:09<!--/date--><br />
+</div>
+</center>
+</body>
+</html>

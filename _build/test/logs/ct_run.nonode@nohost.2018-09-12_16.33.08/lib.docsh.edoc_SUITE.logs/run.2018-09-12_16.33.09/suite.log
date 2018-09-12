@@ -1,0 +1,308 @@
+=== Suite started at 2018-09-12 16:33:09
+=== Starting test, 9 test cases
+=cases         9
+=user          erszcz
+=host          nohost
+=hosts         nohost 
+=emulator_vsn  9.2
+=emulator      beam
+=otp_release   20
+=started       2018-09-12 16:33:09
+=case          ct_framework:init_per_suite
+=logfile       ct_framework.init_per_suite.html
+=group_props   [{suite,edoc_SUITE}]
+=started       2018-09-12 16:33:09
+=ended         2018-09-12 16:33:09
+=result        ok
+=elapsed       2.0e-6
+=case          edoc_SUITE:edoc_to_internal
+=logfile       edoc_suite.edoc_to_internal.html
+=started       2018-09-12 16:33:09
+=ended         2018-09-12 16:33:10
+=result        ok
+=elapsed       0.900217
+=case          edoc_SUITE:edoc_format
+=logfile       edoc_suite.edoc_format.html
+=started       2018-09-12 16:33:10
+=ended         2018-09-12 16:33:10
+=result        failed: {{assertEqual,
+                            [{module,edoc_SUITE},
+                             {line,50},
+                             {expression,"lists : sort ( __Actual )"},
+                             {expected,
+                                 [<<"g() returns a more complex value,\nwhile its documentation uses more complex markup.\n\n  Why?\n\n      To test the documentation extraction and formatting process.\n\n  Any other reason?\n\n      Not really.\n\n\n  - Some\n  - Random\n  - Items\n\n  1. One\n  2. Two\n  3. Three:\n      - a\n      - b\n      - c\n">>]},
+                             {value,
+                                 [<<"\n\ng() returns a more complex value,\nwhile its documentation uses more complex markup.\n\n\n<dt>Why?</dt>\n\n\n\n<dd>To test the documentation extraction and formatting process.</dd>\n\n\n\n<dt>Any other reason?</dt>\n\n\n\n<dd>Not really.</dd>\n\n* Some\n* Random\n* Items\n1. One\n1. Two\n1.\n\nThree:\n\n* a\n* b\n* c\n">>]}]},
+                        [{edoc_SUITE,'-edoc_format/1-fun-0-',2,
+                             [{file,
+                                  "/Users/erszcz/work/erszcz/docsh/_build/test/lib/docsh/test/edoc_SUITE.erl"},
+                              {line,50}]},
+                         {test_server,ts_tc,3,
+                             [{file,"test_server.erl"},{line,1546}]},
+                         {test_server,run_test_case_eval1,6,
+                             [{file,"test_server.erl"},{line,1062}]},
+                         {test_server,run_test_case_eval,9,
+                             [{file,"test_server.erl"},{line,994}]}]}, [{edoc_SUITE,
+                                                                         '-edoc_format/1-fun-0-',
+                                                                         50},
+                                                                        {test_server,
+                                                                         ts_tc,
+                                                                         1546},
+                                                                        {test_server,
+                                                                         run_test_case_eval1,
+                                                                         1062},
+                                                                        {test_server,
+                                                                         run_test_case_eval,
+                                                                         994}]
+=== *** FAILED test case 2 of 9 ***
+=case          edoc_SUITE:edoc_format_code_in_loose_text
+=logfile       edoc_suite.edoc_format_code_in_loose_text.html
+=started       2018-09-12 16:33:10
+=ended         2018-09-12 16:33:11
+=result        failed: {{assertEqual,
+                            [{module,edoc_SUITE},
+                             {line,124},
+                             {expression,"lists : sort ( __Actual )"},
+                             {expected,
+                                 [<<"Fetch the internal state of an OTP process.\nCalls sys:get_state/2 directly in R16B01+, and fetches\nit dynamically on older versions of OTP.\n">>]},
+                             {value,
+                                 [<<"Fetch the internal state of an OTP process.\n  Calls `sys:get_state/2` directly in R16B01+, and fetches\n  it dynamically on older versions of OTP.">>]}]},
+                        [{edoc_SUITE,'-edoc_format/3-fun-0-',2,
+                             [{file,
+                                  "/Users/erszcz/work/erszcz/docsh/_build/test/lib/docsh/test/edoc_SUITE.erl"},
+                              {line,124}]},
+                         {test_server,ts_tc,3,
+                             [{file,"test_server.erl"},{line,1546}]},
+                         {test_server,run_test_case_eval1,6,
+                             [{file,"test_server.erl"},{line,1062}]},
+                         {test_server,run_test_case_eval,9,
+                             [{file,"test_server.erl"},{line,994}]}]}, [{edoc_SUITE,
+                                                                         '-edoc_format/3-fun-0-',
+                                                                         124},
+                                                                        {test_server,
+                                                                         ts_tc,
+                                                                         1546},
+                                                                        {test_server,
+                                                                         run_test_case_eval1,
+                                                                         1062},
+                                                                        {test_server,
+                                                                         run_test_case_eval,
+                                                                         994}]
+=== *** FAILED test case 3 of 9 ***
+=case          edoc_SUITE:edoc_format_dl
+=logfile       edoc_suite.edoc_format_dl.html
+=started       2018-09-12 16:33:11
+=ended         2018-09-12 16:33:11
+=result        failed: {{assertEqual,
+                            [{module,edoc_SUITE},
+                             {line,124},
+                             {expression,"lists : sort ( __Actual )"},
+                             {expected,
+                                 [<<"  sys_alloc\n\n      System allocator, usually just malloc\n\n  mseg_alloc\n\n      Used by other allocators, can do mmap. Caches allocations\n\n">>]},
+                             {value,
+                                 [<<"\n\n<dt>sys_alloc</dt>\n\n\n\n<dd>System allocator, usually just malloc</dd>\n\n\n\n<dt>mseg_alloc</dt>\n\n\n\n<dd>Used by other allocators, can do mmap. Caches allocations</dd>\n\n">>]}]},
+                        [{edoc_SUITE,'-edoc_format/3-fun-0-',2,
+                             [{file,
+                                  "/Users/erszcz/work/erszcz/docsh/_build/test/lib/docsh/test/edoc_SUITE.erl"},
+                              {line,124}]},
+                         {test_server,ts_tc,3,
+                             [{file,"test_server.erl"},{line,1546}]},
+                         {test_server,run_test_case_eval1,6,
+                             [{file,"test_server.erl"},{line,1062}]},
+                         {test_server,run_test_case_eval,9,
+                             [{file,"test_server.erl"},{line,994}]}]}, [{edoc_SUITE,
+                                                                         '-edoc_format/3-fun-0-',
+                                                                         124},
+                                                                        {test_server,
+                                                                         ts_tc,
+                                                                         1546},
+                                                                        {test_server,
+                                                                         run_test_case_eval1,
+                                                                         1062},
+                                                                        {test_server,
+                                                                         run_test_case_eval,
+                                                                         994}]
+=== *** FAILED test case 4 of 9 ***
+=case          edoc_SUITE:edoc_format_p
+=logfile       edoc_suite.edoc_format_p.html
+=started       2018-09-12 16:33:11
+=ended         2018-09-12 16:33:11
+=result        failed: {{assertEqual,
+                            [{module,edoc_SUITE},
+                             {line,124},
+                             {expression,"lists : sort ( __Actual )"},
+                             {expected,[<<"Just\na paragraph.\n">>]},
+                             {value,[<<"\n\n  Just\n   a paragraph.\n\n">>]}]},
+                        [{edoc_SUITE,'-edoc_format/3-fun-0-',2,
+                             [{file,
+                                  "/Users/erszcz/work/erszcz/docsh/_build/test/lib/docsh/test/edoc_SUITE.erl"},
+                              {line,124}]},
+                         {test_server,ts_tc,3,
+                             [{file,"test_server.erl"},{line,1546}]},
+                         {test_server,run_test_case_eval1,6,
+                             [{file,"test_server.erl"},{line,1062}]},
+                         {test_server,run_test_case_eval,9,
+                             [{file,"test_server.erl"},{line,994}]}]}, [{edoc_SUITE,
+                                                                         '-edoc_format/3-fun-0-',
+                                                                         124},
+                                                                        {test_server,
+                                                                         ts_tc,
+                                                                         1546},
+                                                                        {test_server,
+                                                                         run_test_case_eval1,
+                                                                         1062},
+                                                                        {test_server,
+                                                                         run_test_case_eval,
+                                                                         994}]
+=== *** FAILED test case 5 of 9 ***
+=case          edoc_SUITE:edoc_format_pre
+=logfile       edoc_suite.edoc_format_pre.html
+=started       2018-09-12 16:33:11
+=ended         2018-09-12 16:33:11
+=result        failed: {{assertEqual,
+                            [{module,edoc_SUITE},
+                             {line,124},
+                             {expression,"lists : sort ( __Actual )"},
+                             {expected,
+                                 [<<"    pre\n      formatted\n        text\n">>]},
+                             {value,
+                                 [<<"\n```\n    pre\n      formatted\n        text\n```\n">>]}]},
+                        [{edoc_SUITE,'-edoc_format/3-fun-0-',2,
+                             [{file,
+                                  "/Users/erszcz/work/erszcz/docsh/_build/test/lib/docsh/test/edoc_SUITE.erl"},
+                              {line,124}]},
+                         {test_server,ts_tc,3,
+                             [{file,"test_server.erl"},{line,1546}]},
+                         {test_server,run_test_case_eval1,6,
+                             [{file,"test_server.erl"},{line,1062}]},
+                         {test_server,run_test_case_eval,9,
+                             [{file,"test_server.erl"},{line,994}]}]}, [{edoc_SUITE,
+                                                                         '-edoc_format/3-fun-0-',
+                                                                         124},
+                                                                        {test_server,
+                                                                         ts_tc,
+                                                                         1546},
+                                                                        {test_server,
+                                                                         run_test_case_eval1,
+                                                                         1062},
+                                                                        {test_server,
+                                                                         run_test_case_eval,
+                                                                         994}]
+=== *** FAILED test case 6 of 9 ***
+=case          edoc_SUITE:edoc_format_text1
+=logfile       edoc_suite.edoc_format_text1.html
+=started       2018-09-12 16:33:11
+=ended         2018-09-12 16:33:11
+=result        failed: {{assertEqual,
+                            [{module,edoc_SUITE},
+                             {line,124},
+                             {expression,"lists : sort ( __Actual )"},
+                             {expected,
+                                 [<<"Some\nloose text,\nnot a paragraph.\n">>]},
+                             {value,
+                                 [<<"Some\n   loose text,\n      not a paragraph.">>]}]},
+                        [{edoc_SUITE,'-edoc_format/3-fun-0-',2,
+                             [{file,
+                                  "/Users/erszcz/work/erszcz/docsh/_build/test/lib/docsh/test/edoc_SUITE.erl"},
+                              {line,124}]},
+                         {test_server,ts_tc,3,
+                             [{file,"test_server.erl"},{line,1546}]},
+                         {test_server,run_test_case_eval1,6,
+                             [{file,"test_server.erl"},{line,1062}]},
+                         {test_server,run_test_case_eval,9,
+                             [{file,"test_server.erl"},{line,994}]}]}, [{edoc_SUITE,
+                                                                         '-edoc_format/3-fun-0-',
+                                                                         124},
+                                                                        {test_server,
+                                                                         ts_tc,
+                                                                         1546},
+                                                                        {test_server,
+                                                                         run_test_case_eval1,
+                                                                         1062},
+                                                                        {test_server,
+                                                                         run_test_case_eval,
+                                                                         994}]
+=== *** FAILED test case 7 of 9 ***
+=case          edoc_SUITE:edoc_format_text2
+=logfile       edoc_suite.edoc_format_text2.html
+=started       2018-09-12 16:33:11
+=ended         2018-09-12 16:33:11
+=result        failed: {{assertEqual,
+                            [{module,edoc_SUITE},
+                             {line,124},
+                             {expression,"lists : sort ( __Actual )"},
+                             {expected,
+                                 [<<"Some\nloose text,\nnot a paragraph.\n\nA paragraph.\n">>]},
+                             {value,
+                                 [<<"\n\nSome\nloose text,\nnot a paragraph.\n\nA paragraph.\n\n">>]}]},
+                        [{edoc_SUITE,'-edoc_format/3-fun-0-',2,
+                             [{file,
+                                  "/Users/erszcz/work/erszcz/docsh/_build/test/lib/docsh/test/edoc_SUITE.erl"},
+                              {line,124}]},
+                         {test_server,ts_tc,3,
+                             [{file,"test_server.erl"},{line,1546}]},
+                         {test_server,run_test_case_eval1,6,
+                             [{file,"test_server.erl"},{line,1062}]},
+                         {test_server,run_test_case_eval,9,
+                             [{file,"test_server.erl"},{line,994}]}]}, [{edoc_SUITE,
+                                                                         '-edoc_format/3-fun-0-',
+                                                                         124},
+                                                                        {test_server,
+                                                                         ts_tc,
+                                                                         1546},
+                                                                        {test_server,
+                                                                         run_test_case_eval1,
+                                                                         1062},
+                                                                        {test_server,
+                                                                         run_test_case_eval,
+                                                                         994}]
+=== *** FAILED test case 8 of 9 ***
+=case          edoc_SUITE:edoc_format_ul
+=logfile       edoc_suite.edoc_format_ul.html
+=started       2018-09-12 16:33:11
+=ended         2018-09-12 16:33:11
+=result        failed: {{assertEqual,
+                            [{module,edoc_SUITE},
+                             {line,124},
+                             {expression,"lists : sort ( __Actual )"},
+                             {expected,
+                                 [<<"  - Module is any atom representing a module\n  - Function is any atom representing a function, or the wildcard\n    '_'\n  - Args is either the arity of a function (0..255), a wildcard\n    pattern ('_'), a\n    match specification,\n    or a function from a shell session that can be transformed into\n    a match specification\n">>]},
+                             {value,
+                                 [<<"* `Module` is any atom representing a module\n* `Function` is any atom representing a function, or the wildcard`'_'`\n* `Args` is either the arity of a function (`0..255`), a wildcard\n       pattern (`'_'`), a[match specification](http://learnyousomeerlang.com/ets#you-have-been-selected),\n       or a function from a shell session that can be transformed into\n       a match specification\n">>]}]},
+                        [{edoc_SUITE,'-edoc_format/3-fun-0-',2,
+                             [{file,
+                                  "/Users/erszcz/work/erszcz/docsh/_build/test/lib/docsh/test/edoc_SUITE.erl"},
+                              {line,124}]},
+                         {test_server,ts_tc,3,
+                             [{file,"test_server.erl"},{line,1546}]},
+                         {test_server,run_test_case_eval1,6,
+                             [{file,"test_server.erl"},{line,1062}]},
+                         {test_server,run_test_case_eval,9,
+                             [{file,"test_server.erl"},{line,994}]}]}, [{edoc_SUITE,
+                                                                         '-edoc_format/3-fun-0-',
+                                                                         124},
+                                                                        {test_server,
+                                                                         ts_tc,
+                                                                         1546},
+                                                                        {test_server,
+                                                                         run_test_case_eval1,
+                                                                         1062},
+                                                                        {test_server,
+                                                                         run_test_case_eval,
+                                                                         994}]
+=== *** FAILED test case 9 of 9 ***
+=case          ct_framework:end_per_suite
+=logfile       ct_framework.end_per_suite.html
+=group_props   [{suite,edoc_SUITE}]
+=started       2018-09-12 16:33:11
+=ended         2018-09-12 16:33:11
+=result        ok
+=elapsed       1.0e-6
+=group_time    1.819s
+=== TEST COMPLETE, 1 ok, 8 failed of 9 test cases
+
+=finished      2018-09-12 16:33:11
+=failed        8
+=successful    1
+=user_skipped  0
+=auto_skipped  0
