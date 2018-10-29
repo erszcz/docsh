@@ -4,11 +4,15 @@
 -export([available/1,
          to_internal/1]).
 
+%% EDoc facade
+-export([format_edoc/2]).
+
 %% Test API
 -export([to_internal/2]).
 
 -import(docsh_lib, [print/2]).
 
+-include_lib("xmerl/include/xmerl.hrl").
 -define(l(Args), fun () -> Args end).
 
 -spec available(docsh_beam:t()) -> [docsh_reader:t()].
@@ -41,6 +45,9 @@ to_internal(Beam, Opts) ->
     catch
         _:R -> {error, R, erlang:get_stacktrace()}
     end.
+
+format_edoc(_Mod, [#xmlText{} = Doc]) ->
+    Doc#xmlText.value.
 
 dispatch(source,    File, _EDoc) ->
     {ok, Content} = file:read_file(File),

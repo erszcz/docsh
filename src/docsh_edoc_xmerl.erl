@@ -24,8 +24,10 @@
 '#root#'([#xmlElement{name = module} = Module], _, _, _) ->
     #{name => get_module_name(Module),
       description => get_module_description(Module),
-      functions => get_functions(Module),
-      types => get_types(Module)}.
+      items => [ {kna(Item), Item}
+                 || Item <- get_functions(Module) ++ get_types(Module) ]}.
+
+kna(#{kind := K, name := N, arity := A}) -> {K, N, A}.
 
 -spec '#element#'(any(), any(), any(), any(), any()) -> any().
 '#element#'(_, _, _, _, E) -> E.
@@ -70,6 +72,9 @@ get_type(#xmlElement{name = typedecl} = Type) ->
     #{kind        => 'type',
       name        => get_type_name(Type),
       arity       => get_type_arity(Type),
+      %% TODO: really always true? anyway, we want the structure for functions and types
+      %% to be the same
+      exported    => true,
       description => get_type_description(Type)}.
 
 get_function_description(#xmlElement{name = function} = Function) ->

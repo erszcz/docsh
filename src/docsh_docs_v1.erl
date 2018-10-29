@@ -85,7 +85,7 @@ select(_, _, _, _) ->
     false.
 
 format_module_doc(Mod, Doc) ->
-    ?il2b(["\n# ", ?a2b(Mod), "\n\n", Doc, "\n"]).
+    ?il2b(["\n# ", ?a2b(Mod), "\n\n", docsh_edoc:format_edoc(Mod, Doc), "\n\n"]).
 
 format_functions(Mod, Items, Kinds, Lang) ->
     ?il2b([ ["\n", ?il2b([?a2b(Mod), ":", ?a2b(Name), "/", ?i2b(Arity), "\n\n",
@@ -104,17 +104,21 @@ format_maybe_doc(Doc, Lang) -> maps:get(Lang, Doc).
 
 -spec from_internal(docsh_internal:t()) -> t().
 from_internal(Internal) ->
-    Grouped = docsh_internal:grouped(Internal),
     %% TODO: remove
-    %docsh_lib:print("from_internal grouped ~p\n", [Grouped]),
+    %docsh_lib:print("internal ~p\n", [Internal]),
+    #{name := ModuleInfo,
+      description := Description} = Internal,
+    %% TODO: this contains some assumptions, e.g. English language
+    Docs0 =
+        (docs_v1_default())#docs_v1{format = <<"text/erlang-edoc">>,
+                                    module_doc = #{<<"en">> => Description}},
     %% TODO: it would be nice to get source location for the annotation here
-    ModuleInfo = maps:get({module, 0}, Grouped),
-    {DocsV1, DocsMap} = maps:fold(mk_step(ModuleInfo),
-                                  {docs_v1_default(), #{}},
-                                  Grouped),
-    %docsh_lib:print("DocsV1 : ~p\n", [DocsV1]),
+    {Docs, DocsMap} = lists:foldl(mk_step(ModuleInfo),
+                                  {Docs0, #{}},
+                                  maps:get(items, Internal)),
+    %docsh_lib:print("Docs : ~p\n", [Docs]),
     %docsh_lib:print("DocsMap: ~p\n", [DocsMap]),
-    DocsV1#docs_v1{docs = maps:values(DocsMap)}.
+    Docs#docs_v1{docs = maps:values(DocsMap)}.
 
 docs_v1_default() ->
     #docs_v1{anno = erl_anno:new({0, 1}),
@@ -131,68 +135,34 @@ item_doc_not_available() ->
     <<"Documentation for the entry is not available.\n">>.
 
 mk_step(ModuleInfo) ->
-    fun (NameArity, Info, Acc) -> step(ModuleInfo, NameArity, Info, Acc) end.
+    fun ({KindNameArity, Info}, Acc) -> step(ModuleInfo, KindNameArity, Info, Acc) end.
 
-step(_ModuleInfo, {module, 0}, Info, { DocsV1, DocsMap }) ->
-    [{module, InfoItems}] = Info,
-    NewDocsV1 = DocsV1#docs_v1{module_doc = #{<<"en">> => module_doc(InfoItems)}},
-    { NewDocsV1, DocsMap };
-step(_ModuleInfo, {Name, Arity}, Info0, { #docs_v1{} = DocsV1, DocsMap }) ->
-    Info = flatten_info(Info0),
+step(_ModuleInfo, {Kind, Name, Arity} = KNA, Info, { #docs_v1{} = DocsV1, DocsMap }) ->
     %docsh_lib:print("item: ~p\n", [Info]),
     %ct:pal("item: ~p\n", [Info]),
-    Kind = infer_item_kind(Info),
-    KNA = {Kind, Name, Arity},
-    Entry = { {Kind, Name, Arity},
+    Entry = { KNA,
               erl_anno:new({0, 1}),
               signature(Kind, Name, Arity, Info),
               #{<<"en">> => description(Name, Arity, Info)},
               #{} },
     {DocsV1, DocsMap#{KNA => Entry}}.
 
-flatten_info(Info) -> lists:foldl(fun flatten_info/2, [], Info).
+signature(Kind, Name, Arity, _Info) ->
+    %% TODO: this is a placeholder!
+    <<"sig-", (?a2b(Kind))/bytes, "-", (?a2b(Name))/bytes, "/", (?i2b(Arity))/bytes>>.
 
-flatten_info({{spec, _}, {description, BSpec}}, Acc) ->
-    [{spec, BSpec} | Acc];
-flatten_info({{type, _}, {description, BType}}, Acc) ->
-    [{type, BType} | Acc];
-flatten_info({{function, _}, FunctionInfo}, Acc) ->
-    tuple_to_list(FunctionInfo) ++  Acc.
+    %InfoKey = case Kind of
+    %              function -> spec;
+    %              type -> type
+    %          end,
+    %case docsh_lib:get(InfoKey, Info, not_found) of
+    %    not_found ->
+    %        SName = atom_to_list(Name),
+    %        SArity = integer_to_list(Arity),
+    %        [iolist_to_binary([SName, "/", SArity])];
+    %    InfoItem ->
+    %        [InfoItem]
+    %end.
 
-infer_item_kind(Info) ->
-    case lists:keyfind(type, 1, Info) of
-        false -> function;
-        _ -> type
-    end.
-
-signature(Kind, Name, Arity, Info) ->
-    InfoKey = case Kind of
-                  function -> spec;
-                  type -> type
-              end,
-    case docsh_lib:get(InfoKey, Info, not_found) of
-        not_found ->
-            SName = atom_to_list(Name),
-            SArity = integer_to_list(Arity),
-            [iolist_to_binary([SName, "/", SArity])];
-        InfoItem ->
-            [InfoItem]
-    end.
-
-module_doc(ModuleInfo) ->
-    case docsh_lib:get(description, ModuleInfo, not_found) of
-        not_found ->
-            module_doc_not_available();
-        Desc when is_binary(Desc) ->
-            Desc
-    end.
-
-description(_Name, _Arity, Info) ->
-    case docsh_lib:get(description, Info, not_found) of
-        not_found ->
-            item_doc_not_available();
-        undefined ->
-            item_doc_not_available();
-        Desc when is_binary(Desc) ->
-            Desc
-    end.
+description(_Name, _Arity, #{description := Desc}) ->
+    Desc.

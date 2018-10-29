@@ -49,14 +49,16 @@ grouped([_|_] = Internal) ->
 %%' Internal
 %%
 
-merge2(Info1, Info2) ->
+merge2(#{items := Items1} = Info1, #{items := Items2}) ->
     %% TODO: this might discard valuable module info from Info2
-    Info1 ++ lists:keydelete(module, 1, Info2).
+    Info1#{items := Items1 ++ Items2}.
 
 are_disjoint(Info1, Info2) ->
-    Keys1 = proplists:get_keys(Info1) -- [module],
-    Keys2 = proplists:get_keys(Info2) -- [module],
-    Keys1 -- Keys2 == Keys1.
+    Module = maps:get(name, Info1),
+    Module = maps:get(name, Info2),
+    #{items := {Items1, _}} = Info1,
+    #{items := {Items2, _}} = Info2,
+    Items1 -- Items2 == Items1.
 
 module(Info) ->
     {_, Props} = lists:keyfind(module, 1, Info),
