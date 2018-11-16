@@ -110,10 +110,10 @@ get_content(Name, Default, ContinueFun, #xmlElement{content = Content} = Element
     end.
 
 get_description(#xmlElement{} = Element) ->
-    get_content(description, <<>>, fun get_full_description/1, Element).
+    get_content(description, none, fun get_full_description/1, Element).
 
 get_full_description(#xmlElement{name = description} = D) ->
-    get_content(fullDescription, <<>>, fun get_full_description/1, D);
+    get_content(fullDescription, none, fun get_full_description/1, D);
 get_full_description(#xmlElement{name = fullDescription, content = Content}) ->
     format_text(Content).
 

@@ -106,12 +106,15 @@ format_maybe_doc(Doc, Lang) -> maps:get(Lang, Doc).
 from_internal(Internal) ->
     %% TODO: remove
     %docsh_lib:print("internal ~p\n", [Internal]),
-    #{name := ModuleInfo,
+    #{name := ModuleName,
       description := Description} = Internal,
     %% TODO: this contains some assumptions, e.g. English language
+    Lang = <<"en">>,
+    ModuleInfo = #{name => ModuleName,
+                   lang => Lang},
     Docs0 =
         (docs_v1_default())#docs_v1{format = <<"text/erlang-edoc">>,
-                                    module_doc = #{<<"en">> => Description}},
+                                    module_doc = module_doc(Lang, Description)},
     %% TODO: it would be nice to get source location for the annotation here
     {Docs, DocsMap} = lists:foldl(mk_step(ModuleInfo),
                                   {Docs0, #{}},
@@ -124,9 +127,12 @@ docs_v1_default() ->
     #docs_v1{anno = erl_anno:new({0, 1}),
              beam_language = erlang,
              format = <<"text/plain">>,
-             module_doc = #{<<"en">> => module_doc_not_available()},
+             module_doc = none,
              metadata = #{},
              docs = []}.
+
+module_doc(_Lang, none) -> none;
+module_doc( Lang, D) -> #{Lang => D}.
 
 module_doc_not_available() ->
     <<"Documentation for the module is not available.\n">>.
@@ -137,19 +143,22 @@ item_doc_not_available() ->
 mk_step(ModuleInfo) ->
     fun (Info, Acc) -> step(ModuleInfo, Info, Acc) end.
 
-step(_ModuleInfo, Info, { #docs_v1{} = DocsV1, DocsMap }) ->
+step(ModuleInfo, Info, { #docs_v1{} = DocsV1, DocsMap }) ->
     %docsh_lib:print("item: ~p\n", [Info]),
     %ct:pal("item: ~p\n", [Info]),
     {_, Name, Arity} = KNA = docsh_internal:kna(Info),
     Entry = { KNA,
               erl_anno:new({0, 1}),
               signature(Info),
-              #{<<"en">> => description(Name, Arity, Info)},
+              description(Name, Arity, Info, ModuleInfo),
               #{} },
     {DocsV1, DocsMap#{KNA => Entry}}.
 
 signature(Info) ->
     maps:get(signature, Info).
 
-description(_Name, _Arity, #{description := Desc}) ->
-    Desc.
+description(_Name, _Arity, #{description := D}, #{lang := Lang}) ->
+    case D of
+        none -> none;
+        _ -> #{Lang => D}
+    end.

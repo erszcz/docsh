@@ -9,12 +9,12 @@
 
 -type t()    :: #{name        := module(),
                   items       := [item()],
-                  description => iodata()}.
+                  description => none | iodata()}.
 
 -type item() :: #{kind        := function | type,
                   name        := atom(),
                   arity       := arity(),
-                  description => iodata(),
+                  description => none | iodata(),
                   exported    => boolean(),
                   signature   => iodata()}.
 
