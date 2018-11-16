@@ -4,21 +4,6 @@
 -export([available/1,
          to_internal/1]).
 
--export([specs/1,
-         types/1]).
-
-%% Internal.
--export([spec/1,
-         type/1]).
-
--import(docsh_lib, [debug/3]).
-
--type ast() :: [form()].
--type form() :: erl_parse:abstract_form().
-
-%% TODO: temporary type
--type z() :: {{spec | type, {atom(), arity()}}, {description, binary()}}.
-
 -define(il2b(IOList), iolist_to_binary(IOList)).
 -define(l(Args), fun () -> Args end).
 
@@ -40,54 +25,60 @@ to_internal(Beam) ->
                         {ok, Fs} = epp:parse_file(Source, []),
                         Fs
                 end,
-        {ok, [{module, [{name, module_name(Forms)}]}] ++ specs(Forms) ++ types(Forms)}
+        Internal = #{name => get_module_name(Forms),
+                     items => get_functions(Forms) ++ get_types(Forms)},
+        {ok, Internal}
     catch
         _:R -> {error, R, erlang:get_stacktrace()}
     end.
 
-module_name(Forms) ->
+get_module_name(Forms) ->
     case lists:keyfind(module, 3, Forms) of
-        false -> erlang:error(not_found, [Forms]);
+        false -> erlang:error({not_found, module, Forms}, [Forms]);
         {_, _, module, Mod} -> Mod
     end.
 
--spec specs(ast()) -> [z()].
-specs(Forms) -> attrs(spec, Forms).
+-spec get_functions([erl_parse:abstract_form()]) -> [docsh_internal:item()].
+get_functions(Forms) ->
+    [ function(Spec) || {attribute, _, spec, _} = Spec <- Forms ].
 
--spec types(ast()) -> [z()].
-types(Forms) -> attrs(type, Forms).
+function({attribute, _, spec, _} = Spec) ->
+    #{kind      => 'function',
+      name      => function_name(Spec),
+      arity     => function_arity(Spec),
+      signature => function_signature(Spec)}.
 
--spec attrs(spec | type, ast()) -> [z()].
-attrs(AttrName, Forms) ->
-    debug(AttrName, [ {{AttrName, name_arity(AttrName, F)},
-                       {description, ?il2b(desc(F))}}
-                      || F <- lists:flatmap(fun ?MODULE:AttrName/1, Forms) ]).
+function_name({attribute, _, spec, Data}) ->
+    {{Name, _Arity}, _} = Data,
+    Name.
 
-desc(Attr) ->
-    debug('repr:type', format(Attr)).
+function_arity({attribute, _, spec, Data}) ->
+    {{_Name, Arity}, _} = Data,
+    Arity.
 
--spec spec(form()) -> [form()].
-spec(Attr) -> attr(spec, Attr).
+function_signature({attribute, _, spec, _} = Spec) ->
+    ?il2b(format(Spec)).
 
--spec type(form()) -> [form()].
-type(Attr) -> attr(type, Attr).
+-spec get_types([erl_parse:abstract_form()]) -> [docsh_internal:item()].
+get_types(Forms) ->
+    [ type(Type) || {attribute, _, type, _} = Type <- Forms ].
 
-attr(AttrName, {attribute,_,AttrName,_} = A) -> [A];
-attr(_, _) -> [].
+type({attribute, _, type, _} = Type) ->
+    #{kind      => 'type',
+      name      => type_name(Type),
+      arity     => type_arity(Type),
+      signature => type_signature(Type)}.
 
--spec name_arity(spec | type, form()) -> {atom(), arity()}.
-name_arity(type, {attribute, _, type, Data}) ->
-    debug('name_arity:in', Data),
-    {Name, _, Args} = Data,
-    %% TODO: how to extract type arity? is this correct?
-    {Name, length(Args)};
-name_arity(spec, {attribute, _, spec, Data}) ->
-    {NameArity, _} = Data,
-    NameArity.
+type_name({attribute, _, type, Data}) ->
+    {Name, _, _Args} = Data,
+    Name.
 
-debug(Tag, Content) ->
-    docsh_lib:debug(Tag, "~s: ~p~n", [Tag, Content]),
-    Content.
+type_arity({attribute, _, type, Data}) ->
+    {_Name, _, Args} = Data,
+    length(Args).
+
+type_signature({attribute, _, type, _} = Type) ->
+    ?il2b(format(Type)).
 
 -ifdef(erl_prettypr_no_specs).
 

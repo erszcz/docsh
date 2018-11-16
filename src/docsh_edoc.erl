@@ -46,6 +46,9 @@ to_internal(Beam, Opts) ->
         _:R -> {error, R, erlang:get_stacktrace()}
     end.
 
+%% TODO: this is flaky
+format_edoc(_Mod, Text) when is_binary(Text) ->
+    Text;
 format_edoc(_Mod, [#xmlText{} = Doc]) ->
     Doc#xmlText.value.
 

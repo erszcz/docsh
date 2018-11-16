@@ -17,17 +17,11 @@
 
 %% The '#root#' tag is called when the entire structure has been
 %% exported. It does not appear in the structure itself.
--spec '#root#'(any(), any(), any(), any()) -> #{name        := atom(),
-                                                description := binary(),
-                                                functions   := [],
-                                                types       := []}.
+-spec '#root#'(any(), any(), any(), any()) -> docsh_internal:t().
 '#root#'([#xmlElement{name = module} = Module], _, _, _) ->
     #{name => get_module_name(Module),
       description => get_module_description(Module),
-      items => [ {kna(Item), Item}
-                 || Item <- get_functions(Module) ++ get_types(Module) ]}.
-
-kna(#{kind := K, name := N, arity := A}) -> {K, N, A}.
+      items => get_functions(Module) ++ get_types(Module)}.
 
 -spec '#element#'(any(), any(), any(), any(), any()) -> any().
 '#element#'(_, _, _, _, E) -> E.
@@ -42,6 +36,7 @@ get_module_name(#xmlElement{attributes = Attrs}) ->
 get_module_description(#xmlElement{name = module} = M) ->
     get_description(M).
 
+-spec get_functions(#xmlElement{}) -> [docsh_internal:item()].
 get_functions(#xmlElement{name = module} = M) ->
     get_content(functions, [], fun get_functions/1, M);
 get_functions(#xmlElement{name = functions, content = Content}) ->
@@ -59,6 +54,7 @@ get_function(#xmlElement{attributes = Attrs} = Function) ->
       exported    => list_to_boolean('find_attribute!'(exported, Attrs)),
       description => get_function_description(Function)}.
 
+-spec get_types(#xmlElement{}) -> [docsh_internal:item()].
 get_types(#xmlElement{name = module} = M) ->
     get_content(typedecls, [], fun get_types/1, M);
 get_types(#xmlElement{name = typedecls, content = Content}) ->

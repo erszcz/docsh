@@ -135,34 +135,21 @@ item_doc_not_available() ->
     <<"Documentation for the entry is not available.\n">>.
 
 mk_step(ModuleInfo) ->
-    fun ({KindNameArity, Info}, Acc) -> step(ModuleInfo, KindNameArity, Info, Acc) end.
+    fun (Info, Acc) -> step(ModuleInfo, Info, Acc) end.
 
-step(_ModuleInfo, {Kind, Name, Arity} = KNA, Info, { #docs_v1{} = DocsV1, DocsMap }) ->
+step(_ModuleInfo, Info, { #docs_v1{} = DocsV1, DocsMap }) ->
     %docsh_lib:print("item: ~p\n", [Info]),
     %ct:pal("item: ~p\n", [Info]),
+    {_, Name, Arity} = KNA = docsh_internal:kna(Info),
     Entry = { KNA,
               erl_anno:new({0, 1}),
-              signature(Kind, Name, Arity, Info),
+              signature(Info),
               #{<<"en">> => description(Name, Arity, Info)},
               #{} },
     {DocsV1, DocsMap#{KNA => Entry}}.
 
-signature(Kind, Name, Arity, _Info) ->
-    %% TODO: this is a placeholder!
-    <<"sig-", (?a2b(Kind))/bytes, "-", (?a2b(Name))/bytes, "/", (?i2b(Arity))/bytes>>.
-
-    %InfoKey = case Kind of
-    %              function -> spec;
-    %              type -> type
-    %          end,
-    %case docsh_lib:get(InfoKey, Info, not_found) of
-    %    not_found ->
-    %        SName = atom_to_list(Name),
-    %        SArity = integer_to_list(Arity),
-    %        [iolist_to_binary([SName, "/", SArity])];
-    %    InfoItem ->
-    %        [InfoItem]
-    %end.
+signature(Info) ->
+    maps:get(signature, Info).
 
 description(_Name, _Arity, #{description := Desc}) ->
     Desc.
