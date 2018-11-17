@@ -7,7 +7,7 @@
          '#xml-inheritance#'/0]).
 
 %% EDoc formatter
--export([format_content/2]).
+-export([format_edoc/2]).
 
 -export_type([xml_element_content/0]).
 
@@ -161,6 +161,12 @@ debug(_, _) -> ok.
 %%' EDoc formatter
 %%
 
+-spec format_edoc(xml_element_content(), any()) -> iolist().
+format_edoc(Content, Ctx) ->
+    lists:map(fun ({l, Line}) ->
+                      [Line, $\n]
+              end, lists:flatten(format_content(Content, Ctx))).
+
 -spec format_content(xml_element_content(), any()) -> iolist().
 format_content(Content, Ctx) ->
     [ format_content_(C, Ctx) || C <- Content ].
@@ -216,14 +222,12 @@ format_block_element(#xmlElement{name = Name}, Formatted) ->
 layout_type(_) -> inline.
 
 cleanup_text(Text, _Ctx) ->
+    %% TODO: this could clump together lines up to a viewport line length passed in Ctx...
     %% split on newlines, discard empty results, end each line with a single newline character
-    [ [Line, "\n"] || [_|_] = Line <- re:split(Text, "\s*\n\s*", [trim, {return, list}]) ].
+    [ {l, Line} || [_|_] = Line <- re:split(Text, "\s*\n\s*", [trim, {return, list}]) ].
 
 cleanup_preformatted_text(Text, _Ctx) ->
-    case lists:last(Text) of
-        $\n -> Text;
-        _ -> [Text, $\n]
-    end.
+    [ {l, Line} || Line <- string:tokens(Text, "\n") ].
 
 is_preformatted_text(#xmlText{parents = Parents}) ->
     lists:any(fun

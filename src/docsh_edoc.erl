@@ -53,7 +53,7 @@ to_internal(Beam, Opts) ->
 format_edoc([#xmlText{} = Doc], _Ctx) ->
     Doc#xmlText.value;
 format_edoc(EDoc, Ctx) ->
-    docsh_edoc_xmerl:format_content(EDoc, Ctx).
+    docsh_edoc_xmerl:format_edoc(EDoc, Ctx).
 
 dispatch(source,    File, _EDoc) ->
     {ok, Content} = file:read_file(File),
