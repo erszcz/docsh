@@ -91,16 +91,16 @@ format_functions(Mod, Items, Kinds, Lang) ->
     ?il2b([ ["\n", ?il2b([?a2b(Mod), ":", ?a2b(Name), "/", ?i2b(Arity), "\n\n",
                           Signature, DocIfRequested]), "\n"]
             || {{_, Name, Arity}, _, Signature, MaybeDoc, _Metadata} <- Items,
-               DocIfRequested <- [ "" ++ [ ["\n", format_maybe_doc(MaybeDoc, Lang)]
+               DocIfRequested <- [ "" ++ [ ["\n", format_maybe_doc(Mod, MaybeDoc, Lang), "\n"]
                                            || lists:member(doc, Kinds) ] ] ]).
 
 format_types(_Mod, Items, _Lang) ->
     ?il2b([ [?il2b([Signature])]
             || {{_, _Name, _Arity}, _, Signature, _, _Metadata} <- Items ]).
 
-format_maybe_doc(none, _)   -> item_doc_not_available();
-format_maybe_doc(hidden, _) -> <<"Documentation for the entry is hidden.\n">>;
-format_maybe_doc(Doc, Lang) -> maps:get(Lang, Doc).
+format_maybe_doc(_Mod, none, _)   -> item_doc_not_available();
+format_maybe_doc(_Mod, hidden, _) -> <<"Documentation for the entry is hidden.\n">>;
+format_maybe_doc( Mod, Doc, Lang) -> docsh_edoc:format_edoc(Mod, maps:get(Lang, Doc)).
 
 -spec from_internal(docsh_internal:t()) -> t().
 from_internal(Internal) ->
