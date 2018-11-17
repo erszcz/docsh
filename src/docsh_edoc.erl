@@ -50,8 +50,6 @@ to_internal(Beam, Opts) ->
       when EDoc :: docsh_edoc_xmerl:xml_element_content(),
            RenderingContext :: any(),
            R :: iolist().
-format_edoc([#xmlText{} = Doc], _Ctx) ->
-    Doc#xmlText.value;
 format_edoc(EDoc, Ctx) ->
     docsh_edoc_xmerl:format_edoc(EDoc, Ctx).
 
