@@ -164,6 +164,7 @@ debug(_, _) -> ok.
 -spec format_edoc(xml_element_content(), any()) -> iolist().
 format_edoc(Content, Ctx) ->
     lists:map(fun
+                  ({br})        -> "\n";
                   ({l, Line})   -> [Line, "\n"];
                   ({i, Inline}) -> [Inline]
                   %({l, Line})   -> ["<l>", Line, "</l>\n"];
@@ -182,18 +183,36 @@ format_content_(#xmlText{} = T, Ctx) ->
     case edoc_lib:is_space(Text) of
         true -> [];
         false ->
-            case is_preformatted_text(T) of
+            case is_preformatted(T#xmlText.parents) of
                 true  -> cleanup_preformatted_text(Text, Ctx);
                 false -> cleanup_text(Text, Ctx)
             end
     end;
 
-format_content_(#xmlElement{name = Name, pos = Pos, content = Content} = E, Ctx) ->
+format_content_(#xmlElement{} = E, Ctx) ->
+    format_element(E, Ctx).
+
+format_element(#xmlElement{name = Name, content = Content} = E, Ctx) ->
     case layout_type(Name) of
         header -> format_header(E, Ctx);
-        inline -> format_inline_element(E, Ctx);
-        block  -> format_block_element(E, Ctx)
+        %inline -> format_inline_element(E, Ctx);
+        %block  -> format_block_element(E, Ctx)
+        _ -> format_element_(Name, E, format_content(Content, Ctx), Ctx)
     end.
+
+format_element_(code, #xmlElement{} = E, Lines, _Ctx) ->
+    case is_preformatted(E#xmlElement.parents) of
+        true  -> Lines;
+        false -> [ Symbol || Symbol <- Lines, Symbol /= {br} ]
+    end;
+format_element_(dl, #xmlElement{}, Lines, Ctx) ->
+    Lines;
+format_element_(dt, #xmlElement{name = Name} = E, Lines, Ctx) ->
+    Lines;
+format_element_(dd, #xmlElement{name = Name} = E, Lines, Ctx) ->
+    Lines;
+format_element_(_, #xmlElement{name = Name} = E, Lines, Ctx) ->
+    Lines.
 
 format_inline_element(#xmlElement{name = Name, pos = Pos, content = Content}, Ctx) ->
     %% Structure preview
@@ -268,15 +287,13 @@ layout_type(Tag) ->
     end.
 
 cleanup_text(Text, _Ctx) ->
-    %% TODO: this could clump together lines up to a viewport line length passed in Ctx...
-    %% split on newlines, discard empty results, tag each line
-    %[ {i, string:trim(Line)} || [_|_] = Line <- re:split(Text, "\n", [notempty, trim, {return, list}]) ].
-    [{i, string:join([ string:trim(Line, leading) || [_|_] = Line <- re:split(Text, "\n", [notempty, trim, {return, list}]) ], "\n")}].
+    %[ {l, string:trim(Line, leading)} || [_|_] = Line <- re:split(Text, "\n", [notempty, trim, {return, list}]) ].
+    [ [ {br}, {i, string:trim(Line, leading)} ] || [_|_] = Line <- re:split(Text, "\n", [notempty, trim, {return, list}]) ].
 
 cleanup_preformatted_text(Text, _Ctx) ->
     [ {l, Line} || Line <- string:tokens(Text, "\n") ].
 
-is_preformatted_text(#xmlText{parents = Parents}) ->
+is_preformatted(Parents) ->
     lists:any(fun
                   ({pre, _}) -> true;
                   (_) -> false

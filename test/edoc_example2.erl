@@ -20,6 +20,10 @@
 %%
 %%     <dt>Any other reason?</dt>
 %%     <dd>Not really.</dd>
+%%
+%%     <dt>What if the definition spans multiple lines?</dt>
+%%     <dd>Let's see.
+%%         It can't be that hard.</dd>
 %% </dl>
 %%
 %% <ul>
