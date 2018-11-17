@@ -154,11 +154,12 @@ step(ModuleInfo, Info, { #docs_v1{} = DocsV1, DocsMap }) ->
               #{} },
     {DocsV1, DocsMap#{KNA => Entry}}.
 
+%% TODO: what if there's no function -spec?
 signature(Info) ->
     maps:get(signature, Info).
 
-description(_Name, _Arity, #{description := D}, #{lang := Lang}) ->
-    case D of
+description(_Name, _Arity, Info, #{lang := Lang}) ->
+    case maps:get(description, Info, none) of
         none -> none;
-        _ -> #{Lang => D}
+        D -> #{Lang => D}
     end.
