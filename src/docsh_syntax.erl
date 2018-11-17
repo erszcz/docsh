@@ -25,6 +25,7 @@ to_internal(Beam) ->
                         {ok, Fs} = epp:parse_file(Source, []),
                         Fs
                 end,
+        %% TODO: get export_type attribute and pass to get_functions / get_types to set visibility properly
         Internal = #{name => get_module_name(Forms),
                      items => get_functions(Forms) ++ get_types(Forms)},
         {ok, Internal}
@@ -61,23 +62,38 @@ function_signature({attribute, _, spec, _} = Spec) ->
 
 -spec get_types([erl_parse:abstract_form()]) -> [docsh_internal:item()].
 get_types(Forms) ->
-    [ type(Type) || {attribute, _, type, _} = Type <- Forms ].
+    lists:filtermap(fun get_type/1, Forms).
 
-type({attribute, _, type, _} = Type) ->
+get_type({attribute, _, T, _} = Type)
+  when T =:= opaque;
+       T =:= type ->
+    {true, type(Type)};
+get_type(_) ->
+    false.
+
+type({attribute, _, T, _} = Type)
+  when T =:= opaque;
+       T =:= type ->
     #{kind      => 'type',
       name      => type_name(Type),
       arity     => type_arity(Type),
       signature => type_signature(Type)}.
 
-type_name({attribute, _, type, Data}) ->
+type_name({attribute, _, T, Data})
+  when T =:= opaque;
+       T =:= type ->
     {Name, _, _Args} = Data,
     Name.
 
-type_arity({attribute, _, type, Data}) ->
+type_arity({attribute, _, T, Data})
+  when T =:= opaque;
+       T =:= type ->
     {_Name, _, Args} = Data,
     length(Args).
 
-type_signature({attribute, _, type, _} = Type) ->
+type_signature({attribute, _, T, _} = Type)
+  when T =:= opaque;
+       T =:= type ->
     ?il2b(format(Type)).
 
 -ifdef(erl_prettypr_no_specs).
