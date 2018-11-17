@@ -220,7 +220,10 @@ cleanup_text(Text, _Ctx) ->
     [ [Line, "\n"] || [_|_] = Line <- re:split(Text, "\s*\n\s*", [trim, {return, list}]) ].
 
 cleanup_preformatted_text(Text, _Ctx) ->
-    Text.
+    case lists:last(Text) of
+        $\n -> Text;
+        _ -> [Text, $\n]
+    end.
 
 is_preformatted_text(#xmlText{parents = Parents}) ->
     lists:any(fun
