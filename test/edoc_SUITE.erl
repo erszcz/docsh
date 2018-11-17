@@ -9,7 +9,7 @@
 
 all() ->
     [edoc_to_internal,
-     edoc_format,
+     edoc_format_function_g,
      edoc_format_code_in_loose_text,
      edoc_format_dl,
      edoc_format_p,
@@ -43,7 +43,7 @@ edoc_to_internal(_) ->
 
                   unwrap(?TESTED:to_internal(DBeam)) ).
 
-edoc_format(_) ->
+edoc_format_function_g(_) ->
     {ok, DBeam} = docsh_beam:from_loaded_module(edoc_example2),
     D = function_description({g,0}, unwrap(?TESTED:to_internal(DBeam))),
     ct:pal("~s", [D]),
@@ -118,15 +118,16 @@ edoc_format_ul(C) ->
                          "    a match specification\n">>).
 
 edoc_format(_, Element, Expected) ->
-    {ok, DBeam} = docsh_beam:from_loaded_module(edoc_example2),
-    D = function_description({Element, 0}, unwrap(?TESTED:to_internal(DBeam))),
-    ct:pal("~s", [D]),
+    {ok, B} = docsh_beam:from_loaded_module(edoc_example2),
+    D = function_description({Element, 0}, unwrap(?TESTED:to_internal(B))),
+    ct:pal("~p", [D]),
     ?eq([Expected], [D]).
 
-function_description(F, Docs) ->
-    {{function, F},
-     {_,_,_,_,{description, D}}} = lists:keyfind({function, F}, 1, Docs),
-    D.
+function_description({N, A}, #{items := Items}) ->
+    [Function] = [ F || F = #{kind := function, name := Name, arity := Arity} <- Items,
+                        Name =:= N,
+                        Arity =:= A ],
+    iolist_to_binary(?TESTED:format_edoc(maps:get(description, Function))).
 
 source_file(Mod) ->
     proplists:get_value(source, Mod:module_info(compile)).
