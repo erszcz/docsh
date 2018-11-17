@@ -149,14 +149,25 @@ step(ModuleInfo, Info, { #docs_v1{} = DocsV1, DocsMap }) ->
     {_, Name, Arity} = KNA = docsh_internal:kna(Info),
     Entry = { KNA,
               erl_anno:new({0, 1}),
-              signature(Info),
+              signature(ModuleInfo, Info),
               description(Name, Arity, Info, ModuleInfo),
               #{} },
     {DocsV1, DocsMap#{KNA => Entry}}.
 
-%% TODO: what if there's no function -spec?
-signature(Info) ->
-    maps:get(signature, Info).
+signature(ModuleInfo, Info) ->
+    case maps:get(signature, Info, no_signature) of
+        no_signature ->
+            %% TODO: this is kind of lame
+            %% as with the current format function it displays the same text twice
+            kna_signature(ModuleInfo, Info);
+        Signature ->
+            Signature
+    end.
+
+kna_signature(ModuleInfo, Info) ->
+    #{name := Mod} = ModuleInfo,
+    {_, Name, Arity} = docsh_internal:kna(Info),
+    ?il2b(io_lib:format("~s:~s/~p\n", [Mod, Name, Arity])).
 
 description(_Name, _Arity, Info, #{lang := Lang}) ->
     case maps:get(description, Info, none) of
