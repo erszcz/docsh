@@ -163,11 +163,13 @@ debug(_, _) -> ok.
 
 -spec format_edoc(xml_element_content(), any()) -> iolist().
 format_edoc(Content, Ctx) ->
-    lists:map(fun ({l, Line}) ->
-                      [Line, "\n"]
+    lists:map(fun
+                  ({l, Line})   -> [Line, "\n"];
+                  ({i, Inline}) -> [Inline]
+                  %({l, Line})   -> ["<l>", Line, "</l>\n"];
+                  %({i, Inline}) -> ["<i>", Inline, "</i>"]
               end, format_content(Content, Ctx)).
 
--spec format_content(xml_element_content(), any()) -> iolist().
 format_content(Content, Ctx) ->
     lists:flatten([ format_content_(C, Ctx) || C <- Content ]).
 
@@ -186,12 +188,42 @@ format_content_(#xmlText{} = T, Ctx) ->
             end
     end;
 
-format_content_(#xmlElement{name = Name, content = Content} = E, Ctx) ->
+format_content_(#xmlElement{name = Name, pos = Pos, content = Content} = E, Ctx) ->
     case layout_type(Name) of
         header -> format_header(E, Ctx);
-        inline -> format_content(Content, Ctx);
-        block  -> format_block_element(E, format_content(Content, Ctx))
+        inline -> format_inline_element(E, Ctx);
+        block  -> format_block_element(E, Ctx)
     end.
+
+format_inline_element(#xmlElement{name = Name, pos = Pos, content = Content}, Ctx) ->
+    %% Structure preview
+    %Prefix = io_lib:format("~s ~p> ", [Name, Pos]),
+    %WSSpan = [ " " || _ <- lists:seq(1, length(Prefix) + 1) ],
+    %[{l, First} | Rest] = format_content(Content, Ctx),
+    %[{l, [Prefix, First]} | [ {l, [WSSpan, L]} || {l, L} <- Rest ]].
+    %%
+    %Lines = format_content(Content, Ctx),
+    %merge_lines(Lines, Ctx).
+    %%
+    format_content(Content, Ctx).
+
+merge_lines(Lines, Ctx) ->
+    W = maps:get(width, Ctx, default_width()),
+    #{lines := NewLines, current := {_, Current}} =
+        lists:foldl(fun (L, Acc) -> merge_lines_(W, L, Acc) end,
+                    #{lines => [], current => {0, []}}, Lines),
+    lists:reverse([{l, lists:flatten(Current)} | NewLines]).
+
+merge_lines_(W, {l, L}, #{lines := Lines, current := {Len, Current}} = Acc) ->
+    NewLen = Len + length(L),
+    if
+        NewLen =< W -> Acc#{current := {NewLen, [Current, L]}};
+        NewLen  > W -> Acc#{lines := append_line(Current, Lines),
+                            current := {length(L), [L]}}
+    end.
+
+append_line(Current, Lines) ->
+    [{l, lists:flatten(Current)} | Lines].
 
 format_header(#xmlElement{name = Name, parents = Parents, content = Content} = E, Ctx) ->
     has_non_header_parents(E) andalso erlang:error({non_header_parents, Parents}, [E]),
@@ -217,8 +249,8 @@ has_non_header_parents(#xmlElement{parents = Parents}) ->
                   (_) -> true
               end, lists:nthtail(Drop, Parents)).
 
-format_block_element(#xmlElement{name = Name}, Formatted) ->
-    ["\n", io_lib:format("~s", [Name]), "> ",  Formatted].
+format_block_element(#xmlElement{content = Content}, Ctx) ->
+    format_content(Content, Ctx).
 
 layout_type(Tag) ->
     case Tag of
@@ -229,13 +261,17 @@ layout_type(Tag) ->
         h4     -> header;
         h5     -> header;
         h6     -> header;
+        dl     -> block;
+        ol     -> block;
+        ul     -> block;
         _      -> inline
     end.
 
 cleanup_text(Text, _Ctx) ->
     %% TODO: this could clump together lines up to a viewport line length passed in Ctx...
     %% split on newlines, discard empty results, tag each line
-    [ {l, Line} || [_|_] = Line <- re:split(Text, "\s*\n\s*", [trim, {return, list}]) ].
+    %[ {i, string:trim(Line)} || [_|_] = Line <- re:split(Text, "\n", [notempty, trim, {return, list}]) ].
+    [{i, string:join([ string:trim(Line, leading) || [_|_] = Line <- re:split(Text, "\n", [notempty, trim, {return, list}]) ], "\n")}].
 
 cleanup_preformatted_text(Text, _Ctx) ->
     [ {l, Line} || Line <- string:tokens(Text, "\n") ].
@@ -245,5 +281,7 @@ is_preformatted_text(#xmlText{parents = Parents}) ->
                   ({pre, _}) -> true;
                   (_) -> false
               end, Parents).
+
+default_width() -> 80.
 
 %%. vim: foldmethod=marker foldmarker=%%',%%.
