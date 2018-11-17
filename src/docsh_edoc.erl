@@ -5,7 +5,7 @@
          to_internal/1]).
 
 %% EDoc facade
--export([format_edoc/1]).
+-export([format_edoc/2]).
 
 %% Test API
 -export([to_internal/2]).
@@ -46,11 +46,14 @@ to_internal(Beam, Opts) ->
         _:R -> {error, R, erlang:get_stacktrace()}
     end.
 
--spec format_edoc(docsh_edoc_xmerl:xml_element_content()) -> iolist().
-format_edoc([#xmlText{} = Doc]) ->
+-spec format_edoc(EDoc, RenderingContext) -> R
+      when EDoc :: docsh_edoc_xmerl:xml_element_content(),
+           RenderingContext :: any(),
+           R :: iolist().
+format_edoc([#xmlText{} = Doc], _Ctx) ->
     Doc#xmlText.value;
-format_edoc(EDoc) ->
-    docsh_edoc_xmerl:format_content(EDoc).
+format_edoc(EDoc, Ctx) ->
+    docsh_edoc_xmerl:format_content(EDoc, Ctx).
 
 dispatch(source,    File, _EDoc) ->
     {ok, Content} = file:read_file(File),

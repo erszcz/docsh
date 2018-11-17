@@ -85,7 +85,8 @@ select(_, _, _, _) ->
     false.
 
 format_module_doc(Mod, Doc) ->
-    ?il2b(["\n# ", ?a2b(Mod), "\n\n", docsh_edoc:format_edoc(Doc), "\n\n"]).
+    RenderingContext = #{},
+    ?il2b(["\n# ", ?a2b(Mod), "\n\n", docsh_edoc:format_edoc(Doc, RenderingContext), "\n\n"]).
 
 format_functions(Mod, Items, Kinds, Lang) ->
     ?il2b([ ["\n", ?il2b([?a2b(Mod), ":", ?a2b(Name), "/", ?i2b(Arity), "\n\n",
@@ -100,7 +101,9 @@ format_types(_Mod, Items, _Lang) ->
 
 format_maybe_doc(none, _)   -> item_doc_not_available();
 format_maybe_doc(hidden, _) -> <<"Documentation for the entry is hidden.\n">>;
-format_maybe_doc(Doc, Lang) -> docsh_edoc:format_edoc(maps:get(Lang, Doc)).
+format_maybe_doc(Doc, Lang) ->
+    RenderingContext = #{},
+    docsh_edoc:format_edoc(maps:get(Lang, Doc), RenderingContext).
 
 -spec from_internal(docsh_internal:t()) -> t().
 from_internal(Internal) ->

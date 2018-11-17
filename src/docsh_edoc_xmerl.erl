@@ -7,7 +7,7 @@
          '#xml-inheritance#'/0]).
 
 %% EDoc formatter
--export([format_content/1]).
+-export([format_content/2]).
 
 -export_type([xml_element_content/0]).
 
@@ -161,23 +161,71 @@ debug(_, _) -> ok.
 %%' EDoc formatter
 %%
 
--spec format_content(xml_element_content()) -> iolist().
-format_content(Content) ->
-    [ format_content_(C) || C <- Content ].
+-spec format_content(xml_element_content(), any()) -> iolist().
+format_content(Content, Ctx) ->
+    [ format_content_(C, Ctx) || C <- Content ].
 
-%-type xml_element_content() :: [#xmlElement{} | #xmlText{} | #xmlPI{} | #xmlComment{} | #xmlDecl{}].
-format_content_(#xmlPI{})      -> [];
-format_content_(#xmlComment{}) -> [];
-format_content_(#xmlDecl{})    -> [];
+format_content_(#xmlPI{}, _Ctx)      -> [];
+format_content_(#xmlComment{}, _Ctx) -> [];
+format_content_(#xmlDecl{}, _Ctx)    -> [];
 
-format_content_(#xmlText{} = T) ->
+format_content_(#xmlText{} = T, Ctx) ->
     Text = T#xmlText.value,
     case edoc_lib:is_space(Text) of
         true -> [];
-        false -> Text
+        false ->
+            case is_preformatted_text(T) of
+                true  -> cleanup_preformatted_text(Text, Ctx);
+                false -> cleanup_text(Text, Ctx)
+            end
     end;
 
-format_content_(#xmlElement{content = Content}) ->
-    format_content(Content).
+%% Useful for structure preview
+%format_content_(#xmlElement{name = Name, content = Content}) ->
+%    ["\n", io_lib:format("~s", [Name]), "> ",  format_content(Content)].
+
+format_content_(#xmlElement{name = Name, content = Content} = E, Ctx) ->
+    case layout_type(Name) of
+        header -> format_header(E, Ctx);
+        inline -> format_content(Content, Ctx);
+        block  -> format_block_element(E, format_content(Content, Ctx))
+    end.
+
+format_header(#xmlElement{name = Name, parents = Parents, content = Content} = E, Ctx) ->
+    has_non_header_parents(E) andalso erlang:error({non_header_parents, Parents}, [E]),
+    Headers = #{h1 => "# ",
+                h2 => "## ",
+                h3 => "### ",
+                h4 => "#### ",
+                h5 => "##### ",
+                h6 => "###### "},
+    case Name of
+        hgroup -> [];
+        _ -> ["\n", maps:get(Name, Headers), format_content(Content, Ctx), "\n"]
+    end.
+
+has_non_header_parents(#xmlElement{parents = Parents}) ->
+    lists:any(fun
+                  ({hgroup, _}) -> false;
+                  (_) -> true
+              end, Parents).
+
+format_block_element(#xmlElement{name = Name}, Formatted) ->
+    ["\n", io_lib:format("~s", [Name]), "> ",  Formatted].
+
+layout_type(_) -> inline.
+
+cleanup_text(Text, _Ctx) ->
+    %% split on newlines, discard empty results, end each line with a single newline character
+    [ [Line, "\n"] || [_|_] = Line <- re:split(Text, "\s*\n\s*", [trim, {return, list}]) ].
+
+cleanup_preformatted_text(Text, _Ctx) ->
+    Text.
+
+is_preformatted_text(#xmlText{parents = Parents}) ->
+    lists:any(fun
+                  ({pre, _}) -> true;
+                  (_) -> false
+              end, Parents).
 
 %%. vim: foldmethod=marker foldmarker=%%',%%.

@@ -127,7 +127,7 @@ function_description({N, A}, #{items := Items}) ->
     [Function] = [ F || F = #{kind := function, name := Name, arity := Arity} <- Items,
                         Name =:= N,
                         Arity =:= A ],
-    iolist_to_binary(?TESTED:format_edoc(maps:get(description, Function))).
+    iolist_to_binary(?TESTED:format_edoc(maps:get(description, Function), #{})).
 
 source_file(Mod) ->
     proplists:get_value(source, Mod:module_info(compile)).
