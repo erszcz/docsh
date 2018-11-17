@@ -186,10 +186,6 @@ format_content_(#xmlText{} = T, Ctx) ->
             end
     end;
 
-%% Useful for structure preview
-%format_content_(#xmlElement{name = Name, content = Content}) ->
-%    ["\n", io_lib:format("~s", [Name]), "> ",  format_content(Content)].
-
 format_content_(#xmlElement{name = Name, content = Content} = E, Ctx) ->
     case layout_type(Name) of
         header -> format_header(E, Ctx);
