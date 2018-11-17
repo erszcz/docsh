@@ -164,12 +164,12 @@ debug(_, _) -> ok.
 -spec format_edoc(xml_element_content(), any()) -> iolist().
 format_edoc(Content, Ctx) ->
     lists:map(fun ({l, Line}) ->
-                      [Line, $\n]
-              end, lists:flatten(format_content(Content, Ctx))).
+                      [Line, "\n"]
+              end, format_content(Content, Ctx)).
 
 -spec format_content(xml_element_content(), any()) -> iolist().
 format_content(Content, Ctx) ->
-    [ format_content_(C, Ctx) || C <- Content ].
+    lists:flatten([ format_content_(C, Ctx) || C <- Content ]).
 
 format_content_(#xmlPI{}, _Ctx)      -> [];
 format_content_(#xmlComment{}, _Ctx) -> [];
@@ -207,23 +207,38 @@ format_header(#xmlElement{name = Name, parents = Parents, content = Content} = E
                 h6 => "###### "},
     case Name of
         hgroup -> [];
-        _ -> ["\n", maps:get(Name, Headers), format_content(Content, Ctx), "\n"]
+        _ ->
+            [{l, Text}] = format_content(Content, Ctx),
+            [{l, []},
+             {l, [maps:get(Name, Headers), Text]}]
     end.
 
 has_non_header_parents(#xmlElement{parents = Parents}) ->
+    %% 5 is the level from which function descriptions are extracted in an EDoc document.
+    Drop = 5,
     lists:any(fun
                   ({hgroup, _}) -> false;
                   (_) -> true
-              end, Parents).
+              end, lists:nthtail(Drop, Parents)).
 
 format_block_element(#xmlElement{name = Name}, Formatted) ->
     ["\n", io_lib:format("~s", [Name]), "> ",  Formatted].
 
-layout_type(_) -> inline.
+layout_type(Tag) ->
+    case Tag of
+        hgroup -> header;
+        h1     -> header;
+        h2     -> header;
+        h3     -> header;
+        h4     -> header;
+        h5     -> header;
+        h6     -> header;
+        _      -> inline
+    end.
 
 cleanup_text(Text, _Ctx) ->
     %% TODO: this could clump together lines up to a viewport line length passed in Ctx...
-    %% split on newlines, discard empty results, end each line with a single newline character
+    %% split on newlines, discard empty results, tag each line
     [ {l, Line} || [_|_] = Line <- re:split(Text, "\s*\n\s*", [trim, {return, list}]) ].
 
 cleanup_preformatted_text(Text, _Ctx) ->
