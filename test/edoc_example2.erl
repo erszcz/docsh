@@ -4,6 +4,7 @@
 -export([code_in_loose_text/0,
          dl/0,
          g/0,
+         h2/0,
          p/0,
          pre/0,
          text1/0,
@@ -44,6 +45,14 @@
 g() ->
     Value = fun edoc_example:f/0,
     {some, [more, <<"complex">>, Value]}.
+
+%% @doc This fun has a header in its description.
+%%
+%% <h2>This is it</h2>
+%%
+%% <p>A following paragraph</p>
+%% @end
+h2() -> ok.
 
 %% @doc <p>
 %% Just

@@ -71,6 +71,13 @@ edoc_format_function_g(_) ->
            "      - c\n">>],
         [D]).
 
+edoc_format_h2(C) ->
+    edoc_format(C, h2, <<"This fun has a header in its description.\n"
+                         "\n"
+                         "## This is it\n"
+                         "\n"
+                         "A following paragraph\n">>).
+
 edoc_format_code_in_loose_text(C) ->
     edoc_format(C, code_in_loose_text, <<"Fetch the internal state of an OTP process.\n"
                                          "Calls sys:get_state/2 directly in R16B01+, and fetches\n"
