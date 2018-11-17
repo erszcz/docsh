@@ -1,17 +1,29 @@
 -module(docsh_edoc_xmerl).
 
+%% xmerl:simple_export/2 API
 -export(['#root#'/4,
          '#element#'/5,
          '#text#'/1,
          '#xml-inheritance#'/0]).
 
+%% EDoc formatter
+-export([format_content/1]).
+
+-export_type([xml_element_content/0]).
+
 -include_lib("xmerl/include/xmerl.hrl").
+
+%% @type xml_element_content(). `#xmlElement.content' as defined by `xmerl.hrl'.
+-type xml_element_content() :: [#xmlElement{} | #xmlText{} | #xmlPI{} | #xmlComment{} | #xmlDecl{}].
 
 -define(il2b(IOList), iolist_to_binary(IOList)).
 -define(l2i(L), list_to_integer(L)).
 -define(l2ea(L), list_to_existing_atom(L)).
 
-%%% Unused.
+%%
+%%' xmerl:simple_export/2 API
+%%
+
 -spec '#xml-inheritance#'() -> list().
 '#xml-inheritance#'() -> [].
 
@@ -29,6 +41,10 @@
 %% The '#text#' function is called for every text segment.
 -spec '#text#'(any()) -> any().
 '#text#'(Text) -> ?il2b(Text).
+
+%%.
+%%' xmerl:simple_export/2 helpers
+%%
 
 get_module_name(#xmlElement{attributes = Attrs}) ->
     ?l2ea('find_attribute!'(name, Attrs)).
@@ -114,8 +130,10 @@ get_description(#xmlElement{} = Element) ->
 
 get_full_description(#xmlElement{name = description} = D) ->
     get_content(fullDescription, none, fun get_full_description/1, D);
-get_full_description(#xmlElement{name = fullDescription, content = Content}) ->
-    format_text(Content).
+get_full_description(#xmlElement{name = fullDescription, content = XmlElementContent}) ->
+    %% See xmerl.hrl for the definition of #xmlElement.content:
+    %%   content = [#xmlElement()|#xmlText()|#xmlPI()|#xmlComment()|#xmlDecl()]
+    format_text(XmlElementContent).
 
 format_text(TextSubtree) ->
     %% Just return the EDoc subtree for storage or later processing.
@@ -138,3 +156,28 @@ list_to_boolean("no")  -> false.
 
 %% Intended only for tracing.
 debug(_, _) -> ok.
+
+%%.
+%%' EDoc formatter
+%%
+
+-spec format_content(xml_element_content()) -> iolist().
+format_content(Content) ->
+    [ format_content_(C) || C <- Content ].
+
+%-type xml_element_content() :: [#xmlElement{} | #xmlText{} | #xmlPI{} | #xmlComment{} | #xmlDecl{}].
+format_content_(#xmlPI{})      -> [];
+format_content_(#xmlComment{}) -> [];
+format_content_(#xmlDecl{})    -> [];
+
+format_content_(#xmlText{} = T) ->
+    Text = T#xmlText.value,
+    case edoc_lib:is_space(Text) of
+        true -> [];
+        false -> Text
+    end;
+
+format_content_(#xmlElement{content = Content}) ->
+    format_content(Content).
+
+%%. vim: foldmethod=marker foldmarker=%%',%%.

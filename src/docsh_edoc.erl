@@ -5,7 +5,7 @@
          to_internal/1]).
 
 %% EDoc facade
--export([format_edoc/2]).
+-export([format_edoc/1]).
 
 %% Test API
 -export([to_internal/2]).
@@ -46,11 +46,11 @@ to_internal(Beam, Opts) ->
         _:R -> {error, R, erlang:get_stacktrace()}
     end.
 
-%% TODO: this is flaky
-format_edoc(_Mod, Text) when is_binary(Text) ->
-    Text;
-format_edoc(_Mod, [#xmlText{} = Doc]) ->
-    Doc#xmlText.value.
+-spec format_edoc(docsh_edoc_xmerl:xml_element_content()) -> iolist().
+format_edoc([#xmlText{} = Doc]) ->
+    Doc#xmlText.value;
+format_edoc(EDoc) ->
+    docsh_edoc_xmerl:format_content(EDoc).
 
 dispatch(source,    File, _EDoc) ->
     {ok, Content} = file:read_file(File),
