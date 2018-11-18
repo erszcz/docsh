@@ -205,7 +205,10 @@ format_element(dt, #xmlElement{}, Lines, _Ctx) ->
 format_element(dd, #xmlElement{}, Lines, _Ctx) ->
     dl_item("      ", Lines);
 format_element(p, #xmlElement{}, Lines, _Ctx) ->
-    end_block(Lines);
+    end_block(lists:dropwhile(fun
+                                  ({br}) -> true;
+                                  (_) -> false
+                              end, Lines));
 format_element(pre, #xmlElement{}, Lines, _Ctx) ->
     end_block(Lines);
 format_element(ol, #xmlElement{} = E, ListItems, Ctx) ->

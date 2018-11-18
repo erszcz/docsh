@@ -63,19 +63,19 @@ edoc_format_function_g(_) ->
            "      Let's see.\n"
            "      It can't be that hard.\n"
            "\n"
-           "\n"
            "  - Some\n"
            "  - Random\n"
            "  - Para 1\n"
-           "\n"
+           "    \n"
            "    Para 2\n"
            "\n"
            "  1. One\n"
            "  2. Two\n"
            "  3. Three:\n"
+           "    \n"
            "      - a\n"
            "      - b\n"
-           "      - c\n">>],
+           "      - c\n\n">>],
         [D]).
 
 edoc_format_h2(C) ->
@@ -102,12 +102,12 @@ edoc_format_dl(C) ->
 
 edoc_format_p(C) ->
     edoc_format(C, p, <<"Just\n"
-                        "a paragraph.\n">>).
+                        "a paragraph.\n\n">>).
 
 edoc_format_pre(C) ->
     edoc_format(C, pre, <<"    pre\n"
                           "      formatted\n"
-                          "        text\n">>).
+                          "        text\n\n">>).
 
 edoc_format_text1(C) ->
     edoc_format(C, text1, <<"Some\n"
@@ -119,7 +119,7 @@ edoc_format_text2(C) ->
                             "loose text,\n"
                             "not a paragraph.\n"
                             "\n"
-                            "A paragraph.\n">>).
+                            "A paragraph.\n\n">>).
 
 edoc_format_ul(C) ->
     edoc_format(C, ul, <<"  - Module is any atom representing a module\n"
@@ -129,7 +129,7 @@ edoc_format_ul(C) ->
                          "    pattern ('_'), a\n"
                          "    match specification,\n"
                          "    or a function from a shell session that can be transformed into\n"
-                         "    a match specification\n">>).
+                         "    a match specification\n\n">>).
 
 edoc_format(_, Element, Expected) ->
     {ok, B} = docsh_beam:from_loaded_module(edoc_example2),
