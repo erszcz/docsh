@@ -166,8 +166,6 @@ format_edoc(Content, Ctx) ->
     lists:map(fun
                   ({br})        -> "\n";
                   ({i, Inline}) -> [Inline]
-                  %({l, Line})   -> ["<l>", Line, "</l>\n"];
-                  %({i, Inline}) -> ["<i>", Inline, "</i>"]
               end, format_content(Content, Ctx)).
 
 format_content(Content, Ctx) ->
@@ -224,11 +222,10 @@ format_element(ul, #xmlElement{} = E, ListItems, Ctx) ->
                    IndentedRest <- [prepend("    ", Rest)] ]);
 format_element(li, #xmlElement{}, Lines, _Ctx) ->
     [{li, Lines}];
-format_element(_, #xmlElement{name = Name} = E, Lines, Ctx) ->
+format_element(_, #xmlElement{}, Lines, _Ctx) ->
     Lines.
 
-format_header(#xmlElement{name = Name, parents = Parents} = E, Lines, Ctx) ->
-    %has_non_header_parents(E) andalso erlang:error({non_header_parents, Parents}, [E]),
+format_header(#xmlElement{name = Name}, Lines, _Ctx) ->
     Headers = #{h1 => "# ",
                 h2 => "## ",
                 h3 => "### ",
@@ -241,35 +238,6 @@ format_header(#xmlElement{name = Name, parents = Parents} = E, Lines, Ctx) ->
             [{i, Text}] = Lines,
             end_block([{br}, {i, [maps:get(Name, Headers), Text]}])
     end.
-
-merge_lines(Lines, Ctx) ->
-    W = maps:get(width, Ctx, default_width()),
-    #{lines := NewLines, current := {_, Current}} =
-        lists:foldl(fun (L, Acc) -> merge_lines_(W, L, Acc) end,
-                    #{lines => [], current => {0, []}}, Lines),
-    lists:reverse([{l, lists:flatten(Current)} | NewLines]).
-
-merge_lines_(W, {l, L}, #{lines := Lines, current := {Len, Current}} = Acc) ->
-    NewLen = Len + length(L),
-    if
-        NewLen =< W -> Acc#{current := {NewLen, [Current, L]}};
-        NewLen  > W -> Acc#{lines := append_line(Current, Lines),
-                            current := {length(L), [L]}}
-    end.
-
-append_line(Current, Lines) ->
-    [{l, lists:flatten(Current)} | Lines].
-
-has_non_header_parents(#xmlElement{parents = Parents}) ->
-    %% 5 is the level from which function descriptions are extracted in an EDoc document.
-    Drop = 5,
-    lists:any(fun
-                  ({hgroup, _}) -> false;
-                  (_) -> true
-              end, lists:nthtail(Drop, Parents)).
-
-format_block_element(#xmlElement{content = Content}, Ctx) ->
-    format_content(Content, Ctx).
 
 cleanup_text(Text, _Ctx) ->
     lists:flatmap(fun
@@ -306,8 +274,6 @@ prepend( Prefix, [{br} | Doc], [{br}] = Acc) -> prepend(Prefix, Doc, [{br} | Acc
 prepend( Prefix, [{br} | Doc], [{br}, {br}] = Acc) -> prepend(Prefix, Doc, Acc);
 prepend( Prefix, [{br} | Doc], Acc) -> prepend(Prefix, Doc, [{br}, {i, Prefix} | Acc]);
 prepend( Prefix, [Node | Doc], Acc) -> prepend(Prefix, Doc, [Node | Acc]).
-
-default_width() -> 80.
 
 enumerate(List) ->
     lists:zip(lists:seq(1, length(List)), List).
