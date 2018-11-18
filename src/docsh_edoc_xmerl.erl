@@ -201,16 +201,20 @@ format_element(h6, #xmlElement{} = E, Lines, Ctx) -> format_header(E, Lines, Ctx
 format_element(hgroup, _, Lines, _Ctx) -> [];
 format_element(code, #xmlElement{} = E, Lines, _Ctx) ->
     Lines;
-    %case is_preformatted(E#xmlElement.parents) of
-    %    true  -> Lines;
-    %    false -> [ L || L <- Lines, L /= {br} ]
-    %end;
 format_element(dl, #xmlElement{}, Lines, Ctx) ->
     Lines;
 format_element(dt, #xmlElement{name = Name} = E, Lines, Ctx) ->
-    [{br}, {br}, lists:map(fun (L) -> prepend("  ", L) end, Lines) ];
+    [{br}, lists:flatmap(fun
+                             ({br}) -> [{br}, {i, "  "}];
+                             (T) -> [T]
+                         end,
+                         [{br} | Lines]) ];
 format_element(dd, #xmlElement{name = Name} = E, Lines, Ctx) ->
-    [{br}, {br}, lists:map(fun (L) -> prepend("      ", L) end, Lines) ];
+    [{br}, lists:flatmap(fun
+                             ({br}) -> [{br}, {i, "      "}];
+                             (T) -> [T]
+                         end,
+                         [{br} | Lines]) ];
 format_element(p, #xmlElement{name = Name} = E, Lines, Ctx) ->
     if
         E#xmlElement.pos == 1 -> Lines;
@@ -221,17 +225,7 @@ format_element(ol, #xmlElement{name = Name} = E, Lines, Ctx) ->
 format_element(ul, #xmlElement{name = Name} = E, Lines, Ctx) ->
     [{br}, Lines];
 format_element(li, #xmlElement{name = Name} = E, Lines, Ctx) ->
-    [First | Rest] = Lines,
-    case hd(E#xmlElement.parents) of
-        {ul, _} ->
-            [{br},
-             prepend("  - ", First),
-             lists:map(fun (L) -> prepend("    ", L) end, Rest)];
-        {ol, _} ->
-            [{br},
-             prepend(io_lib:format("  ~b. ", [E#xmlElement.pos]), First),
-             lists:map(fun (L) -> prepend("    ", L) end, Rest)]
-    end;
+    Lines;
 format_element(_, #xmlElement{name = Name} = E, Lines, Ctx) ->
     Lines.
 
