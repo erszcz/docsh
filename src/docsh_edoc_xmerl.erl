@@ -189,42 +189,66 @@ format_content_(#xmlText{} = T, Ctx) ->
             end
     end;
 
-format_content_(#xmlElement{} = E, Ctx) ->
-    format_element(E, Ctx).
+format_content_(#xmlElement{name = Name, content = Content} = E, Ctx) ->
+    format_element(Name, E, format_content(Content, Ctx), Ctx).
 
-format_element(#xmlElement{name = Name, content = Content} = E, Ctx) ->
-    case layout_type(Name) of
-        header -> format_header(E, Ctx);
-        %inline -> format_inline_element(E, Ctx);
-        %block  -> format_block_element(E, Ctx)
-        _ -> format_element_(Name, E, format_content(Content, Ctx), Ctx)
-    end.
-
-format_element_(code, #xmlElement{} = E, Lines, _Ctx) ->
-    case is_preformatted(E#xmlElement.parents) of
-        true  -> Lines;
-        false -> [ Symbol || Symbol <- Lines, Symbol /= {br} ]
+format_element(h1, #xmlElement{} = E, Lines, Ctx) -> format_header(E, Lines, Ctx);
+format_element(h2, #xmlElement{} = E, Lines, Ctx) -> format_header(E, Lines, Ctx);
+format_element(h3, #xmlElement{} = E, Lines, Ctx) -> format_header(E, Lines, Ctx);
+format_element(h4, #xmlElement{} = E, Lines, Ctx) -> format_header(E, Lines, Ctx);
+format_element(h5, #xmlElement{} = E, Lines, Ctx) -> format_header(E, Lines, Ctx);
+format_element(h6, #xmlElement{} = E, Lines, Ctx) -> format_header(E, Lines, Ctx);
+format_element(hgroup, _, Lines, _Ctx) -> [];
+format_element(code, #xmlElement{} = E, Lines, _Ctx) ->
+    Lines;
+    %case is_preformatted(E#xmlElement.parents) of
+    %    true  -> Lines;
+    %    false -> [ L || L <- Lines, L /= {br} ]
+    %end;
+format_element(dl, #xmlElement{}, Lines, Ctx) ->
+    Lines;
+format_element(dt, #xmlElement{name = Name} = E, Lines, Ctx) ->
+    [{br}, {br}, lists:map(fun (L) -> prepend("  ", L) end, Lines) ];
+format_element(dd, #xmlElement{name = Name} = E, Lines, Ctx) ->
+    [{br}, {br}, lists:map(fun (L) -> prepend("      ", L) end, Lines) ];
+format_element(p, #xmlElement{name = Name} = E, Lines, Ctx) ->
+    if
+        E#xmlElement.pos == 1 -> Lines;
+        E#xmlElement.pos >= 1 -> [{br}, Lines]
     end;
-format_element_(dl, #xmlElement{}, Lines, Ctx) ->
-    Lines;
-format_element_(dt, #xmlElement{name = Name} = E, Lines, Ctx) ->
-    Lines;
-format_element_(dd, #xmlElement{name = Name} = E, Lines, Ctx) ->
-    Lines;
-format_element_(_, #xmlElement{name = Name} = E, Lines, Ctx) ->
+format_element(ol, #xmlElement{name = Name} = E, Lines, Ctx) ->
+    [{br}, Lines];
+format_element(ul, #xmlElement{name = Name} = E, Lines, Ctx) ->
+    [{br}, Lines];
+format_element(li, #xmlElement{name = Name} = E, Lines, Ctx) ->
+    [First | Rest] = Lines,
+    case hd(E#xmlElement.parents) of
+        {ul, _} ->
+            [{br},
+             prepend("  - ", First),
+             lists:map(fun (L) -> prepend("    ", L) end, Rest)];
+        {ol, _} ->
+            [{br},
+             prepend(io_lib:format("  ~b. ", [E#xmlElement.pos]), First),
+             lists:map(fun (L) -> prepend("    ", L) end, Rest)]
+    end;
+format_element(_, #xmlElement{name = Name} = E, Lines, Ctx) ->
     Lines.
 
-format_inline_element(#xmlElement{name = Name, pos = Pos, content = Content}, Ctx) ->
-    %% Structure preview
-    %Prefix = io_lib:format("~s ~p> ", [Name, Pos]),
-    %WSSpan = [ " " || _ <- lists:seq(1, length(Prefix) + 1) ],
-    %[{l, First} | Rest] = format_content(Content, Ctx),
-    %[{l, [Prefix, First]} | [ {l, [WSSpan, L]} || {l, L} <- Rest ]].
-    %%
-    %Lines = format_content(Content, Ctx),
-    %merge_lines(Lines, Ctx).
-    %%
-    format_content(Content, Ctx).
+format_header(#xmlElement{name = Name, parents = Parents} = E, Lines, Ctx) ->
+    has_non_header_parents(E) andalso erlang:error({non_header_parents, Parents}, [E]),
+    Headers = #{h1 => "# ",
+                h2 => "## ",
+                h3 => "### ",
+                h4 => "#### ",
+                h5 => "##### ",
+                h6 => "###### "},
+    case Name of
+        hgroup -> [];
+        _ ->
+            [{i, Text}] = Lines,
+            [{br}, {i, [maps:get(Name, Headers), Text]}, {br}]
+    end.
 
 merge_lines(Lines, Ctx) ->
     W = maps:get(width, Ctx, default_width()),
@@ -244,22 +268,6 @@ merge_lines_(W, {l, L}, #{lines := Lines, current := {Len, Current}} = Acc) ->
 append_line(Current, Lines) ->
     [{l, lists:flatten(Current)} | Lines].
 
-format_header(#xmlElement{name = Name, parents = Parents, content = Content} = E, Ctx) ->
-    has_non_header_parents(E) andalso erlang:error({non_header_parents, Parents}, [E]),
-    Headers = #{h1 => "# ",
-                h2 => "## ",
-                h3 => "### ",
-                h4 => "#### ",
-                h5 => "##### ",
-                h6 => "###### "},
-    case Name of
-        hgroup -> [];
-        _ ->
-            [{l, Text}] = format_content(Content, Ctx),
-            [{l, []},
-             {l, [maps:get(Name, Headers), Text]}]
-    end.
-
 has_non_header_parents(#xmlElement{parents = Parents}) ->
     %% 5 is the level from which function descriptions are extracted in an EDoc document.
     Drop = 5,
@@ -270,21 +278,6 @@ has_non_header_parents(#xmlElement{parents = Parents}) ->
 
 format_block_element(#xmlElement{content = Content}, Ctx) ->
     format_content(Content, Ctx).
-
-layout_type(Tag) ->
-    case Tag of
-        hgroup -> header;
-        h1     -> header;
-        h2     -> header;
-        h3     -> header;
-        h4     -> header;
-        h5     -> header;
-        h6     -> header;
-        dl     -> block;
-        ol     -> block;
-        ul     -> block;
-        _      -> inline
-    end.
 
 cleanup_text(Text, _Ctx) ->
     lists:flatmap(fun
@@ -302,6 +295,9 @@ is_preformatted(Parents) ->
                   ({pre, _}) -> true;
                   (_) -> false
               end, Parents).
+
+prepend(_Prefix, {br})      -> {br};
+prepend( Prefix, {i, Text}) -> {i, [Prefix, Text]}.
 
 default_width() -> 80.
 

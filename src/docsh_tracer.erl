@@ -3,11 +3,6 @@
 
 -define(il2b, iolist_to_binary).
 
-format_element() ->
-    ?MODULE:start(),
-    dbg:p(all, call),
-    dbg:tpl(docsh_edoc_xmerl, format_element, x).
-
 %% @doc Start and monitor a tracer process.
 %%
 %% Default dbg:dhandler/2 is nice,
