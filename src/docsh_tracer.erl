@@ -3,6 +3,8 @@
 
 -define(il2b, iolist_to_binary).
 
+-include_lib("stdlib/include/ms_transform.hrl").
+
 %% @doc Start and monitor a tracer process.
 %%
 %% Default dbg:dhandler/2 is nice,
@@ -117,3 +119,44 @@ format_timestamp({_, _, Micro} = TS, Precision) ->
          milli   -> io_lib:format( ".~3.10.0B", [erlang:round(Micro / 1000)]);
          micro   -> io_lib:format( ".~6.10.0B", [Micro])
      end].
+
+%%
+%% Tracer quickstart
+%%
+
+format_element() ->
+    ?MODULE:start(),
+    dbg:p(all, call),
+    dbg:tpl(docsh_edoc_xmerl, format_element, x).
+
+format_content() ->
+    ?MODULE:start(),
+    dbg:p(all, call),
+    dbg:tpl(docsh_edoc_xmerl, format_content, x).
+
+%format_element() ->
+    %?MODULE:start(),
+    %dbg:p(all, call),
+    %dbg:tpl(docsh_edoc_xmerl, format_element,
+            %dbg:fun2ms(fun ([E, '_', '_', '_'])
+                             %when E =:= ul;
+                                  %E =:= ol;
+                                  %E =:= lo ->
+                               %return_trace()
+                       %end)).
+
+element(Element) ->
+    ?MODULE:start(),
+    dbg:p(all, call),
+    dbg:tpl(docsh_edoc_xmerl, format_element,
+            dbg:fun2ms(fun ([E, '_', '_', '_'])
+                             when E =:= Element ->
+                               return_trace()
+                       end)).
+
+cleanup_text() ->
+    ?MODULE:start(),
+    dbg:p(all, call),
+    dbg:tpl(docsh_edoc_xmerl, cleanup_preformatted_text, x),
+    dbg:tpl(docsh_edoc_xmerl, cleanup_text, x),
+    dbg:tpl(docsh_edoc_xmerl, split, x).
