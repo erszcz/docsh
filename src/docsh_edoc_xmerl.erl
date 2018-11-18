@@ -165,7 +165,6 @@ debug(_, _) -> ok.
 format_edoc(Content, Ctx) ->
     lists:map(fun
                   ({br})        -> "\n";
-                  ({l, Line})   -> [Line, "\n"];
                   ({i, Inline}) -> [Inline]
                   %({l, Line})   -> ["<l>", Line, "</l>\n"];
                   %({i, Inline}) -> ["<i>", Inline, "</i>"]
@@ -198,39 +197,38 @@ format_element(h3, #xmlElement{} = E, Lines, Ctx) -> format_header(E, Lines, Ctx
 format_element(h4, #xmlElement{} = E, Lines, Ctx) -> format_header(E, Lines, Ctx);
 format_element(h5, #xmlElement{} = E, Lines, Ctx) -> format_header(E, Lines, Ctx);
 format_element(h6, #xmlElement{} = E, Lines, Ctx) -> format_header(E, Lines, Ctx);
-format_element(hgroup, _, Lines, _Ctx) -> [];
-format_element(code, #xmlElement{} = E, Lines, _Ctx) ->
+format_element(hgroup, _, _Lines, _Ctx) -> [];
+format_element(code, #xmlElement{}, Lines, _Ctx) ->
     Lines;
-format_element(dl, #xmlElement{}, Lines, Ctx) ->
-    Lines;
-format_element(dt, #xmlElement{name = Name} = E, Lines, Ctx) ->
-    [{br}, lists:flatmap(fun
-                             ({br}) -> [{br}, {i, "  "}];
-                             (T) -> [T]
-                         end,
-                         [{br} | Lines]) ];
-format_element(dd, #xmlElement{name = Name} = E, Lines, Ctx) ->
-    [{br}, lists:flatmap(fun
-                             ({br}) -> [{br}, {i, "      "}];
-                             (T) -> [T]
-                         end,
-                         [{br} | Lines]) ];
-format_element(p, #xmlElement{name = Name} = E, Lines, Ctx) ->
-    if
-        E#xmlElement.pos == 1 -> Lines;
-        E#xmlElement.pos >= 1 -> [{br}, Lines]
-    end;
-format_element(ol, #xmlElement{name = Name} = E, Lines, Ctx) ->
-    [{br}, Lines];
-format_element(ul, #xmlElement{name = Name} = E, Lines, Ctx) ->
-    [{br}, Lines];
-format_element(li, #xmlElement{name = Name} = E, Lines, Ctx) ->
-    Lines;
+format_element(dl, #xmlElement{}, Lines, _Ctx) ->
+    end_block(Lines);
+format_element(dt, #xmlElement{}, Lines, _Ctx) ->
+    dl_item("  ", Lines);
+format_element(dd, #xmlElement{}, Lines, _Ctx) ->
+    dl_item("      ", Lines);
+format_element(p, #xmlElement{}, Lines, _Ctx) ->
+    end_block(Lines);
+format_element(pre, #xmlElement{}, Lines, _Ctx) ->
+    end_block(Lines);
+format_element(ol, #xmlElement{} = E, ListItems, Ctx) ->
+    lists:all(fun ({li, _}) -> true; (_) -> false end, ListItems)
+        orelse erlang:error({non_list_item_children, ListItems}, [ol, E, ListItems, Ctx]),
+    end_block([ [{i, io_lib:format("  ~b. ", [Index])}, FirstItem, IndentedRest, {br}]
+                || {Index, {li, [FirstItem | Rest]}} <- enumerate(ListItems),
+                   IndentedRest <- [prepend("    ", Rest)] ]);
+format_element(ul, #xmlElement{} = E, ListItems, Ctx) ->
+    lists:all(fun ({li, _}) -> true; (_) -> false end, ListItems)
+        orelse erlang:error({non_list_item_children, ListItems}, [ul, E, ListItems, Ctx]),
+    end_block([ [{i, "  - "}, FirstItem, IndentedRest, {br}]
+                || {li, [FirstItem | Rest]} <- ListItems,
+                   IndentedRest <- [prepend("    ", Rest)] ]);
+format_element(li, #xmlElement{}, Lines, _Ctx) ->
+    [{li, Lines}];
 format_element(_, #xmlElement{name = Name} = E, Lines, Ctx) ->
     Lines.
 
 format_header(#xmlElement{name = Name, parents = Parents} = E, Lines, Ctx) ->
-    has_non_header_parents(E) andalso erlang:error({non_header_parents, Parents}, [E]),
+    %has_non_header_parents(E) andalso erlang:error({non_header_parents, Parents}, [E]),
     Headers = #{h1 => "# ",
                 h2 => "## ",
                 h3 => "### ",
@@ -241,7 +239,7 @@ format_header(#xmlElement{name = Name, parents = Parents} = E, Lines, Ctx) ->
         hgroup -> [];
         _ ->
             [{i, Text}] = Lines,
-            [{br}, {i, [maps:get(Name, Headers), Text]}, {br}]
+            end_block([{br}, {i, [maps:get(Name, Headers), Text]}])
     end.
 
 merge_lines(Lines, Ctx) ->
@@ -284,11 +282,15 @@ cleanup_text(Text, _Ctx) ->
                   end,
                   split(Text, "\s*(\n)\s*", [trim, {return, list}])).
 
+cleanup_preformatted_text(Text, _Ctx) ->
+    lists:flatmap(fun
+                      ("\n") -> [{br}];
+                      (T) -> [{i, T}]
+                  end,
+                  split(Text, "(\n)", [{return, list}])).
+
 split(Text, Pattern, Opts) ->
     re:split(Text, Pattern, Opts).
-
-cleanup_preformatted_text(Text, _Ctx) ->
-    [ {l, Line} || Line <- string:tokens(Text, "\n") ].
 
 is_preformatted(Parents) ->
     lists:any(fun
@@ -296,9 +298,30 @@ is_preformatted(Parents) ->
                   (_) -> false
               end, Parents).
 
-prepend(_Prefix, {br})      -> {br};
-prepend( Prefix, {i, Text}) -> {i, [Prefix, Text]}.
+prepend(Prefix, Doc) -> prepend(Prefix, lists:reverse(Doc), []).
+
+prepend(_Prefix, [], Acc) -> Acc;
+prepend( Prefix, [{br} | Doc], [] = Acc) -> prepend(Prefix, Doc, [{br} | Acc]);
+prepend( Prefix, [{br} | Doc], [{br}] = Acc) -> prepend(Prefix, Doc, [{br} | Acc]);
+prepend( Prefix, [{br} | Doc], [{br}, {br}] = Acc) -> prepend(Prefix, Doc, Acc);
+prepend( Prefix, [{br} | Doc], Acc) -> prepend(Prefix, Doc, [{br}, {i, Prefix} | Acc]);
+prepend( Prefix, [Node | Doc], Acc) -> prepend(Prefix, Doc, [Node | Acc]).
 
 default_width() -> 80.
+
+enumerate(List) ->
+    lists:zip(lists:seq(1, length(List)), List).
+
+end_block(Doc) -> end_block([{br}, {br} | lists:reverse(lists:flatten(Doc))], []).
+
+end_block([], Acc) -> Acc;
+end_block([{br} | Doc], [] = Acc) -> end_block(Doc, [{br} | Acc]);
+end_block([{br} | Doc], [{br}] = Acc) -> end_block(Doc, [{br} | Acc]);
+end_block([{br} | Doc], [{br}, {br}] = Acc) -> end_block(Doc, Acc);
+end_block([Node | Doc], Acc) -> end_block(Doc, [Node | Acc]).
+
+dl_item(Prefix, Lines) ->
+    [First | Rest] = Lines,
+    end_block([{i, Prefix}, First, prepend(Prefix, Rest)]).
 
 %%. vim: foldmethod=marker foldmarker=%%',%%.

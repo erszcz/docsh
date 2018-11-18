@@ -29,7 +29,8 @@
 %% <ul>
 %%     <li>Some</li>
 %%     <li>Random</li>
-%%     <li>Items</li>
+%%     <li><p>Para 1</p>
+%%         <p>Para 2</p></li>
 %% </ul>
 %%
 %% <ol>
