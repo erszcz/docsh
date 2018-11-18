@@ -282,10 +282,16 @@ format_block_element(#xmlElement{content = Content}, Ctx) ->
 cleanup_text(Text, _Ctx) ->
     lists:flatmap(fun
                       ("\n") -> [{br}];
-                      ([]) -> [];
-                      (T) -> [{i, string:trim(T, leading)}]
+                      (T) ->
+                          case edoc_lib:is_space(T) of
+                              true -> [];
+                              false -> [{i, T}]
+                          end
                   end,
-                  re:split(Text, "(\n)", [notempty, trim, {return, list}])).
+                  split(Text, "\s*(\n)\s*", [trim, {return, list}])).
+
+split(Text, Pattern, Opts) ->
+    re:split(Text, Pattern, Opts).
 
 cleanup_preformatted_text(Text, _Ctx) ->
     [ {l, Line} || Line <- string:tokens(Text, "\n") ].
