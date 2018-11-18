@@ -287,8 +287,12 @@ layout_type(Tag) ->
     end.
 
 cleanup_text(Text, _Ctx) ->
-    %[ {l, string:trim(Line, leading)} || [_|_] = Line <- re:split(Text, "\n", [notempty, trim, {return, list}]) ].
-    [ [ {br}, {i, string:trim(Line, leading)} ] || [_|_] = Line <- re:split(Text, "\n", [notempty, trim, {return, list}]) ].
+    lists:flatmap(fun
+                      ("\n") -> [{br}];
+                      ([]) -> [];
+                      (T) -> [{i, string:trim(T, leading)}]
+                  end,
+                  re:split(Text, "(\n)", [notempty, trim, {return, list}])).
 
 cleanup_preformatted_text(Text, _Ctx) ->
     [ {l, Line} || Line <- string:tokens(Text, "\n") ].
