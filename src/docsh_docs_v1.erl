@@ -55,21 +55,27 @@ lookup(#docs_v1{} = Docs, Key, Kinds0) ->
 
 dispatch_lookup(Docs, Mod, [moduledoc], Lang) ->
     case Docs#docs_v1.module_doc of
-        none    -> {ok, module_doc_not_available()};
-        hidden  -> {ok, <<"Module documentation is hidden.\n">>};
-        Doc     -> {ok, format_module_doc(Mod, maps:get(Lang, Doc))}
+        none   -> {ok, module_doc_not_available()};
+        hidden -> {ok, <<"Module documentation is hidden.\n">>};
+        Doc    -> {ok, format_module_doc(Mod, maps:get(Lang, Doc))}
     end;
 dispatch_lookup(Docs, {Mod, Name, Arity}, [type], Lang) ->
-    Items = fetch_items(Docs#docs_v1.docs, type, Name, Arity),
-    {ok, format_types(Mod, Items, Lang)};
+    case fetch_items(Docs#docs_v1.docs, type, Name, Arity) of
+        []    -> {not_found, item_doc_not_available()};
+        Items -> {ok, format_types(Mod, Items, Lang)}
+    end;
 dispatch_lookup(Docs, Mod, [type], Lang) ->
-    Items = fetch_items(Docs#docs_v1.docs, type, any, any),
-    {ok, format_types(Mod, Items, Lang)};
+    case fetch_items(Docs#docs_v1.docs, type, any, any) of
+        []    -> {not_found, item_doc_not_available()};
+        Items -> {ok, format_types(Mod, Items, Lang)}
+    end;
 dispatch_lookup(Docs, {Mod, Name, Arity}, Kinds, Lang)
   when Kinds =:= [doc, spec];
        Kinds =:= [spec] ->
-    Items = fetch_items(Docs#docs_v1.docs, function, Name, Arity),
-    {ok, format_functions(Mod, Items, Kinds, Lang)}.
+    case fetch_items(Docs#docs_v1.docs, function, Name, Arity) of
+        []    -> {not_found, item_doc_not_available()};
+        Items -> {ok, format_functions(Mod, Items, Kinds, Lang)}
+    end.
 
 fetch_items(AllItems, Kind, Name, Arity) ->
     lists:filter(mk_select(Kind, Name, Arity), AllItems).
