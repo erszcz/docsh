@@ -2,6 +2,7 @@
 %% @end
 -module(edoc_example2).
 -export([code_in_loose_text/0,
+         non_p_paragraphs/0,
          dl/0,
          g/0,
          h2/0,
@@ -98,6 +99,15 @@ text2() -> ok.
 %% it dynamically on older versions of OTP.
 -spec code_in_loose_text() -> ok.
 code_in_loose_text() -> ok.
+
+%% @doc First non-p paragraph with <code>inline</code> elements.
+%%
+%% Second non-p paragraph with <a href='http://google.com'>inline</a> elements.
+%%
+%% Third `one'.
+%% @end
+-spec non_p_paragraphs() -> ok.
+non_p_paragraphs() -> ok.
 
 %% @doc
 %% <dl>
