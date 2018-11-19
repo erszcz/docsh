@@ -23,26 +23,29 @@ edoc_to_internal(_) ->
     {ok, DBeam} = docsh_beam:from_loaded_module(edoc_example),
     ct:pal("~p", [DBeam]),
     ?assertEqual( #{name => edoc_example,
-                    description => <<"Top-level module doc.">>,
-                    functions => [ #{kind => function,
-                                     name => f,
-                                     arity => 0,
-                                     exported => true,
-                                     description => <<"Doc for f/0.">>} ],
-                    types => [ #{kind => type,
+                    description => <<"Top-level module doc.\n\n">>,
+                    items => [ #{kind => function,
+                                 name => f,
+                                 arity => 0,
+                                 exported => true,
+                                 description => <<"Doc for f/0.\n\n">>},
+                               #{kind => type,
                                  name => r,
                                  arity => 0,
-                                 description => <<"Doc for type r().">>},
+                                 exported => true,
+                                 description => <<"Doc for type r().\n\n">>},
                                #{kind => type,
                                  name => s,
                                  arity => 0,
-                                 description => <<"Example opaque type s().">>},
+                                 exported => true,
+                                 description => <<"Example opaque type s().\n\n">>},
                                #{kind => type,
                                  name => t,
                                  arity => 1,
-                                 description => <<"Unary type t/1.">>} ]},
+                                 exported => true,
+                                 description => <<"Unary type t/1.\n\n">>} ]},
 
-                  unwrap(?TESTED:to_internal(DBeam)) ).
+                  format_descriptions(unwrap( ?TESTED:to_internal(DBeam) ))).
 
 edoc_format_function_g(_) ->
     {ok, DBeam} = docsh_beam:from_loaded_module(edoc_example2),
@@ -156,3 +159,10 @@ source_file(Mod) ->
 
 unwrap({ok, V}) -> V;
 unwrap(Else) -> erlang:error(not_ok, [Else]).
+
+format_descriptions(Internal) ->
+    #{description := ModEDoc} = Internal,
+    NewItems = [ Item#{description := iolist_to_binary(?TESTED:format_edoc(ItemEDoc, #{}))}
+                 || #{description := ItemEDoc} = Item <- maps:get(items, Internal) ],
+    Internal#{description := iolist_to_binary(?TESTED:format_edoc(ModEDoc, #{})),
+              items := NewItems}.
