@@ -7,16 +7,24 @@
               item/0,
               kna/0]).
 
+-ifndef(no_map_specs).
 -type t()    :: #{name        := module(),
                   items       := [item()],
                   description => none | iodata()}.
+-else.
+-type t()    :: #{}.
+-endif.
 
+-ifndef(no_map_specs).
 -type item() :: #{kind        := function | type,
                   name        := atom(),
                   arity       := arity(),
                   description => none | iodata(),
                   exported    => boolean(),
                   signature   => iodata()}.
+-else.
+-type item() :: #{}.
+-endif.
 
 -type kna() :: {function | type, atom(), arity()}.
 

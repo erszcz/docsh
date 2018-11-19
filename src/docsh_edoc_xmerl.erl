@@ -58,11 +58,7 @@ get_functions(#xmlElement{name = module} = M) ->
 get_functions(#xmlElement{name = functions, content = Content}) ->
     [ get_function(Function) || #xmlElement{name = function} = Function <- Content ].
 
--spec get_function(#xmlElement{}) -> #{kind        := 'function',
-                                       name        := atom(),
-                                       arity       := arity(),
-                                       exported    := boolean(),
-                                       description := binary()}.
+-spec get_function(#xmlElement{}) -> docsh_internal:item().
 get_function(#xmlElement{attributes = Attrs} = Function) ->
     #{kind        => 'function',
       name        => ?l2ea('find_attribute!'(name, Attrs)),
@@ -76,10 +72,7 @@ get_types(#xmlElement{name = module} = M) ->
 get_types(#xmlElement{name = typedecls, content = Content}) ->
     [ get_type(Type) || #xmlElement{name = typedecl} = Type <- Content ].
 
--spec get_type(#xmlElement{}) -> #{kind        := 'type',
-                                   name        := atom(),
-                                   arity       := arity(),
-                                   description := binary()}.
+-spec get_type(#xmlElement{}) -> docsh_internal:item().
 get_type(#xmlElement{name = typedecl} = Type) ->
     #{kind        => 'type',
       name        => get_type_name(Type),
