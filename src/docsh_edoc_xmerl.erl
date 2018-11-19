@@ -166,7 +166,7 @@ format_edoc(Content, Ctx) ->
     lists:map(fun
                   ({br})        -> "\n";
                   ({i, Inline}) -> [Inline]
-              end, format_content(Content, Ctx)).
+              end, end_block(format_content(Content, Ctx))).
 
 format_content(Content, Ctx) ->
     lists:flatten([ format_content_(C, Ctx) || C <- Content ]).

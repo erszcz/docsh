@@ -89,14 +89,14 @@ edoc_format_h2(C) ->
 edoc_format_code_in_loose_text(C) ->
     edoc_format(C, code_in_loose_text, <<"Fetch the internal state of an OTP process.\n"
                                          "Calls sys:get_state/2 directly in R16B01+, and fetches\n"
-                                         "it dynamically on older versions of OTP.\n">>).
+                                         "it dynamically on older versions of OTP.\n\n">>).
 
 edoc_format_non_p_paragraphs(C) ->
-    edoc_format(C, non_p_paragraphs, <<"First non-p paragraph with <code>inline</code> elements.\n"
+    edoc_format(C, non_p_paragraphs, <<"First non-p paragraph with inline elements.\n"
                                        "\n"
-                                       "Second non-p paragraph with <a href='http://google.com'>inline</a> elements.\n"
+                                       "Second non-p paragraph with inline elements.\n"
                                        "\n"
-                                       "Third one.\n">>).
+                                       "Third one.\n\n">>).
 
 edoc_format_dl(C) ->
     edoc_format(C, dl, <<"  sys_alloc\n"
@@ -120,7 +120,7 @@ edoc_format_pre(C) ->
 edoc_format_text1(C) ->
     edoc_format(C, text1, <<"Some\n"
                             "loose text,\n"
-                            "not a paragraph.\n">>).
+                            "not a paragraph.\n\n">>).
 
 edoc_format_text2(C) ->
     edoc_format(C, text2, <<"Some\n"
