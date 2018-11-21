@@ -69,7 +69,7 @@ t(M, T) -> t(M, T, any).
 -spec t(module(), name(), arity() | 'any') -> ok.
 t(M, T, Arity) when is_atom(M), is_atom(T),
                     is_integer(Arity) orelse Arity =:= any ->
-    lookup({M, T, Arity}, [type]).
+    lookup({M, T, Arity}, [doc, type]).
 
 -spec lookup(Key, Items) -> 'ok' when
       Key :: docsh_internal:key(),
