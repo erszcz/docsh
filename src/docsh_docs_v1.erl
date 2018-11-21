@@ -32,13 +32,9 @@
                  Doc :: i18n_doc() | none | hidden,
                  Metadata :: map()}.
 
--ifndef(no_map_specs).
 -type i18n_doc() :: #{language() := string_()}.
 -type language() :: binary().
 -type string_() :: binary().
--else.
--type i18n_doc() :: #{}.
--endif.
 
 -define(il2b(IOList), iolist_to_binary(IOList)).
 
