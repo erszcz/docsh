@@ -1,4 +1,8 @@
 -module(docsh_tracer).
+
+%% This has to be present to enable doc extraction.
+-export([start/0]).
+
 -compile([export_all, nowarn_export_all]).
 
 -define(il2b, iolist_to_binary).
