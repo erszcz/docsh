@@ -11,6 +11,7 @@
 -define(a2b(A), atom_to_binary(A, utf8)).
 -define(i2b(I), integer_to_binary(I)).
 -define(il2b(IOList), iolist_to_binary(IOList)).
+-define(il2l(IOList), binary_to_list(iolist_to_binary(IOList))).
 
 %% Function or type name.
 -type name() :: docsh_internal:name().
@@ -86,7 +87,7 @@ lookup(Key, Kinds) ->
         {ok, Docs} ->
             case docsh_format:lookup(Docs, Key, Kinds) of
                 {not_found, Message} ->
-                    print("~ts", [[string:trim(Message, trailing), "\n\n"]]);
+                    print("~ts", [[string:strip(?il2l([Message]), right, $\n), "\n\n"]]);
                 {ok, DocItems} ->
                     print("~ts", [format(DocItems, Key, Kinds, Lang)])
             end
@@ -101,7 +102,8 @@ format_module_doc(Mod, Doc) ->
     ?il2b(["\n# ", ?a2b(Mod), "\n\n", docsh_edoc:format_edoc(Doc, RenderingContext)]).
 
 format_items(Mod, Items, Kinds, Lang) ->
-    ?il2b([string:trim([ format_item(Mod, Item, Kinds, Lang) || Item <- Items ], trailing),
+    ?il2b([string:strip(?il2l([ format_item(Mod, Item, Kinds, Lang)
+                                || Item <- Items ]), right, $\n),
            "\n\n"]).
 
 format_item(Mod, Item, Kinds, Lang) ->
