@@ -52,8 +52,7 @@ recon(C) ->
 
 simple_lookup_should_not_work_if_no_doc_is_available(_) ->
     {ok, Beam} = docsh_lib:get_docs(lists),
-    %% TODO: This is cheating, should return not_found, but we store a placeholder.
-    {ok, Doc} = docsh_format:lookup(Beam, lists, [moduledoc]),
+    {not_found, Doc} = docsh_format:lookup(Beam, lists, [moduledoc]),
     ct:pal("doc: ~p", [Doc]),
     ?assertMatch({_,_}, binary:match(Doc, <<"is not available">>)).
 
