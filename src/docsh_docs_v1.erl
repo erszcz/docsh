@@ -39,42 +39,38 @@
 -type i18n_doc() :: #{}.
 -endif.
 
--define(a2b(A), atom_to_binary(A, utf8)).
--define(i2b(I), integer_to_binary(I)).
 -define(il2b(IOList), iolist_to_binary(IOList)).
 
 -spec lookup(docsh_format:t(), docsh_format:key(), docsh_format:kinds()) -> {ok, binary()}
                                                                           | {not_found, binary()}.
 lookup(#docs_v1{} = Docs, Key, Kinds0) ->
     %docsh_lib:print("lookup ~p ~p in\n  ~p\n", [Key, Kinds0, Docs]),
-    %% TODO: switch on environment language
-    Lang = <<"en">>,
     %% This way we'll never get [spec, doc], only [doc, spec].
     Kinds = lists:sort(Kinds0),
-    dispatch_lookup(Docs, Key, Kinds, Lang).
+    dispatch_lookup(Docs, Key, Kinds).
 
-dispatch_lookup(Docs, Mod, [moduledoc], Lang) ->
+dispatch_lookup(Docs, _Mod, [moduledoc]) ->
     case Docs#docs_v1.module_doc of
-        none   -> {ok, module_doc_not_available()};
-        hidden -> {ok, <<"Module documentation is hidden.\n">>};
-        Doc    -> {ok, format_module_doc(Mod, maps:get(Lang, Doc))}
+        none   -> {not_found, docsh_format:module_doc_not_available()};
+        hidden -> {not_found, docsh_format:module_doc_hidden()};
+        Doc    -> {ok, Doc}
     end;
-dispatch_lookup(Docs, {Mod, Name, Arity}, [doc, type] = Kinds, Lang) ->
+dispatch_lookup(Docs, {_Mod, Name, Arity}, [doc, type]) ->
     case fetch_items(Docs#docs_v1.docs, type, Name, Arity) of
-        []    -> {not_found, item_doc_not_available()};
-        Items -> {ok, format_items(Mod, Items, Kinds, Lang)}
+        []    -> {not_found, docsh_format:item_doc_not_available()};
+        Items -> {ok, Items}
     end;
-dispatch_lookup(Docs, Mod, [type] = Kinds, Lang) ->
+dispatch_lookup(Docs, _Mod, [type]) ->
     case fetch_items(Docs#docs_v1.docs, type, any, any) of
-        []    -> {not_found, item_doc_not_available()};
-        Items -> {ok, format_items(Mod, Items, Kinds, Lang)}
+        []    -> {not_found, docsh_format:item_doc_not_available()};
+        Items -> {ok, Items}
     end;
-dispatch_lookup(Docs, {Mod, Name, Arity}, Kinds, Lang)
+dispatch_lookup(Docs, {_Mod, Name, Arity}, Kinds)
   when Kinds =:= [doc, spec];
        Kinds =:= [spec] ->
     case fetch_items(Docs#docs_v1.docs, function, Name, Arity) of
-        []    -> {not_found, item_doc_not_available()};
-        Items -> {ok, format_items(Mod, Items, Kinds, Lang)}
+        []    -> {not_found, docsh_format:item_doc_not_available()};
+        Items -> {ok, Items}
     end.
 
 fetch_items(AllItems, Kind, Name, Arity) ->
@@ -89,30 +85,6 @@ select(Kind, Name, Arity, {Kind, ItemName, ItemArity})
     true;
 select(_, _, _, _) ->
     false.
-
-format_module_doc(Mod, Doc) ->
-    RenderingContext = #{},
-    ?il2b(["\n# ", ?a2b(Mod), "\n\n", docsh_edoc:format_edoc(Doc, RenderingContext)]).
-
-format_items(Mod, Items, Kinds, Lang) ->
-    ?il2b([string:trim([ format_item(Mod, Item, Kinds, Lang) || Item <- Items ], trailing),
-           "\n\n"]).
-
-format_item(Mod, Item, Kinds, Lang) ->
-    {{_, Name, Arity}, _, Signature, MaybeDoc, _Metadata} = Item,
-    [
-     [ ["\n", ?a2b(Mod), ":", ?a2b(Name), "/", ?i2b(Arity), "\n\n"]
-       || lists:member(doc, Kinds) orelse lists:member(spec, Kinds) ],
-     [Signature,
-      [ ["\n", format_maybe_doc(MaybeDoc, Lang)]
-        || lists:member(doc, Kinds) ]]
-    ].
-
-format_maybe_doc(none, _)   -> item_doc_not_available();
-format_maybe_doc(hidden, _) -> <<"Documentation for the entry is hidden.\n">>;
-format_maybe_doc(Doc, Lang) ->
-    RenderingContext = #{},
-    docsh_edoc:format_edoc(maps:get(Lang, Doc), RenderingContext).
 
 -spec from_internal(docsh_internal:t()) -> t().
 from_internal(Internal) ->
@@ -145,12 +117,6 @@ docs_v1_default() ->
 
 module_doc(_Lang, none) -> none;
 module_doc( Lang, D) -> #{Lang => D}.
-
-module_doc_not_available() ->
-    <<"Documentation for the module is not available.\n">>.
-
-item_doc_not_available() ->
-    <<"Documentation for the entry is not available.\n">>.
 
 mk_step(ModuleInfo) ->
     fun (Info, Acc) -> step(ModuleInfo, Info, Acc) end.

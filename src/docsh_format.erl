@@ -1,6 +1,10 @@
 -module(docsh_format).
 
--export([lookup/3]).
+-export([lookup/3,
+         module_doc_not_available/0,
+         module_doc_hidden/0,
+         item_doc_not_available/0,
+         item_doc_hidden/0]).
 
 -export_type([error_message/0]).
 
@@ -31,3 +35,19 @@ default_formats() ->
     [
      {docs_v1, docsh_docs_v1}
     ].
+
+-spec module_doc_not_available() -> binary().
+module_doc_not_available() ->
+    <<"Module description is not available.\n">>.
+
+-spec module_doc_hidden() -> binary().
+module_doc_hidden() ->
+    <<"Module description is hidden.\n">>.
+
+-spec item_doc_not_available() -> binary().
+item_doc_not_available() ->
+    <<"Item description is not available.\n">>.
+
+-spec item_doc_hidden() -> binary().
+item_doc_hidden() ->
+    <<"Item description is hidden.\n">>.
