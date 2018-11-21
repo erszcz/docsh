@@ -7,7 +7,8 @@
 -behaviour(docsh_writer).
 -export([from_internal/1]).
 
--export_type([t/0]).
+-export_type([t/0,
+              item/0]).
 
 -record(docs_v1, {anno,
                   beam_language,
@@ -41,8 +42,12 @@
 
 -define(il2b(IOList), iolist_to_binary(IOList)).
 
--spec lookup(docsh_format:t(), docsh_format:key(), docsh_format:kinds()) -> {ok, binary()}
-                                                                          | {not_found, binary()}.
+-spec lookup(Docs, Key, Kinds) -> R when
+      Docs  :: docsh_format:t(),
+      Key   :: docsh_format:key(),
+      Kinds :: docsh_format:kinds(),
+      R :: {ok, [item()]}
+         | {not_found, docsh_format:error_message()}.
 lookup(#docs_v1{} = Docs, Key, Kinds0) ->
     %docsh_lib:print("lookup ~p ~p in\n  ~p\n", [Key, Kinds0, Docs]),
     %% This way we'll never get [spec, doc], only [doc, spec].
@@ -53,7 +58,7 @@ dispatch_lookup(Docs, _Mod, [moduledoc]) ->
     case Docs#docs_v1.module_doc of
         none   -> {not_found, docsh_format:module_doc_not_available()};
         hidden -> {not_found, docsh_format:module_doc_hidden()};
-        Doc    -> {ok, Doc}
+        Doc    -> {ok, [Doc]}
     end;
 dispatch_lookup(Docs, {_Mod, Name, Arity}, [doc, type]) ->
     case fetch_items(Docs#docs_v1.docs, type, Name, Arity) of
@@ -90,8 +95,8 @@ select(_, _, _, _) ->
 from_internal(Internal) ->
     %% TODO: remove
     %docsh_lib:print("internal ~p\n", [Internal]),
-    #{name := ModuleName,
-      description := Description} = Internal,
+    ModuleName = maps:get(name, Internal),
+    Description = maps:get(description, Internal, docsh_format:module_doc_not_available()),
     %% TODO: this contains some assumptions, e.g. English language
     Lang = <<"en">>,
     ModuleInfo = #{name => ModuleName,

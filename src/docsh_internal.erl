@@ -58,7 +58,7 @@ kna(#{kind := K, name := N, arity := A}) -> {K, N, A}.
 %%' Internal
 %%
 
--spec merge_two(item(), item()) -> item().
+-spec merge_two(t(), t()) -> t().
 merge_two(#{items := Items1} = Info1, #{items := Items2}) ->
     ItemsByKNA = dict:to_list( docsh_lib:group_by(fun kna/1, Items1 ++ Items2) ),
     NewItems = lists:map(fun merge_two_/1,  ItemsByKNA),

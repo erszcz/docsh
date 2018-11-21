@@ -92,7 +92,7 @@ lookup(Key, Kinds) ->
             end
     end.
 
-format(DocItems, Mod, [moduledoc], Lang)   -> format_module_doc(Mod, maps:get(Lang, DocItems));
+format([DocItem], Mod, [moduledoc], Lang)  -> format_module_doc(Mod, maps:get(Lang, DocItem));
 format(DocItems, {Mod, _, _}, Kinds, Lang) -> format_items(Mod, DocItems, Kinds, Lang);
 format(DocItems, Mod, Kinds, Lang)         -> format_items(Mod, DocItems, Kinds, Lang).
 
