@@ -96,14 +96,5 @@ type_signature({attribute, _, T, _} = Type)
        T =:= type ->
     ?il2b(format(Type)).
 
--ifdef(erl_prettypr_no_specs).
-
-format(Attr) ->
-    erl_pp:form(Attr).
-
--else.
-
 format(Attr) ->
     [erl_prettypr:format(Attr, [{ribbon, 80}]), $\n].
-
--endif.
