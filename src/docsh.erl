@@ -65,6 +65,8 @@
 
 -import(docsh_lib, [print/2, print/3]).
 
+-include("docsh_stacktrace.hrl").
+
 %% External documentation format as described in EEP-48:
 %% http://erlang.org/eep/eeps/eep-0048.html
 -type external() :: any().
@@ -115,12 +117,12 @@ process_arg({_Desc, F}, {next, Args}) ->
     end.
 
 'try'(F) ->
-    try F()
-    catch
-        _:R -> print(standard_error, "~s: ~s~n~s~n",
-                     [progname(), docsh_lib:format_error(R),
-                      erlang:get_stacktrace()]),
-               erlang:halt(2)
+    try
+        F()
+    catch ?STACKTRACE(_, R, Stacktrace)
+        print(standard_error, "~s: ~s~n~s~n",
+              [progname(), docsh_lib:format_error(R), Stacktrace]),
+        erlang:halt(2)
     end.
 
 usage() ->

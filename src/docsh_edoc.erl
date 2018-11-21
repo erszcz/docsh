@@ -13,6 +13,8 @@
 -import(docsh_lib, [print/2]).
 
 -include_lib("xmerl/include/xmerl.hrl").
+-include("docsh_stacktrace.hrl").
+
 -define(l(Args), fun () -> Args end).
 
 -spec available(docsh_beam:t()) -> [docsh_reader:t()].
@@ -36,14 +38,14 @@ to_internal(Beam, Opts) ->
                    false -> erlang:error(edoc_requires_source);
                    F when is_list(F) -> F
                end,
-        {_Mod, EDoc} = edoc:get_doc(File, []),
+        {_Mod, EDoc} = edoc:get_doc(File, [preprocess]),
         [ write(docsh_beam:name(Beam), Tag, OutDir, dispatch(Tag, File, EDoc))
           || {OutDir, Tags} <- [proplists:get_value(debug, Opts)],
              Tag <- Tags ],
         Internal = xmerl:export_simple([EDoc], docsh_edoc_xmerl),
         {ok, Internal}
-    catch
-        _:R -> {error, R, erlang:get_stacktrace()}
+    catch ?STACKTRACE(_, R, Stacktrace)
+        {error, R, Stacktrace}
     end.
 
 -spec format_edoc(EDoc, RenderingContext) -> R

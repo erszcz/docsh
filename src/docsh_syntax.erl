@@ -4,6 +4,8 @@
 -export([available/1,
          to_internal/1]).
 
+-include("docsh_stacktrace.hrl").
+
 -define(il2b(IOList), iolist_to_binary(IOList)).
 -define(l(Args), fun () -> Args end).
 
@@ -29,8 +31,8 @@ to_internal(Beam) ->
         Internal = #{name => get_module_name(Forms),
                      items => get_functions(Forms) ++ get_types(Forms)},
         {ok, Internal}
-    catch
-        _:R -> {error, R, erlang:get_stacktrace()}
+    catch ?STACKTRACE(_, R, Stacktrace)
+        {error, R, Stacktrace}
     end.
 
 get_module_name(Forms) ->

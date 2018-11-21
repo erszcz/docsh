@@ -200,10 +200,7 @@ format_error(Reason) when is_list(Reason);
                           is_binary(Reason) ->
     Reason;
 format_error({error, Reason, Stacktrace}) ->
-    io_lib:format("docsh error: ~p~n~p~n", [Reason, Stacktrace]);
-format_error(Reason) ->
-    Stacktrace = erlang:get_stacktrace(),
-    format_error({error, Reason, Stacktrace}).
+    io_lib:format("docsh error: ~p~n~p~n", [Reason, Stacktrace]).
 
 -spec available_readers(docsh_beam:t()) -> [docsh_reader:t()].
 available_readers(Beam) ->
