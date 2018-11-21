@@ -4,11 +4,15 @@
 -export([available/1,
          to_internal/1]).
 
+%% EDoc facade
+-export([format_edoc/2]).
+
 %% Test API
 -export([to_internal/2]).
 
 -import(docsh_lib, [print/2]).
 
+-include_lib("xmerl/include/xmerl.hrl").
 -define(l(Args), fun () -> Args end).
 
 -spec available(docsh_beam:t()) -> [docsh_reader:t()].
@@ -29,7 +33,7 @@ to_internal(Beam) ->
 to_internal(Beam, Opts) ->
     try
         File = case docsh_beam:source_file(Beam) of
-                   false -> error(edoc_requires_source);
+                   false -> erlang:error(edoc_requires_source);
                    F when is_list(F) -> F
                end,
         {_Mod, EDoc} = edoc:get_doc(File, []),
@@ -41,6 +45,13 @@ to_internal(Beam, Opts) ->
     catch
         _:R -> {error, R, erlang:get_stacktrace()}
     end.
+
+-spec format_edoc(EDoc, RenderingContext) -> R
+      when EDoc :: docsh_edoc_xmerl:xml_element_content(),
+           RenderingContext :: any(),
+           R :: iolist().
+format_edoc(EDoc, Ctx) ->
+    docsh_edoc_xmerl:format_edoc(EDoc, Ctx).
 
 dispatch(source,    File, _EDoc) ->
     {ok, Content} = file:read_file(File),

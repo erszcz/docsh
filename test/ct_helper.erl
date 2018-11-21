@@ -9,7 +9,7 @@
 -spec get_config(atom()) -> any().
 get_config(Key) ->
     Val = ct:get_config(Key),
-    Val == undefined andalso error({undefined, Key}),
+    Val == undefined andalso erlang:error({undefined, Key}),
     Val.
 
 test_specific_init(Module, CaseName, Config) ->

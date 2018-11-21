@@ -65,7 +65,7 @@ docs(#docsh_beam{} = B) ->
             erlang:binary_to_term(BDocs);
         {error, _, {missing_chunk, _, _}} ->
             %% TODO: should this module throw or return errors by value?
-            error({no_docs, <<"no Docs chunk">>})
+            erlang:error({no_docs, <<"no Docs chunk">>})
     end.
 
 -spec source_file(t()) -> file:filename() | false.

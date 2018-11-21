@@ -52,7 +52,7 @@ convert_one({Reader, Mod}) ->
 -spec get(k(), [{k(), v()}]) -> v().
 get(Key, Props) ->
     case lists:keyfind(Key, 1, Props) of
-        false -> error(not_found, [Key, Props]);
+        false -> erlang:error(not_found, [Key, Props]);
         {Key, Val} -> Val
     end.
 
@@ -264,10 +264,10 @@ dispatch_docs_extraction_(B) ->
 make_docs(Beam) ->
     BEAMFile = docsh_beam:beam_file(Beam),
     has_docs(BEAMFile)
-        andalso error(docs_present, [BEAMFile]),
+        andalso erlang:error(docs_present, [BEAMFile]),
     case {docsh_beam:abstract_code(Beam), docsh_beam:source_file(Beam)} of
         {false, false} ->
-            error({no_debug_info_no_src, BEAMFile}, [BEAMFile]);
+            erlang:error({no_debug_info_no_src, BEAMFile}, [BEAMFile]);
         {_, false} ->
             {ok, do_make_docs(Beam), [no_src]};
         {false, _} ->
@@ -280,7 +280,7 @@ make_docs(Beam) ->
 do_make_docs(Beam) ->
     FromMods = get_readers(Beam),
     FromMods == []
-        andalso error(no_readers_available),
+        andalso erlang:error(no_readers_available),
     ToMod = application:get_env(docsh, docsh_writer, default_writer()),
     convert(FromMods, ToMod, Beam).
 

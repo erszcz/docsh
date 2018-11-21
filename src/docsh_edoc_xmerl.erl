@@ -1,256 +1,289 @@
 -module(docsh_edoc_xmerl).
 
+%% xmerl:simple_export/2 API
 -export(['#root#'/4,
          '#element#'/5,
          '#text#'/1,
          '#xml-inheritance#'/0]).
 
--export([dd/4,
-         dl/4,
-         fullDescription/4,
-         li/4]).
+%% EDoc formatter
+-export([format_edoc/2]).
 
--record(function, {name, arity, exported, label, description}).
+-export_type([xml_element_content/0]).
 
 -include_lib("xmerl/include/xmerl.hrl").
 
+%% @type xml_element_content(). `#xmlElement.content' as defined by `xmerl.hrl'.
+-type xml_element_content() :: [#xmlElement{} | #xmlText{} | #xmlPI{} | #xmlComment{} | #xmlDecl{}].
+
 -define(il2b(IOList), iolist_to_binary(IOList)).
--define(l2b(L), list_to_binary(L)).
 -define(l2i(L), list_to_integer(L)).
 -define(l2ea(L), list_to_existing_atom(L)).
+
+%%
+%%' xmerl:simple_export/2 API
+%%
+
+-spec '#xml-inheritance#'() -> list().
+'#xml-inheritance#'() -> [].
+
+%% The '#root#' tag is called when the entire structure has been
+%% exported. It does not appear in the structure itself.
+-spec '#root#'(any(), any(), any(), any()) -> docsh_internal:t().
+'#root#'([#xmlElement{name = module} = Module], _, _, _) ->
+    #{name => get_module_name(Module),
+      description => get_module_description(Module),
+      items => get_functions(Module) ++ get_types(Module)}.
+
+-spec '#element#'(any(), any(), any(), any(), any()) -> any().
+'#element#'(_, _, _, _, E) -> E.
 
 %% The '#text#' function is called for every text segment.
 -spec '#text#'(any()) -> any().
 '#text#'(Text) -> ?il2b(Text).
 
-%% The '#root#' tag is called when the entire structure has been
-%% exported. It does not appear in the structure itself.
--spec '#root#'(any(), any(), any(), any()) -> any().
-'#root#'(Data, _Attrs, [], _E) ->
-    lists:flatten(Data).
+%%.
+%%' xmerl:simple_export/2 helpers
+%%
 
-%% The '#element#' function is the default handler for XML elements.
--spec '#element#'(any(), any(), any(), any(), any()) -> any().
-'#element#'(function, Data, Attrs, _Parents, _E) ->
-    F1 = function_details_from_attrs(Attrs, #function{}),
-    F2 = function_details_from_data(lists:flatten(Data), F1),
-    NameArity = {F2#function.name, F2#function.arity},
-    [{{function, NameArity},
-      debug(function, {{name,        F2#function.name},
-                       {arity,       F2#function.arity},
-                       {exported,    F2#function.exported},
-                       {label,       F2#function.label},
-                       {description, F2#function.description}})}];
-'#element#'(see, Data, _Attrs, _Parents, _E) ->
-    {fmt, debug(see, ["See ", Data, "\n"])};
-'#element#'(equiv, Data, _Attrs, _Parents, _E) ->
-    Desc = case collect_loose_text(Data) of
-               [{fmt, Eq}, {fmt, See}] ->
-                   {description, ?il2b(["Equivalent to ", Eq, See])};
-               [{fmt, Eq}] ->
-                   {description, ?il2b(["Equivalent to ", Eq, "\n"])}
-           end,
-    debug(equiv, Desc);
-'#element#'(functions, Data, _Attrs, _Parents, _E) ->
-    %% Functions are already extracted.
-    [{functions, Data}];
-'#element#'(module, Data, Attrs, _Parents, _E) ->
-    Details = module_details_from_data(Data),
-    {value, {functions, Functions}, Rest} = lists:keytake(functions, 1, Details),
-    [{module, module_details_from_attrs(Attrs) ++ Rest}
-     | Functions];
-'#element#'(briefDescription, _Data, _Attrs, _Parents, _E) ->
-    [];
-'#element#'(description, Data, _Attrs, _Parents, _E) ->
-    [{description, debug(description, ?il2b(Data))}];
-'#element#'(Tag, Data, _Attrs, _Parents, _E)
-        when Tag =:= h1;
-             Tag =:= h2;
-             Tag =:= h3 ->
-    {fmt, debug(inline, header(Tag, unwrap_inline(Data)))};
-'#element#'(Tag, Data, _Attrs, _Parents, _E)
-        when Tag =:= a;
-             Tag =:= code;
-             Tag =:= em;
-             Tag =:= expr;
-             Tag =:= h4;
-             Tag =:= h5;
-             Tag =:= h6;
-             Tag =:= tt ->
-    debug('inline:before', Data),
-    After = [ unwrap_inline(E) || E <- Data ],
-    debug('inline:after', After),
-    debug(Tag, After),
-    {inline, After};
-'#element#'(Tag, Data, _Attrs, _Parents, _E) when
-        Tag =:= dt ->
-    {dt, debug(Tag, Data)};
-'#element#'(Tag, Data, _Attrs, _Parents, _E) when
-        Tag =:= p ->
-    {fmt, debug(Tag, cleanup_lines(Data))};
-'#element#'(Tag, Data, _Attrs, _Parents, _E) when
-        Tag =:= pre ->
-    {fmt, debug(Tag, [Data, "\n"])};
-'#element#'(Tag, Data, _Attrs, _Parents, _E) when
-        Tag =:= ol;
-        Tag =:= ul ->
-    list(Tag, Data);
-'#element#'(Tag, Data, _Attrs, _Parents, _E) ->
-    debug(discarded, {Tag, Data}),
-    [].
+get_module_name(#xmlElement{attributes = Attrs}) ->
+    ?l2ea('find_attribute!'(name, Attrs)).
 
-unwrap_inline([]) -> [];
-unwrap_inline([{inline, Elements}]) when is_list(Elements) -> Elements;
-unwrap_inline({inline, Elements}) when is_list(Elements) -> Elements;
-unwrap_inline([{fmt, Elements}]) when is_list(Elements) -> Elements;
-unwrap_inline({fmt, Elements}) when is_list(Elements) -> Elements;
-unwrap_inline([BString]) when is_binary(BString) -> BString;
-unwrap_inline(BString) when is_binary(BString) -> BString.
+get_module_description(#xmlElement{name = module} = M) ->
+    get_description(M).
 
-debug(Tag, Content) ->
-    docsh_lib:debug(Tag, "~s: ~p~n", [Tag, Content]),
-    Content.
+-spec get_functions(#xmlElement{}) -> [docsh_internal:item()].
+get_functions(#xmlElement{name = module} = M) ->
+    get_content(functions, [], fun get_functions/1, M);
+get_functions(#xmlElement{name = functions, content = Content}) ->
+    [ get_function(Function) || #xmlElement{name = function} = Function <- Content ].
 
-cleanup_lines(BString) when is_binary(BString) ->
-    Lines = re:replace(BString, <<"\s*\n\s*">>, <<"\n">>, [global, {return, list}]),
-    S = string:strip(lists:flatten(Lines), both, $\n),
-    [ [T, "\n"] || T <- string:tokens(S, "\n") ];
-cleanup_lines(IOList) ->
-    BString = ?il2b([ unwrap_inline(E) || E <- IOList ]),
-    cleanup_lines(BString).
+-spec get_function(#xmlElement{}) -> docsh_internal:item().
+get_function(#xmlElement{attributes = Attrs} = Function) ->
+    #{kind        => 'function',
+      name        => ?l2ea('find_attribute!'(name, Attrs)),
+      arity       => ?l2i('find_attribute!'(arity, Attrs)),
+      exported    => list_to_boolean('find_attribute!'(exported, Attrs)),
+      description => get_function_description(Function)}.
 
--spec fullDescription(any(), any(), any(), any()) -> binary().
-fullDescription(Data, _Attrs, _Parents, _E) ->
-    [{fmt, H} | T] = collect_loose_text(Data),
-    ?il2b([H] ++ [ ["\n", E] || {fmt, E} <- T ]).
+-spec get_types(#xmlElement{}) -> [docsh_internal:item()].
+get_types(#xmlElement{name = module} = M) ->
+    get_content(typedecls, [], fun get_types/1, M);
+get_types(#xmlElement{name = typedecls, content = Content}) ->
+    [ get_type(Type) || #xmlElement{name = typedecl} = Type <- Content ].
 
--spec li(any(), any(), any(), any()) -> {atom(), [any()]}.
-li(Data, _Attrs, _Parents, _E) ->
-    item(li, fmt, Data).
+-spec get_type(#xmlElement{}) -> docsh_internal:item().
+get_type(#xmlElement{name = typedecl} = Type) ->
+    #{kind        => 'type',
+      name        => get_type_name(Type),
+      arity       => get_type_arity(Type),
+      %% TODO: really always true? anyway, we want the structure for functions and types
+      %% to be the same
+      exported    => true,
+      description => get_type_description(Type)}.
 
--spec dd(any(), any(), any(), any()) -> {atom(), [any()]}.
-dd(Data, _Attrs, _Parents, _E) ->
-    item(dd, dd, Data).
+get_function_description(#xmlElement{name = function} = Function) ->
+    get_description(Function).
 
--spec item(atom(), atom(), any()) -> {atom(), [any()]}.
-item(Type, Out, Data) ->
-    {Out, debug(Type, lists:flatmap(fun unwrap_fmt/1, collect_loose_text(Data)))}.
+get_type_name(#xmlElement{name = typedecl} = Type) ->
+    get_type_def(fun get_type_name/1, Type);
+get_type_name(#xmlElement{name = typedef} = TypeDef) ->
+    case get_content(erlangName, {error, no_erlang_name}, fun get_type_name/1, TypeDef) of
+        {error, no_erlang_name} -> erlang:error({not_found, erlangName});
+        TypeName -> TypeName
+    end;
+get_type_name(#xmlElement{name = erlangName, attributes = Attrs}) ->
+    ?l2ea('find_attribute!'(name, Attrs)).
 
--spec dl(any(), any(), any(), any()) -> {atom(), [any()]}.
-dl(Data, _Attrs, _Parents, _E) ->
-    debug('dl:in', Data),
-    {fmt, debug(dl, [ itemize_dl(Type, Content)
-                      || E <- Data,
-                         {Type, Content} <- unwrap_dl_content(E) ])}.
+get_type_arity(#xmlElement{name = typedecl} = Type) ->
+    get_type_def(fun get_type_arity/1, Type);
+get_type_arity(#xmlElement{name = typedef} = TypeDef) ->
+    case get_content(argtypes, {error, no_argtypes}, fun get_type_arity/1, TypeDef) of
+        {error, no_argtypes} -> erlang:error({not_found, argtypes});
+        TypeArity -> TypeArity
+    end;
+get_type_arity(#xmlElement{name = argtypes, content = Content}) ->
+    count_args(Content).
 
-unwrap_dl_content({dt, BString}) when is_binary(BString) -> [{dt, BString}];
-unwrap_dl_content({dt, [BString]}) when is_binary(BString) -> [{dt, BString}];
-unwrap_dl_content({dd, Lines}) when is_list(Lines) ->
-    Length = length(Lines),
-    [ {dd, append_dd_trailing_newline(Nth, Length, L)}
-      || {Nth, L} <- enumerate(Lines) ];
-unwrap_dl_content(C) ->
-    debug('unwrap_dl_content:discard', C),
-    [].
+count_args(Args) ->
+    length([ Arg || #xmlElement{name = type} = Arg <- Args ]).
 
-append_dd_trailing_newline(Length, Length, L) -> [L, "\n"];
-append_dd_trailing_newline(_Nth, _Length, L) -> L.
+get_type_description(#xmlElement{name = typedecl} = Type) ->
+    get_description(Type).
 
-list(Type, Data) ->
-    %% Two passes to only enumerate items that get through the first pass.
-    %% Whitespace is filtered out, the remainings are the list items.
-    Items = enumerate([ Unwrapped
-                        || E <- Data,
-                           [_|_] = Unwrapped <- [unwrap_fmt(E)] ]),
-    {fmt, debug(Type, [ debug(itemize, itemize(Type, N, Line, Item))
-                        || {N, E} <- Items,
-                           {Line, Item} <- enumerate(E) ])}.
+get_content(Name, Default, ContinueFun, #xmlElement{content = Content} = Element) ->
+    case lists:keyfind(Name, #xmlElement.name, Content) of
+        false -> debug({not_found, Name}, Element),
+                 Default;
+        #xmlElement{} = Found -> ContinueFun(Found)
+    end.
 
--spec itemize_dl(dt | dd, iolist()) -> iolist().
-itemize_dl(dt, Content) -> ["  ", Content, "\n\n"];
-itemize_dl(dd, Content) -> ["      ", Content].
+get_description(#xmlElement{} = Element) ->
+    get_content(description, none, fun get_full_description/1, Element).
 
--spec itemize(Type, Nth, Line, Content) -> iolist() when
-      Type :: ol | ul,
-      Nth :: pos_integer(),
-      Line :: pos_integer(),
-      Content :: iolist().
-itemize(ol,  Nth, 1, Content) -> [io_lib:format("  ~b. ", [Nth]), Content];
-itemize(ol, _Nth, _, Content) -> ["    ", Content];
-itemize(ul, _Nth, 1, Content) -> ["  - ", Content];
-itemize(ul, _Nth, _, Content) -> ["    ", Content].
+get_full_description(#xmlElement{name = description} = D) ->
+    get_content(fullDescription, none, fun get_full_description/1, D);
+get_full_description(#xmlElement{name = fullDescription, content = XmlElementContent}) ->
+    %% See xmerl.hrl for the definition of #xmlElement.content:
+    %%   content = [#xmlElement()|#xmlText()|#xmlPI()|#xmlComment()|#xmlDecl()]
+    format_text(XmlElementContent).
+
+format_text(TextSubtree) ->
+    %% Just return the EDoc subtree for storage or later processing.
+    TextSubtree.
+
+get_type_def(ContinueFun, #xmlElement{name = typedecl} = Type) ->
+    case get_content(typedef, {error, no_typedef}, ContinueFun, Type) of
+        {error, no_typedef} -> erlang:error({not_found, typedef, Type});
+        ContinuationResult -> ContinuationResult
+    end.
+
+list_to_boolean("yes") -> true;
+list_to_boolean("no")  -> false.
+
+'find_attribute!'(Attr, Attrs) ->
+    case xmerl_lib:find_attribute(Attr, Attrs) of
+        false -> erlang:error({no_attribute, Attr, Attrs});
+        {value, Value} -> Value
+    end.
+
+%% Intended only for tracing.
+debug(_, _) -> ok.
+
+%%.
+%%' EDoc formatter
+%%
+
+-spec format_edoc(xml_element_content(), any()) -> iolist().
+format_edoc(Content, Ctx) ->
+    lists:map(fun
+                  ({br})        -> "\n";
+                  ({i, Inline}) -> [Inline]
+              end, end_block(format_content(Content, Ctx))).
+
+format_content(Content, Ctx) ->
+    lists:flatten([ format_content_(C, Ctx) || C <- Content ]).
+
+format_content_(#xmlPI{}, _Ctx)      -> [];
+format_content_(#xmlComment{}, _Ctx) -> [];
+format_content_(#xmlDecl{}, _Ctx)    -> [];
+
+format_content_(#xmlText{} = T, Ctx) ->
+    Text = T#xmlText.value,
+    case edoc_lib:is_space(Text) of
+        true -> [];
+        false ->
+            case is_preformatted(T#xmlText.parents) of
+                true  -> cleanup_preformatted_text(Text, Ctx);
+                false -> cleanup_text(Text, Ctx)
+            end
+    end;
+
+format_content_(#xmlElement{name = Name, content = Content} = E, Ctx) ->
+    format_element(Name, E, format_content(Content, Ctx), Ctx).
+
+format_element(h1, #xmlElement{} = E, Lines, Ctx) -> format_header(E, Lines, Ctx);
+format_element(h2, #xmlElement{} = E, Lines, Ctx) -> format_header(E, Lines, Ctx);
+format_element(h3, #xmlElement{} = E, Lines, Ctx) -> format_header(E, Lines, Ctx);
+format_element(h4, #xmlElement{} = E, Lines, Ctx) -> format_header(E, Lines, Ctx);
+format_element(h5, #xmlElement{} = E, Lines, Ctx) -> format_header(E, Lines, Ctx);
+format_element(h6, #xmlElement{} = E, Lines, Ctx) -> format_header(E, Lines, Ctx);
+format_element(hgroup, _, _Lines, _Ctx) -> [];
+format_element(code, #xmlElement{}, Lines, _Ctx) ->
+    Lines;
+format_element(dl, #xmlElement{}, Lines, _Ctx) ->
+    end_block(Lines);
+format_element(dt, #xmlElement{}, Lines, _Ctx) ->
+    dl_item("  ", Lines);
+format_element(dd, #xmlElement{}, Lines, _Ctx) ->
+    dl_item("      ", Lines);
+format_element(p, #xmlElement{}, Lines, _Ctx) ->
+    end_block(lists:dropwhile(fun
+                                  ({br}) -> true;
+                                  (_) -> false
+                              end, Lines));
+format_element(pre, #xmlElement{}, Lines, _Ctx) ->
+    end_block(Lines);
+format_element(ol, #xmlElement{} = E, ListItems, Ctx) ->
+    lists:all(fun ({li, _}) -> true; (_) -> false end, ListItems)
+        orelse erlang:error({non_list_item_children, ListItems}, [ol, E, ListItems, Ctx]),
+    end_block([ [{i, io_lib:format("  ~b. ", [Index])}, FirstItem, IndentedRest, {br}]
+                || {Index, {li, [FirstItem | Rest]}} <- enumerate(ListItems),
+                   IndentedRest <- [prepend("    ", Rest)] ]);
+format_element(ul, #xmlElement{} = E, ListItems, Ctx) ->
+    lists:all(fun ({li, _}) -> true; (_) -> false end, ListItems)
+        orelse erlang:error({non_list_item_children, ListItems}, [ul, E, ListItems, Ctx]),
+    end_block([ [{i, "  - "}, FirstItem, IndentedRest, {br}]
+                || {li, [FirstItem | Rest]} <- ListItems,
+                   IndentedRest <- [prepend("    ", Rest)] ]);
+format_element(li, #xmlElement{}, Lines, _Ctx) ->
+    [{li, Lines}];
+format_element(_, #xmlElement{}, Lines, _Ctx) ->
+    Lines.
+
+format_header(#xmlElement{name = Name}, Lines, _Ctx) ->
+    Headers = #{h1 => "# ",
+                h2 => "## ",
+                h3 => "### ",
+                h4 => "#### ",
+                h5 => "##### ",
+                h6 => "###### "},
+    case Name of
+        hgroup -> [];
+        _ ->
+            [{i, Text}] = Lines,
+            end_block([{br}, {i, [maps:get(Name, Headers), Text]}])
+    end.
+
+cleanup_text(Text, _Ctx) ->
+    lists:flatmap(fun
+                      ("\n") -> [{br}];
+                      (T) ->
+                          case edoc_lib:is_space(T) of
+                              true -> [];
+                              false -> [{i, T}]
+                          end
+                  end,
+                  split(Text, "\s*(\n)\s*", [trim, {return, list}])).
+
+cleanup_preformatted_text(Text, _Ctx) ->
+    lists:flatmap(fun
+                      ("\n") -> [{br}];
+                      (T) -> [{i, T}]
+                  end,
+                  split(Text, "(\n)", [{return, list}])).
+
+split(Text, Pattern, Opts) ->
+    re:split(Text, Pattern, Opts).
+
+is_preformatted(Parents) ->
+    lists:any(fun
+                  ({pre, _}) -> true;
+                  (_) -> false
+              end, Parents).
+
+prepend(Prefix, Doc) -> prepend(Prefix, lists:reverse(Doc), []).
+
+prepend(_Prefix, [], Acc) -> Acc;
+prepend( Prefix, [{br} | Doc], [] = Acc) -> prepend(Prefix, Doc, [{br} | Acc]);
+prepend( Prefix, [{br} | Doc], [{br}] = Acc) -> prepend(Prefix, Doc, [{br} | Acc]);
+prepend( Prefix, [{br} | Doc], [{br}, {br}] = Acc) -> prepend(Prefix, Doc, Acc);
+prepend( Prefix, [{br} | Doc], Acc) -> prepend(Prefix, Doc, [{br}, {i, Prefix} | Acc]);
+prepend( Prefix, [Node | Doc], Acc) -> prepend(Prefix, Doc, [Node | Acc]).
 
 enumerate(List) ->
     lists:zip(lists:seq(1, length(List)), List).
 
-unwrap_fmt({fmt, Lines}) -> Lines;
-unwrap_fmt(_) -> [].
+end_block(Doc) -> end_block([{br}, {br} | lists:reverse(lists:flatten(Doc))], []).
 
-collect_loose_text(Data) ->
-    debug(loose, collect_loose_text(Data, [], [])).
+end_block([], Acc) -> Acc;
+end_block([{br} | Doc], [] = Acc) -> end_block(Doc, [{br} | Acc]);
+end_block([{br} | Doc], [{br}] = Acc) -> end_block(Doc, [{br} | Acc]);
+end_block([{br} | Doc], [{br}, {br}] = Acc) -> end_block(Doc, Acc);
+end_block([Node | Doc], Acc) -> end_block(Doc, [Node | Acc]).
 
-collect_loose_text([], [], Fmt) -> Fmt;
-collect_loose_text([], Data, Fmt) ->
-    [{fmt, cleanup_lines(?il2b(lists:reverse(Data)))} | Fmt];
-collect_loose_text([{inline, Element} | T], [], Fmt) ->
-    collect_loose_text(T, [Element], Fmt);
-collect_loose_text([{fmt, Element} | T], [], Fmt) ->
-    [{fmt, Element} | collect_loose_text(T, [], Fmt)];
-collect_loose_text([{inline, Element} | T], Data, Fmt) ->
-    collect_loose_text(T, [Element | Data], Fmt);
-collect_loose_text([{fmt, Element} | T], Data, Fmt) ->
-    Clean = cleanup_lines(?il2b(lists:reverse(Data))),
-    case Clean of
-        [] -> [{fmt, Element}];
-        _ -> [{fmt, Clean}, {fmt, Element}]
-    end ++ collect_loose_text(T, [], Fmt);
-collect_loose_text([LooseText | T], Data, Fmt) when is_binary(LooseText);
-                                                    is_list(LooseText) ->
-    collect_loose_text(T, [LooseText | Data], Fmt).
+dl_item(Prefix, Lines) ->
+    [First | Rest] = Lines,
+    end_block([{i, Prefix}, First, prepend(Prefix, Rest)]).
 
-header(Level, Data) ->
-    ["\n", header_prefix(Level), Data, "\n"].
-
-header_prefix(h1) -> <<"# ">>;
-header_prefix(h2) -> <<"## ">>;
-header_prefix(h3) -> <<"### ">>.
-
-%% Unused.
--spec '#xml-inheritance#'() -> any().
-'#xml-inheritance#'() -> [].
-
-module_details_from_attrs(Attrs) ->
-    [ D || At <- Attrs, D <- [module_detail_from_attr(At)], D /= ignore ].
-
-module_detail_from_attr(#xmlAttribute{name = name} = At) ->
-    {name, ?l2ea(value(At))};
-module_detail_from_attr(#xmlAttribute{}) ->
-    ignore.
-
-module_details_from_data(Data) ->
-    lists:flatmap(fun module_detail_from_data/1, Data).
-
-module_detail_from_data([{description, _}] = Desc) ->
-    Desc;
-module_detail_from_data([{functions, _}] = Functions) ->
-    Functions;
-module_detail_from_data(_) -> [].
-
-function_details_from_attrs(Attrs, F) ->
-    lists:foldl(fun fda/2, F, Attrs).
-
-fda(#xmlAttribute{name = name} = At, F)     -> F#function{name = ?l2ea(value(At))};
-fda(#xmlAttribute{name = arity} = At, F)    -> F#function{arity = ?l2i(value(At))};
-fda(#xmlAttribute{name = exported} = At, F) -> F#function{exported = string_to_boolean(value(At))};
-fda(#xmlAttribute{name = label} = At, F)    -> F#function{label = ?l2b(value(At))}.
-
-function_details_from_data(Data, F) ->
-    lists:foldl(fun fdd/2, F, Data).
-
-fdd({description, Desc}, F) -> F#function{description = Desc};
-fdd(_, F)                   -> F.
-
-value(#xmlAttribute{value = V}) -> V.
-
-string_to_boolean("yes") -> true;
-string_to_boolean("no") -> false.
+%%. vim: foldmethod=marker foldmarker=%%',%%.

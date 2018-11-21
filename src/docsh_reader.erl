@@ -1,5 +1,7 @@
 -module(docsh_reader).
 
+-export_type([t/0]).
+
 -type t() :: module().
 
 %% Return reader module name if reader is available.

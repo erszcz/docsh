@@ -8,6 +8,11 @@
 
 -import(docsh_lib, [print/2]).
 
+-define(a2b(A), atom_to_binary(A, utf8)).
+-define(i2b(I), integer_to_binary(I)).
+-define(il2b(IOList), iolist_to_binary(IOList)).
+-define(il2l(IOList), binary_to_list(iolist_to_binary(IOList))).
+
 %% Function or type name.
 -type name() :: docsh_internal:name().
 
@@ -69,22 +74,53 @@ t(M, T) -> t(M, T, any).
 -spec t(module(), name(), arity() | 'any') -> ok.
 t(M, T, Arity) when is_atom(M), is_atom(T),
                     is_integer(Arity) orelse Arity =:= any ->
-    lookup({M, T, Arity}, [type]).
+    lookup({M, T, Arity}, [doc, type]).
 
--spec lookup(Key, Items) -> 'ok' when
+-spec lookup(Key, Kinds) -> 'ok' when
       Key :: docsh_internal:key(),
-      Items :: [docsh_internal:item_kind()].
-lookup(Key, Items) ->
+      Kinds :: [docsh_internal:item_kind()].
+lookup(Key, Kinds) ->
+    %% TODO: switch on environment language
+    Lang = <<"en">>,
     case docsh_lib:get_docs(key_to_module(Key)) of
-        {error, R} -> error(R, Key);
+        {error, R} -> erlang:error(R, Key);
         {ok, Docs} ->
-            case docsh_format:lookup(Docs, Key, Items) of
+            case docsh_format:lookup(Docs, Key, Kinds) of
                 {not_found, Message} ->
-                    print("~ts", [Message]);
-                {ok, Doc} ->
-                    print("~ts", [Doc])
+                    print("~ts", [[string:strip(?il2l([Message]), right, $\n), "\n\n"]]);
+                {ok, DocItems} ->
+                    print("~ts", [format(DocItems, Key, Kinds, Lang)])
             end
     end.
+
+format([DocItem], Mod, [moduledoc], Lang)  -> format_module_doc(Mod, maps:get(Lang, DocItem));
+format(DocItems, {Mod, _, _}, Kinds, Lang) -> format_items(Mod, DocItems, Kinds, Lang);
+format(DocItems, Mod, Kinds, Lang)         -> format_items(Mod, DocItems, Kinds, Lang).
+
+format_module_doc(Mod, Doc) ->
+    RenderingContext = #{},
+    ?il2b(["\n# ", ?a2b(Mod), "\n\n", docsh_edoc:format_edoc(Doc, RenderingContext)]).
+
+format_items(Mod, Items, Kinds, Lang) ->
+    ?il2b([string:strip(?il2l([ format_item(Mod, Item, Kinds, Lang)
+                                || Item <- Items ]), right, $\n),
+           "\n\n"]).
+
+format_item(Mod, Item, Kinds, Lang) ->
+    {{_, Name, Arity}, _, Signature, MaybeDoc, _Metadata} = Item,
+    [
+     [ ["\n", ?a2b(Mod), ":", ?a2b(Name), "/", ?i2b(Arity), "\n\n"]
+       || lists:member(doc, Kinds) orelse lists:member(spec, Kinds) ],
+     [Signature,
+      [ ["\n", format_maybe_doc(MaybeDoc, Lang)]
+        || lists:member(doc, Kinds) ]]
+    ].
+
+format_maybe_doc(none, _)   -> docsh_format:item_doc_not_available();
+format_maybe_doc(hidden, _) -> docsh_format:item_doc_hidden();
+format_maybe_doc(Doc, Lang) ->
+    RenderingContext = #{},
+    docsh_edoc:format_edoc(maps:get(Lang, Doc), RenderingContext).
 
 -spec key_to_module(docsh_internal:key()) -> module().
 key_to_module(M) when is_atom(M) -> M;

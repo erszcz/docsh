@@ -7,7 +7,8 @@
 -behaviour(docsh_writer).
 -export([from_internal/1]).
 
--export_type([t/0]).
+-export_type([t/0,
+              item/0]).
 
 -record(docs_v1, {anno,
                   beam_language,
@@ -39,37 +40,43 @@
 -type i18n_doc() :: #{}.
 -endif.
 
--define(a2b(A), atom_to_binary(A, utf8)).
--define(i2b(I), integer_to_binary(I)).
 -define(il2b(IOList), iolist_to_binary(IOList)).
 
--spec lookup(docsh_format:t(), docsh_format:key(), docsh_format:kinds()) -> {ok, binary()}
-                                                                          | {not_found, binary()}.
+-spec lookup(Docs, Key, Kinds) -> R when
+      Docs  :: docsh_format:t(),
+      Key   :: docsh_format:key(),
+      Kinds :: docsh_format:kinds(),
+      R :: {ok, [item()]}
+         | {not_found, docsh_format:error_message()}.
 lookup(#docs_v1{} = Docs, Key, Kinds0) ->
     %docsh_lib:print("lookup ~p ~p in\n  ~p\n", [Key, Kinds0, Docs]),
-    %% TODO: switch on environment language
-    Lang = <<"en">>,
     %% This way we'll never get [spec, doc], only [doc, spec].
     Kinds = lists:sort(Kinds0),
-    dispatch_lookup(Docs, Key, Kinds, Lang).
+    dispatch_lookup(Docs, Key, Kinds).
 
-dispatch_lookup(Docs, Mod, [moduledoc], Lang) ->
+dispatch_lookup(Docs, _Mod, [moduledoc]) ->
     case Docs#docs_v1.module_doc of
-        none    -> {ok, module_doc_not_available()};
-        hidden  -> {ok, <<"Module documentation is hidden.\n">>};
-        Doc     -> {ok, format_module_doc(Mod, maps:get(Lang, Doc))}
+        none   -> {not_found, docsh_format:module_doc_not_available()};
+        hidden -> {not_found, docsh_format:module_doc_hidden()};
+        Doc    -> {ok, [Doc]}
     end;
-dispatch_lookup(Docs, {Mod, Name, Arity}, [type], Lang) ->
-    Items = fetch_items(Docs#docs_v1.docs, type, Name, Arity),
-    {ok, format_types(Mod, Items, Lang)};
-dispatch_lookup(Docs, Mod, [type], Lang) ->
-    Items = fetch_items(Docs#docs_v1.docs, type, any, any),
-    {ok, format_types(Mod, Items, Lang)};
-dispatch_lookup(Docs, {Mod, Name, Arity}, Kinds, Lang)
+dispatch_lookup(Docs, {_Mod, Name, Arity}, [doc, type]) ->
+    case fetch_items(Docs#docs_v1.docs, type, Name, Arity) of
+        []    -> {not_found, docsh_format:item_doc_not_available()};
+        Items -> {ok, Items}
+    end;
+dispatch_lookup(Docs, _Mod, [type]) ->
+    case fetch_items(Docs#docs_v1.docs, type, any, any) of
+        []    -> {not_found, docsh_format:item_doc_not_available()};
+        Items -> {ok, Items}
+    end;
+dispatch_lookup(Docs, {_Mod, Name, Arity}, Kinds)
   when Kinds =:= [doc, spec];
        Kinds =:= [spec] ->
-    Items = fetch_items(Docs#docs_v1.docs, function, Name, Arity),
-    {ok, format_functions(Mod, Items, Kinds, Lang)}.
+    case fetch_items(Docs#docs_v1.docs, function, Name, Arity) of
+        []    -> {not_found, docsh_format:item_doc_not_available()};
+        Items -> {ok, Items}
+    end.
 
 fetch_items(AllItems, Kind, Name, Arity) ->
     lists:filter(mk_select(Kind, Name, Arity), AllItems).
@@ -84,115 +91,69 @@ select(Kind, Name, Arity, {Kind, ItemName, ItemArity})
 select(_, _, _, _) ->
     false.
 
-format_module_doc(Mod, Doc) ->
-    ?il2b(["\n# ", ?a2b(Mod), "\n\n", Doc, "\n"]).
-
-format_functions(Mod, Items, Kinds, Lang) ->
-    ?il2b([ ["\n", ?il2b([?a2b(Mod), ":", ?a2b(Name), "/", ?i2b(Arity), "\n\n",
-                          Signature, DocIfRequested]), "\n"]
-            || {{_, Name, Arity}, _, Signature, MaybeDoc, _Metadata} <- Items,
-               DocIfRequested <- [ "" ++ [ ["\n", format_maybe_doc(MaybeDoc, Lang)]
-                                           || lists:member(doc, Kinds) ] ] ]).
-
-format_types(_Mod, Items, _Lang) ->
-    ?il2b([ [?il2b([Signature])]
-            || {{_, _Name, _Arity}, _, Signature, _, _Metadata} <- Items ]).
-
-format_maybe_doc(none, _)   -> item_doc_not_available();
-format_maybe_doc(hidden, _) -> <<"Documentation for the entry is hidden.\n">>;
-format_maybe_doc(Doc, Lang) -> maps:get(Lang, Doc).
-
 -spec from_internal(docsh_internal:t()) -> t().
 from_internal(Internal) ->
-    Grouped = docsh_internal:grouped(Internal),
     %% TODO: remove
-    %docsh_lib:print("from_internal grouped ~p\n", [Grouped]),
+    %docsh_lib:print("internal ~p\n", [Internal]),
+    ModuleName = maps:get(name, Internal),
+    Description = maps:get(description, Internal, docsh_format:module_doc_not_available()),
+    %% TODO: this contains some assumptions, e.g. English language
+    Lang = <<"en">>,
+    ModuleInfo = #{name => ModuleName,
+                   lang => Lang},
+    Docs0 =
+        (docs_v1_default())#docs_v1{format = <<"text/erlang-edoc">>,
+                                    module_doc = module_doc(Lang, Description)},
     %% TODO: it would be nice to get source location for the annotation here
-    ModuleInfo = maps:get({module, 0}, Grouped),
-    {DocsV1, DocsMap} = maps:fold(mk_step(ModuleInfo),
-                                  {docs_v1_default(), #{}},
-                                  Grouped),
-    %docsh_lib:print("DocsV1 : ~p\n", [DocsV1]),
+    {Docs, DocsMap} = lists:foldl(mk_step(ModuleInfo),
+                                  {Docs0, #{}},
+                                  maps:get(items, Internal)),
+    %docsh_lib:print("Docs : ~p\n", [Docs]),
     %docsh_lib:print("DocsMap: ~p\n", [DocsMap]),
-    DocsV1#docs_v1{docs = maps:values(DocsMap)}.
+    Docs#docs_v1{docs = maps:values(DocsMap)}.
 
 docs_v1_default() ->
     #docs_v1{anno = erl_anno:new({0, 1}),
              beam_language = erlang,
              format = <<"text/plain">>,
-             module_doc = #{<<"en">> => module_doc_not_available()},
+             module_doc = none,
              metadata = #{},
              docs = []}.
 
-module_doc_not_available() ->
-    <<"Documentation for the module is not available.\n">>.
-
-item_doc_not_available() ->
-    <<"Documentation for the entry is not available.\n">>.
+module_doc(_Lang, none) -> none;
+module_doc( Lang, D) -> #{Lang => D}.
 
 mk_step(ModuleInfo) ->
-    fun (NameArity, Info, Acc) -> step(ModuleInfo, NameArity, Info, Acc) end.
+    fun (Info, Acc) -> step(ModuleInfo, Info, Acc) end.
 
-step(_ModuleInfo, {module, 0}, Info, { DocsV1, DocsMap }) ->
-    [{module, InfoItems}] = Info,
-    NewDocsV1 = DocsV1#docs_v1{module_doc = #{<<"en">> => module_doc(InfoItems)}},
-    { NewDocsV1, DocsMap };
-step(_ModuleInfo, {Name, Arity}, Info0, { #docs_v1{} = DocsV1, DocsMap }) ->
-    Info = flatten_info(Info0),
+step(ModuleInfo, Info, { #docs_v1{} = DocsV1, DocsMap }) ->
     %docsh_lib:print("item: ~p\n", [Info]),
     %ct:pal("item: ~p\n", [Info]),
-    Kind = infer_item_kind(Info),
-    KNA = {Kind, Name, Arity},
-    Entry = { {Kind, Name, Arity},
+    {_, Name, Arity} = KNA = docsh_internal:kna(Info),
+    Entry = { KNA,
               erl_anno:new({0, 1}),
-              signature(Kind, Name, Arity, Info),
-              #{<<"en">> => description(Name, Arity, Info)},
+              signature(ModuleInfo, Info),
+              description(Name, Arity, Info, ModuleInfo),
               #{} },
     {DocsV1, DocsMap#{KNA => Entry}}.
 
-flatten_info(Info) -> lists:foldl(fun flatten_info/2, [], Info).
-
-flatten_info({{spec, _}, {description, BSpec}}, Acc) ->
-    [{spec, BSpec} | Acc];
-flatten_info({{type, _}, {description, BType}}, Acc) ->
-    [{type, BType} | Acc];
-flatten_info({{function, _}, FunctionInfo}, Acc) ->
-    tuple_to_list(FunctionInfo) ++  Acc.
-
-infer_item_kind(Info) ->
-    case lists:keyfind(type, 1, Info) of
-        false -> function;
-        _ -> type
+signature(ModuleInfo, Info) ->
+    case maps:get(signature, Info, no_signature) of
+        no_signature ->
+            %% TODO: this is kind of lame
+            %% as with the current format function it displays the same text twice
+            kna_signature(ModuleInfo, Info);
+        Signature ->
+            Signature
     end.
 
-signature(Kind, Name, Arity, Info) ->
-    InfoKey = case Kind of
-                  function -> spec;
-                  type -> type
-              end,
-    case docsh_lib:get(InfoKey, Info, not_found) of
-        not_found ->
-            SName = atom_to_list(Name),
-            SArity = integer_to_list(Arity),
-            [iolist_to_binary([SName, "/", SArity])];
-        InfoItem ->
-            [InfoItem]
-    end.
+kna_signature(ModuleInfo, Info) ->
+    #{name := Mod} = ModuleInfo,
+    {_, Name, Arity} = docsh_internal:kna(Info),
+    ?il2b(io_lib:format("~s:~s/~p\n", [Mod, Name, Arity])).
 
-module_doc(ModuleInfo) ->
-    case docsh_lib:get(description, ModuleInfo, not_found) of
-        not_found ->
-            module_doc_not_available();
-        Desc when is_binary(Desc) ->
-            Desc
-    end.
-
-description(_Name, _Arity, Info) ->
-    case docsh_lib:get(description, Info, not_found) of
-        not_found ->
-            item_doc_not_available();
-        undefined ->
-            item_doc_not_available();
-        Desc when is_binary(Desc) ->
-            Desc
+description(_Name, _Arity, Info, #{lang := Lang}) ->
+    case maps:get(description, Info, none) of
+        none -> none;
+        D -> #{Lang => D}
     end.

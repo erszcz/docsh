@@ -44,8 +44,9 @@ docker_linux(_) ->
     %% debug shell commands?
     put(sh_log, true),
     Name = container_name("docsh-linux-"),
-    Args = [which("docker"), "run", "-t", "--rm", "--name", Name, "erlang:19-slim", "bash"],
-    sh("docker pull erlang:19-slim"),
+    Image = "erlang:20-slim",
+    sh(["docker pull ", Image]),
+    Args = [which("docker"), "run", "-t", "--rm", "--name", Name, Image, "bash"],
     start_container(Name, Args),
     GitRef = current_git_commit(),
     try
@@ -100,7 +101,7 @@ wait_for(Predicate) ->
     wait_for(Predicate, 10 * 1000).
 
 wait_for(_Predicate, Timeout) when Timeout < 0 ->
-    error(timeout);
+    erlang:error(timeout);
 wait_for( Predicate, Timeout) ->
     case Predicate() of
         true -> ok;

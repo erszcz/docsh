@@ -2,8 +2,10 @@
 %% @end
 -module(edoc_example2).
 -export([code_in_loose_text/0,
+         non_p_paragraphs/0,
          dl/0,
          g/0,
+         h2/0,
          p/0,
          pre/0,
          text1/0,
@@ -19,12 +21,17 @@
 %%
 %%     <dt>Any other reason?</dt>
 %%     <dd>Not really.</dd>
+%%
+%%     <dt>What if the definition spans multiple lines?</dt>
+%%     <dd>Let's see.
+%%         It can't be that hard.</dd>
 %% </dl>
 %%
 %% <ul>
 %%     <li>Some</li>
 %%     <li>Random</li>
-%%     <li>Items</li>
+%%     <li><p>Para 1</p>
+%%         <p>Para 2</p></li>
 %% </ul>
 %%
 %% <ol>
@@ -44,6 +51,14 @@
 g() ->
     Value = fun edoc_example:f/0,
     {some, [more, <<"complex">>, Value]}.
+
+%% @doc This fun has a header in its description.
+%%
+%% <h2>This is it</h2>
+%%
+%% <p>A following paragraph</p>
+%% @end
+h2() -> ok.
 
 %% @doc <p>
 %% Just
@@ -84,6 +99,15 @@ text2() -> ok.
 %% it dynamically on older versions of OTP.
 -spec code_in_loose_text() -> ok.
 code_in_loose_text() -> ok.
+
+%% @doc First non-p paragraph with <code>inline</code> elements.
+%%
+%% Second non-p paragraph with <a href='http://google.com'>inline</a> elements.
+%%
+%% Third `one'.
+%% @end
+-spec non_p_paragraphs() -> ok.
+non_p_paragraphs() -> ok.
 
 %% @doc
 %% <dl>
