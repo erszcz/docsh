@@ -19,7 +19,7 @@ Then add the following to your project's `rebar.config`:
 ```erlang
 {plugins,
  [
-  {rebar3_docsh, "0.6.1", {pkg, docsh}}
+  {rebar3_docsh, "0.7.0", {pkg, docsh}}
  ]}.
 
 
