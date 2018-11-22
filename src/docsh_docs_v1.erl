@@ -92,7 +92,7 @@ from_internal(Internal) ->
     %% TODO: remove
     %docsh_lib:print("internal ~p\n", [Internal]),
     ModuleName = maps:get(name, Internal),
-    Description = maps:get(description, Internal, docsh_format:module_doc_not_available()),
+    Description = maps:get(description, Internal, none),
     %% TODO: this contains some assumptions, e.g. English language
     Lang = <<"en">>,
     ModuleInfo = #{name => ModuleName,
