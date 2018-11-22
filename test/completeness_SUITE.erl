@@ -102,7 +102,7 @@ apps() ->
      et,
      eunit,
      %hipe,
-     ic,
+     %ic,
      inets,
      %jinterface,
      kernel,
