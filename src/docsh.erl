@@ -59,7 +59,8 @@
 -export([main/1]).
 
 %% Scripting API
--export([activated/1]).
+-export([activated/1,
+         version/0]).
 
 -export_type([external/0]).
 
@@ -85,9 +86,19 @@ main(Args) ->
 
 -spec activated(path | user_default) -> ok.
 activated(path) ->
-    print("Enabled docsh from: ~s\n", [code:lib_dir(?MODULE)]);
+    print("Enabled docsh ~s from: ~s\n",
+          [docsh:version(), code:lib_dir(?MODULE)]);
 activated(user_default) ->
     print("Call h(docsh) for interactive help.\n\n", []).
+
+-spec version() -> string().
+version() ->
+    AppFile = filename:join([code:lib_dir(?MODULE), "ebin/docsh.app"]),
+    {ok, [{_, docsh, AppSpec}]} = file:consult(AppFile),
+    case lists:keyfind(vsn, 1, AppSpec) of
+        false -> erlang:error({version_not_available, AppSpec});
+        {vsn, V} -> V
+    end.
 
 %%
 %% Helpers

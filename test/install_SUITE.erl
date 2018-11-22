@@ -62,7 +62,8 @@ docker_linux(_) ->
         %% "docsh" is the string we print in this particular test.
         %% The two get concatenated by erlsh command runner,
         %% hence the strange expected string.
-        Expected = <<"Enabled docsh from: /docsh/_build/default/lib/docsh"
+        Version = ?il2b(docsh:version()),
+        Expected = <<"Enabled docsh ", Version/bytes, " from: /docsh/_build/default/lib/docsh"
                      "Call h(docsh) for interactive help."
                      ""
                      "docsh">>,
