@@ -8,6 +8,8 @@
 
 -import(docsh_lib, [print/2]).
 
+-include("nebula.hrl").
+
 -define(a2b(A), atom_to_binary(A, utf8)).
 -define(i2b(I), integer_to_binary(I)).
 -define(il2b(IOList), iolist_to_binary(IOList)).
@@ -99,7 +101,7 @@ format(DocItems, Mod, Kinds, Lang)         -> format_items(Mod, DocItems, Kinds,
 
 format_module_doc(Mod, Doc) ->
     RenderingContext = #{},
-    ?il2b(["\n# ", ?a2b(Mod), "\n\n", docsh_edoc:format_edoc(Doc, RenderingContext)]).
+    ?il2b([io_lib:format(?YELLOW ?RED_BG "~s" ?_RESET, [["\n# ", ?a2b(Mod)]]), "\n\n", docsh_edoc:format_edoc(Doc, RenderingContext)]).
 
 format_items(Mod, Items, Kinds, Lang) ->
     ?il2b([string:strip(?il2l([ format_item(Mod, Item, Kinds, Lang)
