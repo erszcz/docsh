@@ -14,10 +14,4 @@
 %% This script, when configured in rebar.config, dynamically loads user_default with docsh shell extensions.
 
 main(_) ->
-    docsh_beam:from_loaded_module(docsh_user_default),
-    {ok, B} = docsh_beam:from_loaded_module(docsh_user_default),
-    Forms = docsh_beam:abstract_code(B),
-    NewForms = lists:map(fun ({attribute,_,module,_}) -> {attribute,1,module,user_default};
-                             (F)                      -> F end, Forms),
-    {ok, Mod, ModBin} = compile:forms(NewForms),
-    code:load_binary(Mod, "docsh_user_default.erl", ModBin).
+    docsh:load_shell_extensions().
