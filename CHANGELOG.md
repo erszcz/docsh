@@ -1,3 +1,9 @@
+# docsh 0.7.1
+
+- Enable using docsh in Rebar3 shell
+- Export `docsh:load_shell_extensions/0`
+
+
 # docsh 0.7.0
 
 - Look up type descriptions not just definitions (1ae2df9)

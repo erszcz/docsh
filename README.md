@@ -3,34 +3,33 @@
 [![TravisCI Build Status](https://travis-ci.org/erszcz/docsh.svg?branch=master)](https://travis-ci.org/erszcz/docsh)
 [![Hex version badge](https://img.shields.io/hexpm/v/docsh.svg)](https://hex.pm/packages/docsh)
 
-Still can't write match specs from the top of your head?
-Forgetting again and again `dbg` flags or the syntax of `recon` trace patterns?
-Ever wished for access to documentation straight from `erl`
+Still can't remember if it's `(Tab, Key)` or `(Key, Tab)` in `ets:lookup/2`?
+What about `gb_trees:lookup/2`? Hint: it's not the same!
+Ever wished for access to function signatures and documentation straight from `erl`
 the way it's possible in languages like Python, Ruby or Elixir?
 
 [![docsh - light and dark background](https://raw.githubusercontent.com/erszcz/docsh/master/doc/light-dark-bg.png)](https://github.com/erszcz/docsh/blob/master/doc/light-dark-bg.png)
 
 
-## Embed docs in your modules
+## Use in Rebar3 shell
 
-Write them first in your `.erl` files.
-Then add the following to your project's `rebar.config`:
+Add these lines to your `rebar.config`:
 
 ```erlang
 {plugins,
  [
-  {rebar3_docsh, "0.7.0", {pkg, docsh}}
+  {rebar3_docsh, "0.7.1", {pkg, docsh}}
  ]}.
-
-
-{provider_hooks,
- [
-  {post, [{compile, {docsh, compile}}]}
- ]}.
+{shell, [{script_file, "_build/default/plugins/rebar3_docsh/script/docsh_rebar3_shell.escript"}]}.
 ```
 
+`rebar3 shell` will now have a set of new helpers to access docs. Start with `h(docsh)`.
 
-## Extend `erl` with docs access
+Note: This will dynamically compile and load a `user_default` module shipped with docsh.
+It will override your own `user_default` if you use one.
+
+
+## Use in `erl`
 
 ```
 git clone https://github.com/erszcz/docsh
@@ -79,7 +78,7 @@ Eshell V8.2  (abort with ^G)
 ```
 
 
-## Access docs in `erl`
+## Access docs in the shell
 
 Let's see what docsh can give us for some OTP modules.
 We call `h/2` to get the doc for `lists:keyfind` no matter the arity:
@@ -169,6 +168,25 @@ Having read them, we want a more detailed description of `recon_trace:calls/2`,
 so we ask for the doc and specify the arity with `h/3`.
 
 Try it with your project!
+
+
+## Embed docs in your modules
+
+Make sure to document your code with EDoc.
+Then add the following to your project's `rebar.config`:
+
+```erlang
+{plugins,
+ [
+  {rebar3_docsh, "0.7.1", {pkg, docsh}}
+ ]}.
+
+
+{provider_hooks,
+ [
+  {post, [{compile, {docsh, compile}}]}
+ ]}.
+```
 
 
 [edoc:module-tags]: http://erlang.org/doc/apps/edoc/chapter.html#Module_tags

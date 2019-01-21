@@ -45,10 +45,13 @@
 %% t(gen_udp, socket).
 %% '''
 %%
-%% All the helpers described above are only available if you installed
-%% the `user_default' extensions that ship with docsh.
+%% If you want to use the helpers in erl you'll be set up by docsh's install script.
+%% It will install a `user_default' module enabling the shell extensions.
 %% See https://github.com/erszcz/docsh/README.md if unsure about
 %% the installation steps or what `user_default' is.
+%%
+%% If you want to use docsh shell extensions in `rebar3 shell',
+%% please refer to `script/docsh_rebar3_shell.escript'.
 %%
 %% If you want to call docsh as a library, please refer to `docsh_erl'.
 %% @end

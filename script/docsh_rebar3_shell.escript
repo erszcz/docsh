@@ -3,7 +3,7 @@
 %%
 %%  {plugins,
 %%   [
-%%    {rebar3_docsh, "*", {git, "https://github.com/erszcz/docsh", {ref, "ee59517"}}}
+%%    {rebar3_docsh, "0.7.1", {pkg, docsh}}
 %%   ]}.
 %%  {shell, [{script_file, "_build/default/plugins/rebar3_docsh/script/docsh_rebar3_shell.escript"}]}.
 %%
