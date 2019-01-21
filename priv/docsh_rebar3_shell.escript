@@ -5,7 +5,7 @@
 %%   [
 %%    {rebar3_docsh, "0.7.1", {pkg, docsh}}
 %%   ]}.
-%%  {shell, [{script_file, "_build/default/plugins/rebar3_docsh/script/docsh_rebar3_shell.escript"}]}.
+%%  {shell, [{script_file, "_build/default/plugins/rebar3_docsh/priv/docsh_rebar3_shell.escript"}]}.
 %%
 %% The reason why this script is necessary is that Rebar3 shell is run as an escript,
 %% therefore due to -noshell option doesn't load user_default as erl does.

@@ -20,7 +20,7 @@ Add these lines to your `rebar.config`:
  [
   {rebar3_docsh, "0.7.1", {pkg, docsh}}
  ]}.
-{shell, [{script_file, "_build/default/plugins/rebar3_docsh/script/docsh_rebar3_shell.escript"}]}.
+{shell, [{script_file, "_build/default/plugins/rebar3_docsh/priv/docsh_rebar3_shell.escript"}]}.
 ```
 
 `rebar3 shell` will now have a set of new helpers to access docs. Start with `h(docsh)`.
