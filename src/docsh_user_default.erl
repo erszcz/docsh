@@ -1,0 +1,2 @@
+-module(docsh_user_default).
+-include("docsh_user_default.hrl").

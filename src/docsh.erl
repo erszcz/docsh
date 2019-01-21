@@ -60,7 +60,8 @@
 
 %% Scripting API
 -export([activated/1,
-         version/0]).
+         version/0,
+         load_shell_extensions/0]).
 
 -export_type([external/0]).
 
@@ -99,6 +100,16 @@ version() ->
         false -> erlang:error({version_not_available, AppSpec});
         {vsn, V} -> V
     end.
+
+-spec load_shell_extensions() -> ok.
+load_shell_extensions() ->
+    {ok, B} = docsh_beam:from_loaded_module(docsh_user_default),
+    Forms = docsh_beam:abstract_code(B),
+    NewForms = lists:map(fun ({attribute,_,module,_}) -> {attribute,1,module,user_default};
+                             (F)                      -> F end, Forms),
+    {ok, Mod, ModBin} = compile:forms(NewForms),
+    {module, Mod} = code:load_binary(Mod, "docsh_user_default.beam", ModBin),
+    ok.
 
 %%
 %% Helpers
