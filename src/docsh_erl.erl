@@ -8,6 +8,8 @@
 
 -import(docsh_lib, [print/2]).
 
+-include_lib("docsh/include/docsh_exdoc.hrl").
+
 -define(a2b(A), atom_to_binary(A, utf8)).
 -define(i2b(I), integer_to_binary(I)).
 -define(il2b(IOList), iolist_to_binary(IOList)).
