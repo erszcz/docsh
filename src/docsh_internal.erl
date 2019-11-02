@@ -25,6 +25,8 @@
 -define(i2b(I), integer_to_binary(I)).
 -define(il2b(IOList), iolist_to_binary(IOList)).
 
+-include_lib("docsh/include/docsh_exdoc.hrl").
+
 %%
 %%' Public
 %%

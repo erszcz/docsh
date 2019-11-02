@@ -25,6 +25,8 @@
                        %% {eof, 123} is not an abstract_form()
                        erl_parse:form_info()].
 
+-include_lib("docsh/include/docsh_exdoc.hrl").
+
 %%
 %% API
 %%
