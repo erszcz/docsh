@@ -547,6 +547,6 @@ files (3) and handwritten type descriptions coming from `erlref` XML files (2).
 
 ## ExDoc compat ToDo
 
-- [ ] make sure ExDoc can get compile/source info
-  via `erlang:get_module_info/2`
+- [x] make sure ExDoc can get compile/source info
+  via `erlang:get_module_info/2` - done on the ExDoc Erlang compat branch
 - [ ] make sure `wojtekmach/docs_chunks` properly pass include flags
