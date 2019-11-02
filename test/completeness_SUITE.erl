@@ -109,7 +109,7 @@ apps() ->
      %megaco,
      mnesia,
      observer,
-     odbc,
+     %odbc,
      %orber,
      os_mon,
      otp_mibs,
