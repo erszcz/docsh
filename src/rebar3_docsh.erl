@@ -30,6 +30,8 @@
               "This exposes Erlang module documentation to Elixir and other BEAM languages.\n"
               "Use https://github.com/erszcz/docsh to access your docs in an Erlang shell.\n").
 
+-include_lib("docsh/include/docsh_exdoc.hrl").
+
 %% ===================================================================
 %% Public API
 %% ===================================================================
