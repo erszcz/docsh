@@ -29,6 +29,8 @@
 %% You can get one e.g. by reading a .beam file directly or by calling `beam_lib:build_module/1'.
 -type compiled_module() :: binary().
 
+-include_lib("docsh/include/docsh_exdoc.hrl").
+
 -spec convert(Readers, Writer, Beam) -> docsh:external() when
       Readers :: [module()],
       Writer :: module(),

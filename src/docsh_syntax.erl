@@ -9,6 +9,8 @@
 -define(il2b(IOList), iolist_to_binary(IOList)).
 -define(l(Args), fun () -> Args end).
 
+-include_lib("docsh/include/docsh_exdoc.hrl").
+
 -spec available(docsh_beam:t()) -> [docsh_reader:t()].
 available(Beam) ->
     [ ?MODULE || docsh_beam:abstract_code(Beam) /= false ].
