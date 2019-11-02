@@ -27,6 +27,7 @@
 %%
 %% So, it's best to setup a process which will monitor the trace handler
 %% and print any 'DOWN' messages it receives.
+-spec start() -> {{tracer, pid()}, {tracer_monitor, pid()}}.
 start() ->
     %{ok, Tracer} = dbg:tracer(process, {fun ?MODULE:handler/2, standard_io}),
     {ok, Tracer} = dbg:tracer(process, {fun ?MODULE:handler/2, user}),
