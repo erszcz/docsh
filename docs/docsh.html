@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.21.2">
+    <meta name="project" content="docsh v0.7.1">
+    <title>docsh — docsh v0.7.1</title>
+    <link rel="stylesheet" href="dist/erlang-94f16191f0a724ab8055.css" />
+    <script src="dist/sidebar_items-8c8e7576ef.js"></script>
+      <script src="docs_config.js"></script>
+    <script async src="dist/app-a9f3287e74588dddabf3.js"></script>
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+<div class="main">
+
+<button class="sidebar-button sidebar-toggle">
+  <span class="icon-menu" title="Collapse/expand sidebar"></span>
+</button>
+
+<section class="sidebar">
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <button type="button" tabindex="-1" class="search-close-button">
+      <span class="icon-cross" title="Cancel search"></span>
+    </button>
+    <label class="search-label">
+      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Search" autocomplete="off" />
+    </label>
+  </form>
+
+  <div class="autocomplete">
+    <div class="autocomplete-results">
+    </div>
+  </div>
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectDetails">
+      <a href="docsh.html" class="sidebar-projectName">
+docsh      </a>
+      <h2 class="sidebar-projectVersion">
+        v0.7.1
+      </h2>
+    </div>
+  </div>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+
+
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+      <h1>
+        <small class="app-vsn">docsh v0.7.1</small>
+docsh      </h1>
+
+
+        <section id="moduledoc">
+<p> Welcome to docsh, a documentation engine for the Erlang shell. This project provides a number of helpers for accessing module and function doc comments, function specs and exported types.</p>
+<p> If you want your project to have embedded documentation, use <code class="inline">rebar3_docsh</code> plugin. If you want to browse some docs first, read on.</p>
+<p> To access this documentation you&#39;ve quite likely typed:</p>
+<pre><code class="nohighlight makeup elixir"><span class="w">  </span><span class="n">h</span><span class="p" data-group-id="7617832763-1">(</span><span class="n">docsh</span><span class="p" data-group-id="7617832763-1">)</span><span class="o">.</span></code></pre>
+<p> <code class="inline">h/{1,2,3}</code> is the most generic invocation of docsh. <code class="inline">h/1</code> prints documentation for a given module (as shown above) or function:</p>
+<pre><code class="nohighlight makeup elixir"><span class="w">  </span><span class="n">h</span><span class="p" data-group-id="5252189922-1">(</span><span class="n">fun</span><span class="w"> </span><span class="n">lists</span><span class="ss">:keyfind</span><span class="o">/</span><span class="mi">3</span><span class="p" data-group-id="5252189922-1">)</span><span class="o">.</span></code></pre>
+<p> <code class="inline">h/{2,3}</code> are limited to functions. <code class="inline">h/2</code> displays information about all functions of the given name from a particular module, while <code class="inline">h/3</code> also takes the expected function arity:</p>
+<pre><code class="nohighlight makeup elixir"><span class="w">  </span><span class="n">h</span><span class="p" data-group-id="2907866718-1">(</span><span class="n">proplists</span><span class="p">,</span><span class="w"> </span><span class="n">get_value</span><span class="p" data-group-id="2907866718-1">)</span><span class="o">.</span><span class="w">
+  </span><span class="n">h</span><span class="p" data-group-id="2907866718-2">(</span><span class="n">proplists</span><span class="p">,</span><span class="w"> </span><span class="n">get_value</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p" data-group-id="2907866718-2">)</span><span class="o">.</span></code></pre>
+<p> <code class="inline">s/{1,2,3}</code> is the helper to use if you&#39;re only interested in function specs, not their full documentation:</p>
+<pre><code class="nohighlight makeup elixir"><span class="w">  </span><span class="n">s</span><span class="p" data-group-id="8928878953-1">(</span><span class="n">fun</span><span class="w"> </span><span class="n">proplists</span><span class="ss">:get_value</span><span class="o">/</span><span class="mi">3</span><span class="p" data-group-id="8928878953-1">)</span><span class="o">.</span><span class="w">
+  </span><span class="n">s</span><span class="p" data-group-id="8928878953-2">(</span><span class="n">proplists</span><span class="p">,</span><span class="w"> </span><span class="n">get_value</span><span class="p" data-group-id="8928878953-2">)</span><span class="o">.</span><span class="w">
+  </span><span class="n">s</span><span class="p" data-group-id="8928878953-3">(</span><span class="n">proplists</span><span class="p">,</span><span class="w"> </span><span class="n">get_value</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p" data-group-id="8928878953-3">)</span><span class="o">.</span></code></pre>
+<p> <code class="inline">t/{2,3}</code> is the helper for printing types exported from modules:</p>
+<pre><code class="nohighlight makeup elixir"><span class="w">  </span><span class="n">t</span><span class="p" data-group-id="8488455003-1">(</span><span class="n">gen_tcp</span><span class="p">,</span><span class="w"> </span><span class="n">connect_option</span><span class="p" data-group-id="8488455003-1">)</span><span class="o">.</span><span class="w">
+  </span><span class="n">t</span><span class="p" data-group-id="8488455003-2">(</span><span class="n">gen_udp</span><span class="p">,</span><span class="w"> </span><span class="n">socket</span><span class="p" data-group-id="8488455003-2">)</span><span class="o">.</span></code></pre>
+<p> If you want to use the helpers in erl you&#39;ll be set up by docsh&#39;s install script. It will install a <code class="inline">user_default</code> module enabling the shell extensions. See <a href="https://github.com/erszcz/docsh/README.md">https://github.com/erszcz/docsh/README.md</a> if unsure about the installation steps or what <code class="inline">user_default</code> is.</p>
+<p> If you want to use docsh shell extensions in <code class="inline">rebar3 shell</code>, please refer to <code class="inline">script/docsh_rebar3_shell.escript</code>.</p>
+<p> If you want to call docsh as a library, please refer to <code class="inline">docsh_erl</code>.</p>
+        </section>
+
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:external/0">external()</a>
+  </div>
+</div>
+  </div>
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#activated/1">activated/1</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#load_shell_extensions/0">load_shell_extensions/0</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#main/1">main/1</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#version/0">version/0</a>
+  </div>
+</div>
+  </div>
+        </section>
+
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+Types          </h1>
+          <div class="types-list">
+<section class="detail" id="t:external/0">
+  <div class="detail-header">
+    <a href="#t:external/0" class="detail-link" title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature">external()</h1>
+      <div class="specs">
+          <pre>external() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+          </div>
+        </section>
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+Functions          </h1>
+          <div class="functions-list">
+<section class="detail" id="activated/1">
+  <div class="detail-header">
+    <a href="#activated/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">activated/1</h1>
+      <div class="specs">
+          <pre>activated(path | user_default) -> ok.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="load_shell_extensions/0">
+  <div class="detail-header">
+    <a href="#load_shell_extensions/0" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">load_shell_extensions/0</h1>
+      <div class="specs">
+          <pre>load_shell_extensions() -> ok.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="main/1">
+  <div class="detail-header">
+    <a href="#main/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">main/1</h1>
+      <div class="specs">
+          <pre>main([string()]) -> ok.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="version/0">
+  <div class="detail-header">
+    <a href="#version/0" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">version/0</h1>
+      <div class="specs">
+          <pre>version() -> string().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+          </div>
+        </section>
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.21.2),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+          </span>
+        </p>
+        <p>
+          <button class="line footer-button display-shortcuts-help">
+            Display keyboard shortcuts
+          </button>
+          <button class="line footer-button night-mode-toggle">
+            Toggle night mode
+          </button>
+          <button class="line footer-button display-quick-switch">
+            Go to a HexDocs package
+          </button>
+          <button class="line footer-button tooltips-toggle">
+            <span class="tooltips-option-disable">Disable tooltips</span>
+            <span class="tooltips-option-enable">Enable tooltips</span>
+          </button>
+        </p>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  </body>
+</html>
