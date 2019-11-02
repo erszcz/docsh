@@ -17,8 +17,6 @@
                   metadata,
                   docs}).
 
--include_lib("docsh/include/docsh_exdoc.hrl").
-
 -opaque t() :: #docs_v1{anno :: erl_anno:anno(),
                         beam_language :: atom(),
                         format :: mime_type(),
