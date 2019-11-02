@@ -108,9 +108,9 @@ gives this:
  6	-type({r, {atom, 8, ok}, []}).
  7	%% @doc Doc for f/0.
  8	%% @end
- 9	-spec({{f, 0},
-10	       [{type, 12, 'fun',
-11	         [{type, 12, product, []}, {user_type, 12, r, []}]}]}).
+ 9	-spec({ {f, 0},
+10	        [{type, 12, 'fun',
+11	          [{type, 12, product, []}, {user_type, 12, r, []}]}] }).
 12	f() -> ok.
 ```
 
