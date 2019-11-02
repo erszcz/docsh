@@ -71,7 +71,6 @@
 -import(docsh_lib, [print/2, print/3]).
 
 -include("docsh_stacktrace.hrl").
--include_lib("docsh/include/docsh_exdoc.hrl").
 
 %% External documentation format as described in EEP-48:
 %% http://erlang.org/eep/eeps/eep-0048.html

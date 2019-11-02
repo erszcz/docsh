@@ -29,8 +29,6 @@
           R :: {ok, [docsh_format:item()]}
              | {not_found, docsh_format:error_message()}.
 
--include_lib("docsh/include/docsh_exdoc.hrl").
-
 -spec lookup(t(), key(), kinds()) -> {ok, [item()]} | {not_found, error_message()}.
 lookup(Docs, Key, Items) ->
     KnownFormats = application:get_env(docsh, extra_docs_chunk_formats, []) ++ default_formats(),

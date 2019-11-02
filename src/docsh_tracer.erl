@@ -7,7 +7,6 @@
 
 -define(il2b, iolist_to_binary).
 
--include_lib("docsh/include/docsh_exdoc.hrl").
 -include_lib("stdlib/include/ms_transform.hrl").
 
 %% @doc Start and monitor a tracer process.

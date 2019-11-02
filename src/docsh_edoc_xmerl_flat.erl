@@ -7,7 +7,6 @@
 
 -import(docsh_lib, [print/2]).
 
--include_lib("docsh/include/docsh_exdoc.hrl").
 -include_lib("xmerl/include/xmerl.hrl").
 
 -define(il2b(IOList), iolist_to_binary(IOList)).

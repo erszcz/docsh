@@ -11,7 +11,6 @@
 
 -export_type([xml_element_content/0]).
 
--include_lib("docsh/include/docsh_exdoc.hrl").
 -include_lib("xmerl/include/xmerl.hrl").
 
 %% @type xml_element_content(). `#xmlElement.content' as defined by `xmerl.hrl'.
