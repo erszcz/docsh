@@ -71,7 +71,8 @@ format_error(Reason) ->
 -spec process_app(rebar_state:t(), rebar_app_info:t()) -> ok.
 process_app(State, App) ->
     BEAMs = app_beam_files(App),
-    [ process_beam(State, B) || B <- BEAMs ].
+    [ process_beam(State, B) || B <- BEAMs ],
+    ok.
 
 -spec app_beam_files(rebar_app_info:t()) -> [file:filename()].
 app_beam_files(App) ->
