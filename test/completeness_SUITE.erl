@@ -112,7 +112,7 @@ apps() ->
      %odbc,
      %orber,
      os_mon,
-     otp_mibs,
+     %otp_mibs,
      parsetools,
      public_key,
      reltool,
