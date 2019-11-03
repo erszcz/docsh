@@ -8,7 +8,6 @@
 %%   {rebar3_docsh, "0.7.1", {pkg, docsh}}
 %%  ]}.
 %%
-%%
 %% {provider_hooks,
 %%  [
 %%   {post, [{compile, {docsh, compile}}]}

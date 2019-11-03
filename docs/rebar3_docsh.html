@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.21.2">
     <meta name="project" content="docsh v0.7.1">
-    <title>docsh_internal — docsh v0.7.1</title>
+    <title>rebar3_docsh — docsh v0.7.1</title>
     <link rel="stylesheet" href="dist/erlang-94f16191f0a724ab8055.css" />
     <script src="dist/sidebar_items-4713ec6759.js"></script>
       <script src="docs_config.js"></script>
@@ -65,9 +65,22 @@ docsh      </a>
 
       <h1>
         <small class="app-vsn">docsh v0.7.1</small>
-docsh_internal      </h1>
+rebar3_docsh      </h1>
 
 
+        <section id="moduledoc">
+<p>Store modules&#39; documentation in Docs chunks according to EEP-48.</p>
+<p> Add the following code to your project&#39;s <code class="inline">rebar.config</code>:</p>
+<pre><code class="nohighlight makeup elixir"><span class="w">  </span><span class="p" data-group-id="9337842661-1">{</span><span class="n">plugins</span><span class="p">,</span><span class="w">
+   </span><span class="p" data-group-id="9337842661-2">[</span><span class="w">
+    </span><span class="p" data-group-id="9337842661-3">{</span><span class="n">rebar3_docsh</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;0.7.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9337842661-4">{</span><span class="n">pkg</span><span class="p">,</span><span class="w"> </span><span class="n">docsh</span><span class="p" data-group-id="9337842661-4">}</span><span class="p" data-group-id="9337842661-3">}</span><span class="w">
+   </span><span class="p" data-group-id="9337842661-2">]</span><span class="p" data-group-id="9337842661-1">}</span><span class="o">.</span><span class="w">
+ 
+  </span><span class="p" data-group-id="9337842661-5">{</span><span class="n">provider_hooks</span><span class="p">,</span><span class="w">
+   </span><span class="p" data-group-id="9337842661-6">[</span><span class="w">
+    </span><span class="p" data-group-id="9337842661-7">{</span><span class="n">post</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9337842661-8">[</span><span class="p" data-group-id="9337842661-9">{</span><span class="n">compile</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9337842661-10">{</span><span class="n">docsh</span><span class="p">,</span><span class="w"> </span><span class="n">compile</span><span class="p" data-group-id="9337842661-10">}</span><span class="p" data-group-id="9337842661-9">}</span><span class="p" data-group-id="9337842661-8">]</span><span class="p" data-group-id="9337842661-7">}</span><span class="w">
+   </span><span class="p" data-group-id="9337842661-6">]</span><span class="p" data-group-id="9337842661-5">}</span><span class="o">.</span></code></pre>
+        </section>
 
         <section id="summary" class="details-list">
           <h1 class="section-heading">
@@ -77,107 +90,28 @@ docsh_internal      </h1>
             </a>
             Summary
           </h1>
-  <div class="summary-types summary">
-    <h2>
-      <a href="#types">Types</a>
-    </h2>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#t:item/0">item()</a>
-  </div>
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#t:kna/0">kna()</a>
-  </div>
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#t:t/0">t()</a>
-  </div>
-</div>
-  </div>
   <div class="summary-functions summary">
     <h2>
       <a href="#functions">Functions</a>
     </h2>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#kna/1">kna/1</a>
+    <a href="#do/1">do/1</a>
   </div>
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#merge/1">merge/1</a>
+    <a href="#format_error/1">format_error/1</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#init/1">init/1</a>
   </div>
 </div>
   </div>
         </section>
 
-        <section id="types" class="details-list">
-          <h1 class="section-heading">
-            <a class="hover-link" href="#types">
-              <span class="icon-link" aria-hidden="true"></span>
-              <span class="sr-only">Link to this section</span>
-            </a>
-Types          </h1>
-          <div class="types-list">
-<section class="detail" id="t:item/0">
-  <div class="detail-header">
-    <a href="#t:item/0" class="detail-link" title="Link to this type">
-      <span class="icon-link" aria-hidden="true"></span>
-      <span class="sr-only">Link to this type</span>
-    </a>
-    <h1 class="signature">item()</h1>
-      <div class="specs">
-          <pre>item() ::
-    #{kind := function | type,
-      name := <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(),
-      arity := <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">arity</a>(),
-      description => none | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">iodata</a>(),
-      exported => <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>(),
-      signature => <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">iodata</a>()}.
-</pre>
-      </div>
-  </div>
-  <section class="docstring">
-  </section>
-</section>
-<section class="detail" id="t:kna/0">
-  <div class="detail-header">
-    <a href="#t:kna/0" class="detail-link" title="Link to this type">
-      <span class="icon-link" aria-hidden="true"></span>
-      <span class="sr-only">Link to this type</span>
-    </a>
-    <h1 class="signature">kna()</h1>
-      <div class="specs">
-          <pre>kna() :: {function | type, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">arity</a>()}.
-</pre>
-      </div>
-  </div>
-  <section class="docstring">
-  </section>
-</section>
-<section class="detail" id="t:t/0">
-  <div class="detail-header">
-    <a href="#t:t/0" class="detail-link" title="Link to this type">
-      <span class="icon-link" aria-hidden="true"></span>
-      <span class="sr-only">Link to this type</span>
-    </a>
-    <h1 class="signature">t()</h1>
-      <div class="specs">
-          <pre>t() ::
-    #{name := <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(),
-      items := [<a href="#t:item/0">item</a>()],
-      description => none | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">iodata</a>()}.
-</pre>
-      </div>
-  </div>
-  <section class="docstring">
-  </section>
-</section>
-          </div>
-        </section>
         <section id="functions" class="details-list">
           <h1 class="section-heading">
             <a class="hover-link" href="#functions">
@@ -186,30 +120,45 @@ Types          </h1>
             </a>
 Functions          </h1>
           <div class="functions-list">
-<section class="detail" id="kna/1">
+<section class="detail" id="do/1">
   <div class="detail-header">
-    <a href="#kna/1" class="detail-link" title="Link to this function">
+    <a href="#do/1" class="detail-link" title="Link to this function">
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">kna/1</h1>
+    <h1 class="signature">do/1</h1>
       <div class="specs">
-          <pre>kna(<a href="#t:item/0">item</a>()) -> <a href="#t:kna/0">kna</a>().
+          <pre>do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, string()}.
 </pre>
       </div>
   </div>
   <section class="docstring">
   </section>
 </section>
-<section class="detail" id="merge/1">
+<section class="detail" id="format_error/1">
   <div class="detail-header">
-    <a href="#merge/1" class="detail-link" title="Link to this function">
+    <a href="#format_error/1" class="detail-link" title="Link to this function">
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <h1 class="signature">merge/1</h1>
+    <h1 class="signature">format_error/1</h1>
       <div class="specs">
-          <pre>merge([Info]) -> MergedInfo when Info :: <a href="#t:t/0">t</a>(), MergedInfo :: <a href="#t:t/0">t</a>().
+          <pre>format_error(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()) -> <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">iolist</a>().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="init/1">
+  <div class="detail-header">
+    <a href="#init/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">init/1</h1>
+      <div class="specs">
+          <pre>init(rebar_state:t()) -> {ok, rebar_state:t()}.
 </pre>
       </div>
   </div>

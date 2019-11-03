@@ -1,4 +1,4 @@
-dist/search_items-8fe9516a4a.js
+dist/search_items-3e20b5d210.js
 dist/app-a9f3287e74588dddabf3.js
 dist/elixir-6164d407479bd2888d0e.css
 dist/erlang-94f16191f0a724ab8055.css
@@ -6,7 +6,7 @@ dist/html/fonts/icomoon.eot
 dist/html/fonts/icomoon.svg
 dist/html/fonts/icomoon.ttf
 dist/html/fonts/icomoon.woff
-dist/sidebar_items-8c8e7576ef.js
+dist/sidebar_items-4713ec6759.js
 api-reference.html
 search.html
 404.html
@@ -25,4 +25,5 @@ docsh_syntax.html
 docsh_tracer.html
 docsh_user_default.html
 docsh_writer.html
+rebar3_docsh.html
 index.html
