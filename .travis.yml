@@ -9,9 +9,9 @@ services:
   - docker
 
 otp_release:
+  - 22.1
   - 21.1
   - 20.3
-  - 19.3
 
 script:
   - ./rebar3 ct
