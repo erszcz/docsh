@@ -542,3 +542,11 @@ source files (3) and are extracted with
 `erl_docgen/priv/bin/specs_gen.escript` (4).
 Finally, manpages (5) contain type definitions coming from `.erl` source
 files (3) and handwritten type descriptions coming from `erlref` XML files (2).
+
+# 2019-11-02
+
+## ExDoc compat ToDo
+
+- [x] make sure ExDoc can get compile/source info
+  via `erlang:get_module_info/2` - done on the ExDoc Erlang compat branch
+- [ ] make sure `wojtekmach/docs_chunks` properly pass include flags

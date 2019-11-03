@@ -14,3 +14,4 @@
 -callback to_internal(docsh_beam:t()) -> R when
       R :: {ok, docsh_internal:t()}
          | {error, any(), [erlang:stack_item()]}.
+
