@@ -5,8 +5,8 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.21.2">
-    <meta name="project" content="docsh v0.7.1">
-    <title>rebar3_docsh — docsh v0.7.1</title>
+    <meta name="project" content="docsh v0.7.2">
+    <title>rebar3_docsh — docsh v0.7.2</title>
     <link rel="stylesheet" href="dist/erlang-94f16191f0a724ab8055.css" />
     <script src="dist/sidebar_items-4713ec6759.js"></script>
       <script src="docs_config.js"></script>
@@ -43,7 +43,7 @@
       <a href="docsh.html" class="sidebar-projectName">
 docsh      </a>
       <h2 class="sidebar-projectVersion">
-        v0.7.1
+        v0.7.2
       </h2>
     </div>
   </div>
@@ -64,22 +64,22 @@ docsh      </a>
     <div id="content" class="content-inner">
 
       <h1>
-        <small class="app-vsn">docsh v0.7.1</small>
+        <small class="app-vsn">docsh v0.7.2</small>
 rebar3_docsh      </h1>
 
 
         <section id="moduledoc">
 <p>Store modules&#39; documentation in Docs chunks according to EEP-48.</p>
 <p> Add the following code to your project&#39;s <code class="inline">rebar.config</code>:</p>
-<pre><code class="nohighlight makeup elixir"><span class="w">  </span><span class="p" data-group-id="9337842661-1">{</span><span class="n">plugins</span><span class="p">,</span><span class="w">
-   </span><span class="p" data-group-id="9337842661-2">[</span><span class="w">
-    </span><span class="p" data-group-id="9337842661-3">{</span><span class="n">rebar3_docsh</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;0.7.1&quot;</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9337842661-4">{</span><span class="n">pkg</span><span class="p">,</span><span class="w"> </span><span class="n">docsh</span><span class="p" data-group-id="9337842661-4">}</span><span class="p" data-group-id="9337842661-3">}</span><span class="w">
-   </span><span class="p" data-group-id="9337842661-2">]</span><span class="p" data-group-id="9337842661-1">}</span><span class="o">.</span><span class="w">
+<pre><code class="nohighlight makeup elixir"><span class="w">  </span><span class="p" data-group-id="4120784326-1">{</span><span class="n">plugins</span><span class="p">,</span><span class="w">
+   </span><span class="p" data-group-id="4120784326-2">[</span><span class="w">
+    </span><span class="p" data-group-id="4120784326-3">{</span><span class="n">rebar3_docsh</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;0.7.2&quot;</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4120784326-4">{</span><span class="n">pkg</span><span class="p">,</span><span class="w"> </span><span class="n">docsh</span><span class="p" data-group-id="4120784326-4">}</span><span class="p" data-group-id="4120784326-3">}</span><span class="w">
+   </span><span class="p" data-group-id="4120784326-2">]</span><span class="p" data-group-id="4120784326-1">}</span><span class="o">.</span><span class="w">
  
-  </span><span class="p" data-group-id="9337842661-5">{</span><span class="n">provider_hooks</span><span class="p">,</span><span class="w">
-   </span><span class="p" data-group-id="9337842661-6">[</span><span class="w">
-    </span><span class="p" data-group-id="9337842661-7">{</span><span class="n">post</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9337842661-8">[</span><span class="p" data-group-id="9337842661-9">{</span><span class="n">compile</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9337842661-10">{</span><span class="n">docsh</span><span class="p">,</span><span class="w"> </span><span class="n">compile</span><span class="p" data-group-id="9337842661-10">}</span><span class="p" data-group-id="9337842661-9">}</span><span class="p" data-group-id="9337842661-8">]</span><span class="p" data-group-id="9337842661-7">}</span><span class="w">
-   </span><span class="p" data-group-id="9337842661-6">]</span><span class="p" data-group-id="9337842661-5">}</span><span class="o">.</span></code></pre>
+  </span><span class="p" data-group-id="4120784326-5">{</span><span class="n">provider_hooks</span><span class="p">,</span><span class="w">
+   </span><span class="p" data-group-id="4120784326-6">[</span><span class="w">
+    </span><span class="p" data-group-id="4120784326-7">{</span><span class="n">post</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4120784326-8">[</span><span class="p" data-group-id="4120784326-9">{</span><span class="n">compile</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4120784326-10">{</span><span class="n">docsh</span><span class="p">,</span><span class="w"> </span><span class="n">compile</span><span class="p" data-group-id="4120784326-10">}</span><span class="p" data-group-id="4120784326-9">}</span><span class="p" data-group-id="4120784326-8">]</span><span class="p" data-group-id="4120784326-7">}</span><span class="w">
+   </span><span class="p" data-group-id="4120784326-6">]</span><span class="p" data-group-id="4120784326-5">}</span><span class="o">.</span></code></pre>
         </section>
 
         <section id="summary" class="details-list">
