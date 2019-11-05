@@ -1,6 +1,6 @@
 {application, 'docsh',
  [{description, "Erlang Docs in the Shell"},
-  {vsn, "0.7.1"},
+  {vsn, "0.7.2"},
   {registered, []},
   {applications,
    [kernel,

@@ -5,7 +5,7 @@
 %% ```
 %% {plugins,
 %%  [
-%%   {rebar3_docsh, "0.7.1", {pkg, docsh}}
+%%   {rebar3_docsh, "0.7.2", {pkg, docsh}}
 %%  ]}.
 %%
 %% {provider_hooks,

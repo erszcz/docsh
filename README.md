@@ -18,7 +18,7 @@ Add these lines to your `rebar.config`:
 ```erlang
 {plugins,
  [
-  {rebar3_docsh, "0.7.1", {pkg, docsh}}
+  {rebar3_docsh, "0.7.2", {pkg, docsh}}
  ]}.
 {shell, [{script_file, "_build/default/plugins/rebar3_docsh/priv/docsh_rebar3_shell.escript"}]}.
 ```
@@ -178,9 +178,8 @@ Then add the following to your project's `rebar.config`:
 ```erlang
 {plugins,
  [
-  {rebar3_docsh, "0.7.1", {pkg, docsh}}
+  {rebar3_docsh, "0.7.2", {pkg, docsh}}
  ]}.
-
 
 {provider_hooks,
  [

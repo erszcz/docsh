@@ -1,3 +1,10 @@
+# docsh 0.7.2
+
+- Pass `{includes, ...}` option to EDoc (edab08c)
+- Test on OTP 22 (7931c4d)
+- Fix some Dialyzer / compiler warnings
+
+
 # docsh 0.7.1
 
 - Enable using docsh in Rebar3 shell
