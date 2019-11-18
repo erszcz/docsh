@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.21.2">
+    <meta name="project" content="docsh v0.7.2">
+    <title>docsh_erl — docsh v0.7.2</title>
+    <link rel="stylesheet" href="dist/erlang-94f16191f0a724ab8055.css" />
+    <script src="dist/sidebar_items-4713ec6759.js"></script>
+      <script src="docs_config.js"></script>
+    <script async src="dist/app-a9f3287e74588dddabf3.js"></script>
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+<div class="main">
+
+<button class="sidebar-button sidebar-toggle">
+  <span class="icon-menu" title="Collapse/expand sidebar"></span>
+</button>
+
+<section class="sidebar">
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <button type="button" tabindex="-1" class="search-close-button">
+      <span class="icon-cross" title="Cancel search"></span>
+    </button>
+    <label class="search-label">
+      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Search" autocomplete="off" />
+    </label>
+  </form>
+
+  <div class="autocomplete">
+    <div class="autocomplete-results">
+    </div>
+  </div>
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectDetails">
+      <a href="docsh.html" class="sidebar-projectName">
+docsh      </a>
+      <h2 class="sidebar-projectVersion">
+        v0.7.2
+      </h2>
+    </div>
+  </div>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+
+
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+      <h1>
+        <small class="app-vsn">docsh v0.7.2</small>
+docsh_erl      </h1>
+
+
+        <section id="moduledoc">
+<p>Documentation lookup functions exported in the Erlang shell.</p>
+        </section>
+
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:name/0">name()</a>
+  </div>
+</div>
+  </div>
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#h/1">h/1</a>
+  </div>
+    <div class="summary-synopsis"><p>When invoked with a module as an argument like <code class="inline">h(lists)</code>, then look up the module documentation. When invoked with a fun as the argument like <code class="inline">h(fun lists:keyfind/3)</code>, then equivalent to <code class="inline">h(M, F, A)</code> with the the fun&#39;s deduced <code class="inline">{M :: module(), F :: name(), A :: arity()}</code>.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#h/2">h/2</a>
+  </div>
+    <div class="summary-synopsis"><p>Look up function documentation. Equivalent to <code class="inline">h(M, F, any)</code>.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#h/3">h/3</a>
+  </div>
+    <div class="summary-synopsis"><p>Look up function documentation. If arity is &#39;any&#39;, then all matching functions&#39; docs will be printed. The complete info is function name/arity, spec and description. Use <code class="inline">s/{1,2,3}</code> to print just the spec.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#s/1">s/1</a>
+  </div>
+    <div class="summary-synopsis"><p>Look up a function spec. Similar to <a href="#h/1"><code class="inline">h/1</code></a> used with a fun, but prints just the spec.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#s/2">s/2</a>
+  </div>
+    <div class="summary-synopsis"><p>Look up function spec. Equivalent to <code class="inline">s(M, F, any)</code>.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#s/3">s/3</a>
+  </div>
+    <div class="summary-synopsis"><p>Look up function spec. If arity is &#39;any&#39; print specs for all matching functions.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t/1">t/1</a>
+  </div>
+    <div class="summary-synopsis"><p>Look up all types defined in module <code class="inline">M</code>.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t/2">t/2</a>
+  </div>
+    <div class="summary-synopsis"><p>Look up type definition. Equivalent to <code class="inline">t(M, T, any)</code>.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t/3">t/3</a>
+  </div>
+    <div class="summary-synopsis"><p>Look up type definition. If arity is &#39;any&#39; print definitions for all matching types.</p></div>
+</div>
+  </div>
+        </section>
+
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+Types          </h1>
+          <div class="types-list">
+<section class="detail" id="t:name/0">
+  <div class="detail-header">
+    <a href="#t:name/0" class="detail-link" title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature">name()</h1>
+      <div class="specs">
+          <pre>name() :: docsh_internal:<a href="#t:name/0">name</a>().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+          </div>
+        </section>
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+Functions          </h1>
+          <div class="functions-list">
+<section class="detail" id="h/1">
+  <div class="detail-header">
+    <a href="#h/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">h/1</h1>
+      <div class="specs">
+          <pre>h(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">fun</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>()) -> ok.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>When invoked with a module as an argument like <code class="inline">h(lists)</code>, then look up the module documentation. When invoked with a fun as the argument like <code class="inline">h(fun lists:keyfind/3)</code>, then equivalent to <code class="inline">h(M, F, A)</code> with the the fun&#39;s deduced <code class="inline">{M :: module(), F :: name(), A :: arity()}</code>.</p>
+  </section>
+</section>
+<section class="detail" id="h/2">
+  <div class="detail-header">
+    <a href="#h/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">h/2</h1>
+      <div class="specs">
+          <pre>h(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(), <a href="#t:name/0">name</a>()) -> ok.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Look up function documentation. Equivalent to <code class="inline">h(M, F, any)</code>.</p>
+  </section>
+</section>
+<section class="detail" id="h/3">
+  <div class="detail-header">
+    <a href="#h/3" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">h/3</h1>
+      <div class="specs">
+          <pre>h(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(), <a href="#t:name/0">name</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">arity</a>() | any) -> ok.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Look up function documentation. If arity is &#39;any&#39;, then all matching functions&#39; docs will be printed. The complete info is function name/arity, spec and description. Use <code class="inline">s/{1,2,3}</code> to print just the spec.</p>
+  </section>
+</section>
+<section class="detail" id="s/1">
+  <div class="detail-header">
+    <a href="#s/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">s/1</h1>
+      <div class="specs">
+          <pre>s(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">fun</a>()) -> ok.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Look up a function spec. Similar to <a href="#h/1"><code class="inline">h/1</code></a> used with a fun, but prints just the spec.</p>
+  </section>
+</section>
+<section class="detail" id="s/2">
+  <div class="detail-header">
+    <a href="#s/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">s/2</h1>
+      <div class="specs">
+          <pre>s(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(), <a href="#t:name/0">name</a>()) -> ok.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Look up function spec. Equivalent to <code class="inline">s(M, F, any)</code>.</p>
+  </section>
+</section>
+<section class="detail" id="s/3">
+  <div class="detail-header">
+    <a href="#s/3" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">s/3</h1>
+      <div class="specs">
+          <pre>s(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(), <a href="#t:name/0">name</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">arity</a>() | any) -> ok.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Look up function spec. If arity is &#39;any&#39; print specs for all matching functions.</p>
+  </section>
+</section>
+<section class="detail" id="t/1">
+  <div class="detail-header">
+    <a href="#t/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">t/1</h1>
+      <div class="specs">
+          <pre>t(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>()) -> ok.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Look up all types defined in module <code class="inline">M</code>.</p>
+  </section>
+</section>
+<section class="detail" id="t/2">
+  <div class="detail-header">
+    <a href="#t/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">t/2</h1>
+      <div class="specs">
+          <pre>t(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(), <a href="#t:name/0">name</a>()) -> ok.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Look up type definition. Equivalent to <code class="inline">t(M, T, any)</code>.</p>
+  </section>
+</section>
+<section class="detail" id="t/3">
+  <div class="detail-header">
+    <a href="#t/3" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">t/3</h1>
+      <div class="specs">
+          <pre>t(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(), <a href="#t:name/0">name</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">arity</a>() | any) -> ok.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Look up type definition. If arity is &#39;any&#39; print definitions for all matching types.</p>
+  </section>
+</section>
+          </div>
+        </section>
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.21.2),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+          </span>
+        </p>
+        <p>
+          <button class="line footer-button display-shortcuts-help">
+            Display keyboard shortcuts
+          </button>
+          <button class="line footer-button night-mode-toggle">
+            Toggle night mode
+          </button>
+          <button class="line footer-button display-quick-switch">
+            Go to a HexDocs package
+          </button>
+          <button class="line footer-button tooltips-toggle">
+            <span class="tooltips-option-disable">Disable tooltips</span>
+            <span class="tooltips-option-enable">Enable tooltips</span>
+          </button>
+        </p>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  </body>
+</html>

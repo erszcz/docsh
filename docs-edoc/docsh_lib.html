@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.21.2">
+    <meta name="project" content="docsh v0.7.2">
+    <title>docsh_lib — docsh v0.7.2</title>
+    <link rel="stylesheet" href="dist/erlang-94f16191f0a724ab8055.css" />
+    <script src="dist/sidebar_items-4713ec6759.js"></script>
+      <script src="docs_config.js"></script>
+    <script async src="dist/app-a9f3287e74588dddabf3.js"></script>
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+<div class="main">
+
+<button class="sidebar-button sidebar-toggle">
+  <span class="icon-menu" title="Collapse/expand sidebar"></span>
+</button>
+
+<section class="sidebar">
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <button type="button" tabindex="-1" class="search-close-button">
+      <span class="icon-cross" title="Cancel search"></span>
+    </button>
+    <label class="search-label">
+      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Search" autocomplete="off" />
+    </label>
+  </form>
+
+  <div class="autocomplete">
+    <div class="autocomplete-results">
+    </div>
+  </div>
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectDetails">
+      <a href="docsh.html" class="sidebar-projectName">
+docsh      </a>
+      <h2 class="sidebar-projectVersion">
+        v0.7.2
+      </h2>
+    </div>
+  </div>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+
+
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+      <h1>
+        <small class="app-vsn">docsh v0.7.2</small>
+docsh_lib      </h1>
+
+
+
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:compiled_module/0">compiled_module()</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:k/0">k()</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:v/0">v()</a>
+  </div>
+</div>
+  </div>
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#beam_diff/2">beam_diff/2</a>
+  </div>
+    <div class="summary-synopsis"><p>Show the difference between chunk sets of two modules.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#compile_info_source_file/1">compile_info_source_file/1</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#convert/3">convert/3</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#debug/3">debug/3</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#format_error/1">format_error/1</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get/2">get/2</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get/3">get/3</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_abstract_code/1">get_abstract_code/1</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_docs/1">get_docs/1</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#get_source_file/1">get_source_file/1</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#group_by/2">group_by/2</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#guessed_source_file/1">guessed_source_file/1</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#has_docs/1">has_docs/1</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#is_module_available/1">is_module_available/1</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#make_docs/1">make_docs/1</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#print/2">print/2</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#print/3">print/3</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#stick_module/1">stick_module/1</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#unstick_module/1">unstick_module/1</a>
+  </div>
+</div>
+  </div>
+        </section>
+
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+Types          </h1>
+          <div class="types-list">
+<section class="detail" id="t:compiled_module/0">
+  <div class="detail-header">
+    <a href="#t:compiled_module/0" class="detail-link" title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature">compiled_module()</h1>
+      <div class="specs">
+          <pre>compiled_module() :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="t:k/0">
+  <div class="detail-header">
+    <a href="#t:k/0" class="detail-link" title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature">k()</h1>
+      <div class="specs">
+          <pre>k() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="t:v/0">
+  <div class="detail-header">
+    <a href="#t:v/0" class="detail-link" title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature">v()</h1>
+      <div class="specs">
+          <pre>v() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+          </div>
+        </section>
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+Functions          </h1>
+          <div class="functions-list">
+<section class="detail" id="beam_diff/2">
+  <div class="detail-header">
+    <a href="#beam_diff/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">beam_diff/2</h1>
+      <div class="specs">
+          <pre>beam_diff(BEAM, BEAM) -> [{BEAM, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">list</a>()}]
+             when BEAM :: beam_lib:beam().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Show the difference between chunk sets of two modules.</p>
+  </section>
+</section>
+<section class="detail" id="compile_info_source_file/1">
+  <div class="detail-header">
+    <a href="#compile_info_source_file/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">compile_info_source_file/1</h1>
+      <div class="specs">
+          <pre>compile_info_source_file(file:filename()) -> [file:filename()].
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="convert/3">
+  <div class="detail-header">
+    <a href="#convert/3" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">convert/3</h1>
+      <div class="specs">
+          <pre>convert(Readers, Writer, Beam) -> docsh:external()
+           when
+               Readers :: [<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>()],
+               Writer :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>(),
+               Beam :: docsh_beam:t().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="debug/3">
+  <div class="detail-header">
+    <a href="#debug/3" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">debug/3</h1>
+      <div class="specs">
+          <pre>debug(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(), io:format(), [<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()] | fun(() -> [<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()])) -> ok.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="format_error/1">
+  <div class="detail-header">
+    <a href="#format_error/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">format_error/1</h1>
+      <div class="specs">
+          <pre>format_error(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()) -> <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">iolist</a>().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="get/2">
+  <div class="detail-header">
+    <a href="#get/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">get/2</h1>
+      <div class="specs">
+          <pre>get(<a href="#t:k/0">k</a>(), [{<a href="#t:k/0">k</a>(), <a href="#t:v/0">v</a>()}]) -> <a href="#t:v/0">v</a>().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="get/3">
+  <div class="detail-header">
+    <a href="#get/3" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">get/3</h1>
+      <div class="specs">
+          <pre>get(<a href="#t:k/0">k</a>(), [{<a href="#t:k/0">k</a>(), <a href="#t:v/0">v</a>()}], <a href="#t:v/0">v</a>()) -> <a href="#t:v/0">v</a>().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="get_abstract_code/1">
+  <div class="detail-header">
+    <a href="#get_abstract_code/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">get_abstract_code/1</h1>
+      <div class="specs">
+          <pre>get_abstract_code(file:filename()) ->
+                     docsh_beam:debug_info() | false.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="get_docs/1">
+  <div class="detail-header">
+    <a href="#get_docs/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">get_docs/1</h1>
+      <div class="specs">
+          <pre>get_docs(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>()) -> {ok, docsh_format:t()} | {error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()}.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="get_source_file/1">
+  <div class="detail-header">
+    <a href="#get_source_file/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">get_source_file/1</h1>
+      <div class="specs">
+          <pre>get_source_file(file:filename()) -> {ok, file:filename()} | false.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="group_by/2">
+  <div class="detail-header">
+    <a href="#group_by/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">group_by/2</h1>
+      <div class="specs">
+          <pre>group_by(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">fun</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">list</a>()) -> dict:dict().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="guessed_source_file/1">
+  <div class="detail-header">
+    <a href="#guessed_source_file/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">guessed_source_file/1</h1>
+      <div class="specs">
+          <pre>guessed_source_file(file:filename() | <a href="#t:compiled_module/0">compiled_module</a>()) ->
+                       [file:filename()].
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="has_docs/1">
+  <div class="detail-header">
+    <a href="#has_docs/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">has_docs/1</h1>
+      <div class="specs">
+          <pre>has_docs(beam_lib:beam()) -> <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="is_module_available/1">
+  <div class="detail-header">
+    <a href="#is_module_available/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">is_module_available/1</h1>
+      <div class="specs">
+          <pre>is_module_available(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>()) -> <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="make_docs/1">
+  <div class="detail-header">
+    <a href="#make_docs/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">make_docs/1</h1>
+      <div class="specs">
+          <pre>make_docs(docsh_beam:t()) -> {ok, docsh_format:t(), [Warning]}
+             when Warning :: no_debug_info | no_src.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="print/2">
+  <div class="detail-header">
+    <a href="#print/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">print/2</h1>
+      <div class="specs">
+          <pre>print(io:format(), [<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()]) -> ok.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="print/3">
+  <div class="detail-header">
+    <a href="#print/3" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">print/3</h1>
+      <div class="specs">
+          <pre>print(io:device(), io:format(), [<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()]) -> ok.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="stick_module/1">
+  <div class="detail-header">
+    <a href="#stick_module/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">stick_module/1</h1>
+      <div class="specs">
+          <pre>stick_module(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>()) -> <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="unstick_module/1">
+  <div class="detail-header">
+    <a href="#unstick_module/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">unstick_module/1</h1>
+      <div class="specs">
+          <pre>unstick_module(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">module</a>()) -> <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+          </div>
+        </section>
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.21.2),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+          </span>
+        </p>
+        <p>
+          <button class="line footer-button display-shortcuts-help">
+            Display keyboard shortcuts
+          </button>
+          <button class="line footer-button night-mode-toggle">
+            Toggle night mode
+          </button>
+          <button class="line footer-button display-quick-switch">
+            Go to a HexDocs package
+          </button>
+          <button class="line footer-button tooltips-toggle">
+            <span class="tooltips-option-disable">Disable tooltips</span>
+            <span class="tooltips-option-enable">Enable tooltips</span>
+          </button>
+        </p>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  </body>
+</html>

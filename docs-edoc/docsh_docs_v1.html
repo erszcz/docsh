@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.21.2">
+    <meta name="project" content="docsh v0.7.2">
+    <title>docsh_docs_v1 — docsh v0.7.2</title>
+    <link rel="stylesheet" href="dist/erlang-94f16191f0a724ab8055.css" />
+    <script src="dist/sidebar_items-4713ec6759.js"></script>
+      <script src="docs_config.js"></script>
+    <script async src="dist/app-a9f3287e74588dddabf3.js"></script>
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode') === 'true') document.body.className += ' night-mode'; } catch (e) { }</script>
+<div class="main">
+
+<button class="sidebar-button sidebar-toggle">
+  <span class="icon-menu" title="Collapse/expand sidebar"></span>
+</button>
+
+<section class="sidebar">
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <button type="button" tabindex="-1" class="search-close-button">
+      <span class="icon-cross" title="Cancel search"></span>
+    </button>
+    <label class="search-label">
+      <input name="q" type="text" id="search-list" class="search-input" placeholder="Search..." aria-label="Search" autocomplete="off" />
+    </label>
+  </form>
+
+  <div class="autocomplete">
+    <div class="autocomplete-results">
+    </div>
+  </div>
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectDetails">
+      <a href="docsh.html" class="sidebar-projectName">
+docsh      </a>
+      <h2 class="sidebar-projectVersion">
+        v0.7.2
+      </h2>
+    </div>
+  </div>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+
+
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+      <h1>
+        <small class="app-vsn">docsh v0.7.2</small>
+docsh_docs_v1      </h1>
+
+
+        <section id="moduledoc">
+<p>EEP-0048 (<a href="http://erlang.org/eeps/eep-0048.html">http://erlang.org/eeps/eep-0048.html</a>) docs_v1 documentation format support.</p>
+        </section>
+
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:i18n_doc/0">i18n_doc()</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:item/0">item()</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:language/0">language()</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:string_/0">string_()</a>
+  </div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:t/0">t()</a>
+  </div>
+</div>
+  </div>
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#from_internal/1">from_internal/1</a>
+  </div>
+    <div class="summary-synopsis"><p>Callback implementation for <code class="inline">c::docsh_writer.from_internal/1</code>.</p></div>
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#lookup/3">lookup/3</a>
+  </div>
+    <div class="summary-synopsis"><p>Callback implementation for <code class="inline">c::docsh_format.lookup/3</code>.</p></div>
+</div>
+  </div>
+        </section>
+
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+Types          </h1>
+          <div class="types-list">
+<section class="detail" id="t:i18n_doc/0">
+  <div class="detail-header">
+    <a href="#t:i18n_doc/0" class="detail-link" title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature">i18n_doc()</h1>
+      <div class="specs">
+          <pre>i18n_doc() :: #{<a href="#t:language/0">language</a>() := <a href="#t:string_/0">string_</a>()}.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="t:item/0">
+  <div class="detail-header">
+    <a href="#t:item/0" class="detail-link" title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature">item()</h1>
+      <div class="specs">
+          <pre>item() ::
+    {KNA :: docsh_format:kna(),
+     Anno :: erl_anno:anno(),
+     Signature :: [<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>()],
+     Doc :: <a href="#t:i18n_doc/0">i18n_doc</a>() | none | hidden,
+     Metadata :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()}.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="t:language/0">
+  <div class="detail-header">
+    <a href="#t:language/0" class="detail-link" title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature">language()</h1>
+      <div class="specs">
+          <pre>language() :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="t:string_/0">
+  <div class="detail-header">
+    <a href="#t:string_/0" class="detail-link" title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <h1 class="signature">string_()</h1>
+      <div class="specs">
+          <pre>string_() :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+<section class="detail" id="t:t/0">
+  <div class="detail-header">
+    <a href="#t:t/0" class="detail-link" title="Link to this opaque">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this opaque</span>
+    </a>
+    <h1 class="signature">t()</h1>
+      <span class="note">(opaque)</span>
+      <div class="specs">
+          <pre>t() ::
+    #docs_v1{anno :: erl_anno:anno(),
+             beam_language :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(),
+             format :: mime_type(),
+             module_doc :: <a href="#t:i18n_doc/0">i18n_doc</a>() | none | hidden,
+             metadata :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
+             docs :: [<a href="#t:item/0">item</a>()]}.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+  </section>
+</section>
+          </div>
+        </section>
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+Functions          </h1>
+          <div class="functions-list">
+<section class="detail" id="from_internal/1">
+  <div class="detail-header">
+    <a href="#from_internal/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">from_internal/1</h1>
+      <div class="specs">
+          <pre>from_internal(docsh_internal:<a href="#t:t/0">t</a>()) -> <a href="#t:t/0">t</a>().
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Callback implementation for <code class="inline">c::docsh_writer.from_internal/1</code>.</p>
+  </section>
+</section>
+<section class="detail" id="lookup/3">
+  <div class="detail-header">
+    <a href="#lookup/3" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <h1 class="signature">lookup/3</h1>
+      <div class="specs">
+          <pre>lookup(Docs, Key, Kinds) -> R
+          when
+              Docs :: docsh_format:<a href="#t:t/0">t</a>(),
+              Key :: docsh_format:key(),
+              Kinds :: docsh_format:kinds(),
+              R ::
+                  {ok, [<a href="#t:item/0">item</a>()]} |
+                  {not_found, docsh_format:error_message()}.
+</pre>
+      </div>
+  </div>
+  <section class="docstring">
+<p>Callback implementation for <code class="inline">c::docsh_format.lookup/3</code>.</p>
+  </section>
+</section>
+          </div>
+        </section>
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener">ExDoc</a> (v0.21.2),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" rel="noopener" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+          </span>
+        </p>
+        <p>
+          <button class="line footer-button display-shortcuts-help">
+            Display keyboard shortcuts
+          </button>
+          <button class="line footer-button night-mode-toggle">
+            Toggle night mode
+          </button>
+          <button class="line footer-button display-quick-switch">
+            Go to a HexDocs package
+          </button>
+          <button class="line footer-button tooltips-toggle">
+            <span class="tooltips-option-disable">Disable tooltips</span>
+            <span class="tooltips-option-enable">Enable tooltips</span>
+          </button>
+        </p>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  </body>
+</html>
