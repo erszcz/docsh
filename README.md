@@ -1,3 +1,26 @@
+# ARCHIVED
+
+`docsh` was a prototype of a documentation system for the Erlang shell,
+inspired by languages like Python, Ruby, or Elixir,
+in which docs are first class elements of the language.
+
+It predated Erlang/OTP 23, which was the first release to
+include [`shell_docs`](https://www.erlang.org/doc/man/shell_docs)
+authored by @garazdawi.
+
+For Erlang/OTP 24 I (@erszcz) contributed a new feature to Erlang's EDoc:
+[emitting EEP-48 style doc chunks][edoc_chunks],
+which can be consumed by `shell_docs` or [ExDoc](https://github.com/elixir-lang/ex_doc).
+
+If you want to document an Erlang Rebar3 project with ExDoc or generate doc chunks for it,
+check out @starbelly's neat
+[rebar3_ex_doc](https://github.com/starbelly/rebar3_ex_doc) plugin!
+
+These ecosystem changes make `docsh`, the prototype, obsolete, so I'm archiving this repo.
+I'm really happy, though, that the idea spearheaded by this project caught on!
+
+[edoc_chunks]: https://www.erlang.org/doc/apps/edoc/chapter#Doc_chunks
+
 # Docs in the Shell
 
 [![TravisCI Build Status](https://travis-ci.org/erszcz/docsh.svg?branch=master)](https://travis-ci.org/erszcz/docsh)
